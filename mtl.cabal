@@ -4,6 +4,7 @@ license:	BSD3
 author: 	Andy Gill
 maintainer:	libraries@haskell.org
 category:	Control
+synopsis:	Monad transformer library
 description:
 	A monad transformer library, inspired by the paper "Functional
 	Programming with Overloading and Higher-Order Polymorphism",
