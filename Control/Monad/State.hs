@@ -283,7 +283,7 @@ instance (Monoid w, MonadState s m) => MonadState s (WriterT w m) where
 -- tree of integers in which the original elements are replaced by
 -- natural numbers, starting from 0.  The same element has to be
 -- replaced by the same number at every occurrence, and when we meet
--- an as-yet-unvisited element we have to find a 'new' number to match
+-- an as-yet-unvisited element we have to find a \'new\' number to match
 -- it with:\"
 --
 -- > data Tree a = Nil | Node a (Tree a) (Tree a) deriving (Show, Eq)
