@@ -1,6 +1,7 @@
 name:		mtl
 version:	1.0
 license:	BSD3
+license-file:	LICENSE
 author: 	Andy Gill
 maintainer:	libraries@haskell.org
 category:	Control
