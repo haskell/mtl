@@ -7,6 +7,7 @@ ALL_DIRS = \
 	Control/Monad
 
 PACKAGE = mtl
+VERSION = 1.0
 PACKAGE_DEPS = base
 
 SRC_HC_OPTS += -fglasgow-exts

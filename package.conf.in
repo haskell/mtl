@@ -1,23 +1,34 @@
-Package {
-        name           = "mtl",
-	auto	       = True,
-#ifdef INSTALLING
-	import_dirs    = [ "$libdir/imports" ],
-#else
-	import_dirs    = [ "$libdir/libraries/mtl" ],
-#endif
-        source_dirs    = [],
-#ifdef INSTALLING
-        library_dirs   = [ "$libdir" ],
-#else
-        library_dirs   = [ "$libdir/libraries/mtl" ],
-#endif
-        hs_libraries   = [ "HSmtl" ],
-	extra_libraries = [],
-        include_dirs   = [],
-        c_includes     = [],
-        package_deps   = [ "base" ],
-        extra_ghc_opts = [],
-        extra_cc_opts  = [],
-        extra_ld_opts  = []
-}
+name:		PACKAGE
+version:	VERSION
+license:	BSD3
+maintainer:	libraries@haskell.org
+exposed:	True
+
+exposed-modules:
+	Control.Monad.Error,
+	Control.Monad.Cont,
+	Control.Monad.Identity,
+	Control.Monad.List,
+	Control.Monad.RWS,
+	Control.Monad.Reader,
+	Control.Monad.State,
+	Control.Monad.Trans,
+	Control.Monad.Writer
+
+hidden-modules:
+
+import-dirs:	IMPORT_DIR
+library-dirs:	LIB_DIR
+hs-libraries:   "HSmtl"
+extra-libs:
+include-dirs:
+includes:		
+depends:	 base
+extra-hugs-opts:
+extra-cc-opts:
+extra-ld-opts:
+framework-dirs:
+extra-frameworks:
+haddock-interfaces:
+haddock-html:
+
