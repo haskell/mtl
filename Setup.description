@@ -20,3 +20,4 @@ exposed-modules:
 	Control.Monad.Trans,
 	Control.Monad.Writer
 build-depends:	base
+extensions: MultiParamTypeClasses, FunctionalDependencies
