@@ -1,0 +1,12 @@
+THISPKG	= mtl
+SEARCH	=
+
+SRCS	= \
+	Control/Monad/Identity.hs \
+	Control/Monad/Trans.hs
+
+# Here are the main rules.
+include ../Makefile.common
+
+# (no dependencies)
+
