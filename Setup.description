@@ -1,0 +1,32 @@
+name:		mtl
+version:	1.0
+license:	BSD3
+author: 	Andy Gill
+maintainer:	libraries@haskell.org
+category:	Control
+description:
+	A monad transformer library, inspired by the paper "Functional
+	Programming with Overloading and Higher-Order Polymorphism",
+	by Mark P Jones (<http://www.cse.ogi.edu/~mpj/>), Advanced School
+	of Functional Programming, 1995.
+exposed-modules:
+	Control.Monad.Error,
+	Control.Monad.Cont,
+	Control.Monad.Identity,
+	Control.Monad.List,
+	Control.Monad.RWS,
+	Control.Monad.Reader,
+	Control.Monad.State,
+	Control.Monad.Trans,
+	Control.Monad.Writer
+modules:
+	Control.Monad.Error,
+	Control.Monad.Cont,
+	Control.Monad.Identity,
+	Control.Monad.List,
+	Control.Monad.RWS,
+	Control.Monad.Reader,
+	Control.Monad.State,
+	Control.Monad.Trans,
+	Control.Monad.Writer
+build-depends:	base
