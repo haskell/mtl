@@ -19,14 +19,4 @@ exposed-modules:
 	Control.Monad.State,
 	Control.Monad.Trans,
 	Control.Monad.Writer
-modules:
-	Control.Monad.Error,
-	Control.Monad.Cont,
-	Control.Monad.Identity,
-	Control.Monad.List,
-	Control.Monad.RWS,
-	Control.Monad.Reader,
-	Control.Monad.State,
-	Control.Monad.Trans,
-	Control.Monad.Writer
 build-depends:	base
