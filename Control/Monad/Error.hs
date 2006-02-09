@@ -1,3 +1,6 @@
+{-# OPTIONS -fallow-undecidable-instances #-}
+-- Needed for the same reasons as in Reader, State etc
+
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Monad.Error

@@ -1,3 +1,6 @@
+{-# OPTIONS -fallow-undecidable-instances #-}
+-- Search for -fallow-undecidable-instances to see why this is needed
+
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Monad.Writer
@@ -143,6 +146,8 @@ instance (Monoid w) => MonadTrans (WriterT w) where
 instance (Monoid w, MonadIO m) => MonadIO (WriterT w m) where
 	liftIO = lift . liftIO
 
+-- This instance needs -fallow-undecidable-instances, because 
+-- it does not satisfy the coverage condition
 instance (Monoid w, MonadReader r m) => MonadReader r (WriterT w m) where
 	ask       = lift ask
 	local f m = WriterT $ local f (runWriterT m)
@@ -159,6 +164,8 @@ mapWriterT f m = WriterT $ f (runWriterT m)
 -- ---------------------------------------------------------------------------
 -- MonadWriter instances for other monad transformers
 
+-- This instance needs -fallow-undecidable-instances, because 
+-- it does not satisfy the coverage condition
 instance (MonadWriter w m) => MonadWriter w (ReaderT r m) where
 	tell     = lift . tell
 	listen m = ReaderT $ \w -> listen (runReaderT m w)

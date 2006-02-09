@@ -1,3 +1,6 @@
+{-# OPTIONS -fallow-undecidable-instances #-}
+-- Search for -fallow-undecidable-instances to see why this is needed
+
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Monad.State
@@ -212,10 +215,12 @@ instance MonadTrans (StateT s) where
 instance (MonadIO m) => MonadIO (StateT s m) where
 	liftIO = lift . liftIO
 
+-- Needs -fallow-undecidable-instances
 instance (MonadReader r m) => MonadReader r (StateT s m) where
 	ask       = lift ask
 	local f m = StateT $ \s -> local f (runStateT m s)
 
+-- Needs -fallow-undecidable-instances
 instance (MonadWriter w m) => MonadWriter w (StateT s m) where
 	tell     = lift . tell
 	listen m = StateT $ \s -> do
@@ -248,10 +253,12 @@ withStateT f m = StateT $ runStateT m . f
 -- ---------------------------------------------------------------------------
 -- MonadState instances for other monad transformers
 
+-- Needs -fallow-undecidable-instances
 instance (MonadState s m) => MonadState s (ReaderT r m) where
 	get = lift get
 	put = lift . put
 
+-- Needs -fallow-undecidable-instances
 instance (Monoid w, MonadState s m) => MonadState s (WriterT w m) where
 	get = lift get
 	put = lift . put

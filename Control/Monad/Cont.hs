@@ -1,3 +1,6 @@
+{-# OPTIONS -fallow-undecidable-instances #-}
+-- Search for -fallow-undecidable-instances to see why this is needed
+
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Monad.Cont
@@ -78,12 +81,14 @@ instance MonadTrans (ContT r) where
 instance (MonadIO m) => MonadIO (ContT r m) where
 	liftIO = lift . liftIO
 
+-- Needs -fallow-undecidable-instances
 instance (MonadReader r' m) => MonadReader r' (ContT r m) where
 	ask       = lift ask
 	local f m = ContT $ \c -> do
 		r <- ask
 		local f (runContT m (local (const r) . c))
 
+-- Needs -fallow-undecidable-instances
 instance (MonadState s m) => MonadState s (ContT r m) where
 	get = lift get
 	put = lift . put
