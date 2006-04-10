@@ -40,6 +40,7 @@ import Control.Monad.State
 import Control.Monad.RWS
 import Control.Monad.Cont
 
+import Control.Monad.Instances ()
 import System.IO
 
 -- ---------------------------------------------------------------------------
@@ -79,10 +80,6 @@ instance MonadError IOError IO where
 
 -- ---------------------------------------------------------------------------
 -- Our parameterizable error monad
-
-instance Functor (Either e) where
-	fmap _ (Left  l) = Left  l
-	fmap f (Right r) = Right (f r)
 
 instance (Error e) => Monad (Either e) where
 	return        = Right

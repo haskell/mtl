@@ -37,6 +37,7 @@ import Prelude
 import Control.Monad
 import Control.Monad.Fix
 import Control.Monad.Trans
+import Control.Monad.Instances ()
 
 -- ----------------------------------------------------------------------------
 -- class MonadReader
@@ -55,16 +56,6 @@ asks f = do
 
 -- ----------------------------------------------------------------------------
 -- The partially applied function type is a simple reader monad
-
-instance Functor ((->) r) where
-	fmap = (.)
-
-instance Monad ((->) r) where
-	return  = const
-	m >>= k = \r -> k (m r) r
-
-instance MonadFix ((->) r) where
-	mfix f = \r -> let a = f a r in a
 
 instance MonadReader r ((->) r) where
 	ask       = id
