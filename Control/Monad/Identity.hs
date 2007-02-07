@@ -45,8 +45,6 @@ module Control.Monad.Identity (
 	module Control.Monad.Fix,
    ) where
 
-import Prelude
-
 import Control.Monad
 import Control.Monad.Fix
 

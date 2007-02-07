@@ -48,8 +48,6 @@ module Control.Monad.State (
 	-- $examples
   ) where
 
-import Prelude
-
 import Control.Monad
 import Control.Monad.Fix
 import Control.Monad.Trans

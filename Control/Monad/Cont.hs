@@ -27,13 +27,8 @@ module Control.Monad.Cont (
 	module Control.Monad.Trans,
   ) where
 
-import Prelude
-
 import Control.Monad
 import Control.Monad.Trans
-import Control.Monad.Reader
-import Control.Monad.Writer
-import Control.Monad.State
 import Control.Monad.RWS
 
 class (Monad m) => MonadCont m where

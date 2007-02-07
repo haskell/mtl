@@ -23,8 +23,6 @@ module Control.Monad.List (
 	module Control.Monad.Trans,
   ) where
 
-import Prelude
-
 import Control.Monad
 import Control.Monad.Trans
 import Control.Monad.Reader

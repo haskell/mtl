@@ -32,8 +32,6 @@ module Control.Monad.Reader (
 	module Control.Monad.Trans,
 	) where
 
-import Prelude
-
 import Control.Monad
 import Control.Monad.Fix
 import Control.Monad.Trans

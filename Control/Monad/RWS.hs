@@ -38,8 +38,6 @@ module Control.Monad.RWS (
 	module Control.Monad.State,
   ) where
 
-import Prelude
-
 import Control.Monad
 import Control.Monad.Fix
 import Control.Monad.Trans
