@@ -43,7 +43,7 @@ module Control.Monad.State (
 	withStateT,
 	module Control.Monad,
 	module Control.Monad.Fix,
-	module Control.Monad.Trans,
+	module Control.Monad.Trans
 	-- * Examples
 	-- $examples
   ) where

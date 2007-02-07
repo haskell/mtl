@@ -24,7 +24,7 @@ module Control.Monad.Cont (
 	mapContT,
 	withContT,
 	module Control.Monad,
-	module Control.Monad.Trans,
+	module Control.Monad.Trans
   ) where
 
 import Control.Monad

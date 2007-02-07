@@ -20,7 +20,7 @@ module Control.Monad.List (
 	ListT(..),
 	mapListT,
 	module Control.Monad,
-	module Control.Monad.Trans,
+	module Control.Monad.Trans
   ) where
 
 import Control.Monad

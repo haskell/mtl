@@ -41,7 +41,7 @@ module Control.Monad.Error (
 	mapErrorT,
 	module Control.Monad,
 	module Control.Monad.Fix,
-	module Control.Monad.Trans,
+	module Control.Monad.Trans
     -- * Example 1: Custom Error Data Type
     -- $customErrorExample
 

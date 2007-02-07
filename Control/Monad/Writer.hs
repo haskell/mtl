@@ -34,7 +34,7 @@ module Control.Monad.Writer (
 	module Control.Monad,
 	module Control.Monad.Fix,
 	module Control.Monad.Trans,
-	module Data.Monoid,
+	module Data.Monoid
   ) where
 
 import Control.Monad

@@ -35,7 +35,7 @@ module Control.Monad.RWS (
         module Data.Monoid,
 	module Control.Monad.Reader,
 	module Control.Monad.Writer,
-	module Control.Monad.State,
+	module Control.Monad.State
   ) where
 
 import Control.Monad

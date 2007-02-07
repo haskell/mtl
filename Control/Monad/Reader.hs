@@ -29,7 +29,7 @@ module Control.Monad.Reader (
 	withReaderT,
 	module Control.Monad,
 	module Control.Monad.Fix,
-	module Control.Monad.Trans,
+	module Control.Monad.Trans
 	) where
 
 import Control.Monad
