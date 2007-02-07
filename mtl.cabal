@@ -11,6 +11,7 @@ description:
 	Programming with Overloading and Higher-Order Polymorphism",
 	by Mark P Jones (<http://www.cse.ogi.edu/~mpj/>), Advanced School
 	of Functional Programming, 1995.
+ghc-options:	-Wall
 exposed-modules:
 	Control.Monad.Error,
 	Control.Monad.Cont,

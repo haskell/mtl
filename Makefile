@@ -12,7 +12,7 @@ PACKAGE_DEPS = base
 
 EXCLUDED_SRCS += Setup.hs
 
-SRC_HC_OPTS += -fglasgow-exts
+SRC_HC_OPTS += -Wall -fglasgow-exts
 
 SRC_HADDOCK_OPTS += -t "Haskell Hierarchical Libraries ($(PACKAGE) package)"
 
