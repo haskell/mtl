@@ -29,6 +29,10 @@ module Control.Monad.RWS (
 	execRWST,
 	mapRWST,
 	withRWST,
+        module Control.Monad,
+        module Control.Monad.Fix,
+        module Control.Monad.Trans,
+        module Data.Monoid,
 	module Control.Monad.Reader,
 	module Control.Monad.Writer,
 	module Control.Monad.State,
@@ -39,10 +43,21 @@ import Prelude
 import Control.Monad
 import Control.Monad.Fix
 import Control.Monad.Trans
-import Control.Monad.Reader
-import Control.Monad.Writer
-import Control.Monad.State
 import Data.Monoid
+
+-- To avoid warnings, only import what is unique to the module in question.
+import Control.Monad.Reader (
+	MonadReader(..), asks,
+	Reader(..), mapReader, withReader,
+	ReaderT(..), mapReaderT, withReaderT )
+import Control.Monad.Writer (
+	MonadWriter(..), listens, censor,
+	Writer(..), execWriter, mapWriter,
+	WriterT(..), execWriterT, mapWriterT )
+import Control.Monad.State (
+	MonadState(..), modify, gets,
+	State(..), evalState, execState, mapState, withState,
+	StateT(..), evalStateT, execStateT, mapStateT, withStateT )
 
 newtype RWS r w s a = RWS { runRWS :: r -> s -> (a, s, w) }
 
