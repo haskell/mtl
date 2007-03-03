@@ -1,15 +1,15 @@
 -----------------------------------------------------------------------------
 -- |
--- Module      :  Control.Monad.Trans
+-- Module      :  Control.Monad.RWS.Class
 -- Copyright   :  (c) Andy Gill 2001,
 --                (c) Oregon Graduate Institute of Science and Technology, 2001
 -- License     :  BSD-style (see the file libraries/base/LICENSE)
 --
 -- Maintainer  :  libraries@haskell.org
 -- Stability   :  experimental
--- Portability :  portable
+-- Portability :  non-portable (multi-param classes, functional dependencies)
 --
--- The MonadTrans class.
+-- Declaration of the MonadRWS class.
 --
 --      Inspired by the paper
 --      /Functional Programming with Overloading and
@@ -18,25 +18,18 @@
 --          Advanced School of Functional Programming, 1995.
 -----------------------------------------------------------------------------
 
-module Control.Monad.Trans (
-    MonadTrans(..),
-    MonadIO(..),
+module Control.Monad.RWS.Class (
+    MonadRWS,
+    module Control.Monad.Reader.Class,
+    module Control.Monad.State.Class,
+    module Control.Monad.Writer.Class,
   ) where
 
-import System.IO
+import Control.Monad.Reader.Class
+import Control.Monad.State.Class
+import Control.Monad.Writer.Class
+import Data.Monoid
 
--- ---------------------------------------------------------------------------
--- MonadTrans class
---
--- Monad to facilitate stackable Monads.
--- Provides a way of digging into an outer
--- monad, giving access to (lifting) the inner monad.
+class (Monoid w, MonadReader r m, MonadWriter w m, MonadState s m)
+   => MonadRWS r w s m | m -> r, m -> w, m -> s
 
-class MonadTrans t where
-    lift :: Monad m => m a -> t m a
-
-class (Monad m) => MonadIO m where
-    liftIO :: IO a -> m a
-
-instance MonadIO IO where
-    liftIO = id

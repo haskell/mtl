@@ -1,10 +1,16 @@
 TOP=..
 include $(TOP)/mk/boilerplate.mk
 
-SUBDIRS = 
+SUBDIRS =
 
-ALL_DIRS = \
-	Control/Monad
+ALL_DIRS =                  \
+	Control/Monad           \
+	Control/Monad/Cont      \
+	Control/Monad/Error     \
+	Control/Monad/RWS       \
+	Control/Monad/Reader    \
+	Control/Monad/State     \
+	Control/Monad/Writer
 
 PACKAGE = mtl
 VERSION = 1.0

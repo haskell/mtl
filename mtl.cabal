@@ -1,26 +1,38 @@
-name:		mtl
-version:	1.0
-license:	BSD3
-license-file:	LICENSE
-author: 	Andy Gill
-maintainer:	libraries@haskell.org
-category:	Control
-synopsis:	Monad transformer library
+name:         mtl
+version:      1.0
+license:      BSD3
+license-file: LICENSE
+author:       Andy Gill
+maintainer:   libraries@haskell.org
+category:     Control
+synopsis:     Monad transformer library
 description:
-	A monad transformer library, inspired by the paper "Functional
-	Programming with Overloading and Higher-Order Polymorphism",
-	by Mark P Jones (<http://www.cse.ogi.edu/~mpj/>), Advanced School
-	of Functional Programming, 1995.
-ghc-options:	-Wall
+    A monad transformer library, inspired by the paper "Functional
+    Programming with Overloading and Higher-Order Polymorphism",
+    by Mark P Jones (<http://www.cse.ogi.edu/~mpj/>), Advanced School
+    of Functional Programming, 1995.
+ghc-options: -Wall
 exposed-modules:
-	Control.Monad.Error,
-	Control.Monad.Cont,
-	Control.Monad.Identity,
-	Control.Monad.List,
-	Control.Monad.RWS,
-	Control.Monad.Reader,
-	Control.Monad.State,
-	Control.Monad.Trans,
-	Control.Monad.Writer
-build-depends:	base
+    Control.Monad.Cont
+    Control.Monad.Cont.Class
+    Control.Monad.Error
+    Control.Monad.Error.Class
+    Control.Monad.Identity
+    Control.Monad.List
+    Control.Monad.RWS
+    Control.Monad.RWS.Class
+    Control.Monad.RWS.Lazy
+    Control.Monad.RWS.Strict
+    Control.Monad.Reader
+    Control.Monad.Reader.Class
+    Control.Monad.State
+    Control.Monad.State.Class
+    Control.Monad.State.Lazy
+    Control.Monad.State.Strict
+    Control.Monad.Trans
+    Control.Monad.Writer
+    Control.Monad.Writer.Class
+    Control.Monad.Writer.Lazy
+    Control.Monad.Writer.Strict
+build-depends: base
 extensions: MultiParamTypeClasses, FunctionalDependencies
