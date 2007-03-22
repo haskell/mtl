@@ -202,7 +202,7 @@ instance (Error e, MonadWriter w m) => MonadWriter w (ErrorT e m) where
 
 {- $customErrorExample
 Here is an example that demonstrates the use of a custom 'Error' data type with
-the 'ErrorMonad'\'s 'throwError' and 'catchError' exception mechanism.
+the 'throwError' and 'catchError' exception mechanism from 'MonadError'.
 The example throws an exception if the user enters an empty string
 or a string longer than 5 characters. Otherwise it prints length of the string.
 
