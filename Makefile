@@ -13,7 +13,7 @@ ALL_DIRS =                  \
 	Control/Monad/Writer
 
 PACKAGE = mtl
-VERSION = 1.0
+VERSION = 1.0.1
 PACKAGE_DEPS = base
 
 EXCLUDED_SRCS += Setup.hs
