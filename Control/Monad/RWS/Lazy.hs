@@ -31,6 +31,10 @@ module Control.Monad.RWS.Lazy (
     mapRWST,
     withRWST,
     module Control.Monad.RWS.Class,
+    module Control.Monad,
+    module Control.Monad.Fix,
+    module Control.Monad.Trans,
+    module Data.Monoid,
   ) where
 
 import Control.Monad
