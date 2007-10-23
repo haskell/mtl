@@ -11,6 +11,7 @@ description:
     Programming with Overloading and Higher-Order Polymorphism",
     by Mark P Jones (<http://web.cecs.pdx.edu/~mpj/pubs/springschool.html>),
     Advanced School of Functional Programming, 1995.
+build-type: Simple
 ghc-options: -Wall
 exposed-modules:
     Control.Monad.Cont
