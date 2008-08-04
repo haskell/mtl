@@ -1,4 +1,5 @@
 {-# OPTIONS -fallow-undecidable-instances #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}	    -- Temporary, I hope.  SLPJ Aug08
 -- Needed for the same reasons as in Reader, State etc
 
 {- |

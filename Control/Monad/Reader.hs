@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -fno-warn-orphans #-}	    -- Temporary, I hope.  SLPJ Aug08
 {-# OPTIONS -fallow-undecidable-instances #-}
 {- |
 Module      :  Control.Monad.Reader
