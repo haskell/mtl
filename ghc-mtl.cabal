@@ -1,12 +1,14 @@
-name:         mtl
+name:         ghc-mtl
 version:      1.1.0.2
 license:      BSD3
 license-file: LICENSE
 author:       Andy Gill
 maintainer:   libraries@haskell.org
 category:     Control
-synopsis:     Monad transformer library
+synopsis:     GHC-internal monad transformer library
 description:
+    This is the GHC-internal version of the MTL package.
+    YOU SHOULD NOT BE USING THIS!
     A monad transformer library, inspired by the paper /Functional
     Programming with Overloading and Higher-Order Polymorphism/,
     by Mark P Jones (<http://web.cecs.pdx.edu/~mpj/pubs/springschool.html>),
