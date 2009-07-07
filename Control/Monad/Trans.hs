@@ -23,8 +23,6 @@ module Control.Monad.Trans (
     MonadIO(..),
   ) where
 
-import System.IO
-
 -- ---------------------------------------------------------------------------
 -- MonadTrans class
 --
