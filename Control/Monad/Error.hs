@@ -53,14 +53,13 @@ import Control.Monad
 import Control.Monad.Cont.Class
 import Control.Monad.Error.Class
 import Control.Monad.Fix
-import Control.Monad.RWS.Class
 import Control.Monad.Reader.Class
 import Control.Monad.State.Class
 import Control.Monad.Trans
 import Control.Monad.Writer.Class
+import Control.Monad.RWS.Class
 
 import Control.Monad.Instances ()
-import System.IO
 
 instance MonadPlus IO where
     mzero       = ioError (userError "mzero")
