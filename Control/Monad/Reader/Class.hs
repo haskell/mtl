@@ -42,6 +42,8 @@ module Control.Monad.Reader.Class (
     asks,
     ) where
 
+import Control.Monad.Instances ()
+
 {- |
 See examples in "Control.Monad.Reader".
 Note, the partially applied function type @(->) r@ is a simple reader monad.
@@ -59,6 +61,13 @@ class (Monad m) => MonadReader r m | m -> r where
     * The resulting @Reader@.
     -}
     local :: (r -> r) -> m a -> m a
+
+-- ----------------------------------------------------------------------------
+-- The partially applied function type is a simple reader monad
+
+instance MonadReader r ((->) r) where
+    ask       = id
+    local f m = m . f
 
 {- |
 Retrieves a function of the current environment. Parameters:

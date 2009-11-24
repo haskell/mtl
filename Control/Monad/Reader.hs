@@ -1,4 +1,3 @@
-{-# OPTIONS_GHC -fno-warn-orphans #-}	    -- Temporary, I hope.  SLPJ Aug08
 {-# OPTIONS -fallow-undecidable-instances #-}
 {- |
 Module      :  Control.Monad.Reader
@@ -68,13 +67,6 @@ import Control.Monad.Reader.Class
 import Control.Monad.State.Class
 import Control.Monad.Trans
 import Control.Monad.Writer.Class
-
--- ----------------------------------------------------------------------------
--- The partially applied function type is a simple reader monad
-
-instance MonadReader r ((->) r) where
-    ask       = id
-    local f m = m . f
 
 {- |
 The parameterizable reader monad.
