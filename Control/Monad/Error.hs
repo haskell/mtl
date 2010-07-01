@@ -62,6 +62,10 @@ import Control.Monad.RWS.Class
 
 import Control.Monad.Instances ()
 
+-- | Note: this instance does not satisfy the second 'MonadPlus' law
+--
+-- > v >> mzero   =  mzero
+--
 instance MonadPlus IO where
     mzero       = ioError (userError "mzero")
     m `mplus` n = m `catch` \_ -> n
