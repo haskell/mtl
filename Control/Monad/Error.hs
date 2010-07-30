@@ -77,23 +77,10 @@ instance MonadError IOError IO where
 -- ---------------------------------------------------------------------------
 -- Our parameterizable error monad
 
-instance (Error e) => Monad (Either e) where
-    return        = Right
-    Left  l >>= _ = Left l
-    Right r >>= k = k r
-    fail msg      = Left (strMsg msg)
-
 instance (Error e) => MonadPlus (Either e) where
     mzero            = Left noMsg
     Left _ `mplus` n = n
     m      `mplus` _ = m
-
-instance (Error e) => MonadFix (Either e) where
-    mfix f = let
-        a = f $ case a of
-            Right r -> r
-            _       -> error "empty mfix argument"
-        in a
 
 instance (Error e) => MonadError e (Either e) where
     throwError             = Left
