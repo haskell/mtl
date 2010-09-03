@@ -2,6 +2,8 @@
 {-# OPTIONS_GHC -fallow-undecidable-instances #-}
 -- De-orphaning this module is tricky:
 {-# OPTIONS_GHC -fno-warn-orphans #-}
+-- To handle instances moved to base:
+{-# LANGUAGE CPP #-}
 
 {- |
 Module      :  Control.Monad.Error
@@ -76,6 +78,24 @@ instance MonadError IOError IO where
 
 -- ---------------------------------------------------------------------------
 -- Our parameterizable error monad
+
+#if !(MIN_VERSION_base(4,2,1))
+
+-- These instances are in base-4.3
+
+instance Monad (Either e) where
+    return        = Right
+    Left  l >>= _ = Left l
+    Right r >>= k = k r
+
+instance MonadFix (Either e) where
+    mfix f = let
+        a = f $ case a of
+            Right r -> r
+            _       -> error "empty mfix argument"
+        in a
+
+#endif /* base to 4.2.0.x */
 
 instance (Error e) => MonadPlus (Either e) where
     mzero            = Left noMsg
