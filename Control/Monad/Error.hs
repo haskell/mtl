@@ -1,5 +1,5 @@
 -- Undecidable instances needed for the same reasons as in Reader, State etc:
-{-# OPTIONS_GHC -fallow-undecidable-instances #-}
+{-# LANGUAGE UndecidableInstances #-}
 -- De-orphaning this module is tricky:
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 -- To handle instances moved to base:

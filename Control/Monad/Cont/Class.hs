@@ -1,5 +1,5 @@
-{-# OPTIONS -fallow-undecidable-instances #-}
--- Search for -fallow-undecidable-instances to see why this is needed
+{-# LANGUAGE UndecidableInstances #-}
+-- Search for UndecidableInstances to see why this is needed
 
 {- |
 Module      :  Control.Monad.Cont.Class

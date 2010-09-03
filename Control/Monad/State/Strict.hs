@@ -1,5 +1,5 @@
-{-# OPTIONS -fallow-undecidable-instances #-}
--- Search for -fallow-undecidable-instances to see why this is needed
+{-# LANGUAGE UndecidableInstances #-}
+-- Search for UndecidableInstances to see why this is needed
 
 -----------------------------------------------------------------------------
 -- |
@@ -209,12 +209,12 @@ instance (MonadError e m) => MonadError e (StateT s m) where
     m `catchError` h = StateT $ \s -> runStateT m s
         `catchError` \e -> runStateT (h e) s
 
--- Needs -fallow-undecidable-instances
+-- Needs UndecidableInstances
 instance (MonadReader r m) => MonadReader r (StateT s m) where
     ask       = lift ask
     local f m = StateT $ \s -> local f (runStateT m s)
 
--- Needs -fallow-undecidable-instances
+-- Needs UndecidableInstances
 instance (MonadWriter w m) => MonadWriter w (StateT s m) where
     tell     = lift . tell
     listen m = StateT $ \s -> do

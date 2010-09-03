@@ -1,5 +1,5 @@
-{-# OPTIONS -fallow-undecidable-instances #-}
--- Search for -fallow-undecidable-instances to see why this is needed
+{-# LANGUAGE UndecidableInstances #-}
+-- Search for UndecidableInstances to see why this is needed
 
 -----------------------------------------------------------------------------
 -- |
@@ -139,13 +139,13 @@ instance (Monoid w, MonadError e m) => MonadError e (WriterT w m) where
     m `catchError` h = WriterT $ runWriterT m
         `catchError` \e -> runWriterT (h e)
 
--- This instance needs -fallow-undecidable-instances, because
+-- This instance needs UndecidableInstances, because
 -- it does not satisfy the coverage condition
 instance (Monoid w, MonadReader r m) => MonadReader r (WriterT w m) where
     ask       = lift ask
     local f m = WriterT $ local f (runWriterT m)
 
--- Needs -fallow-undecidable-instances
+-- Needs UndecidableInstances
 instance (Monoid w, MonadState s m) => MonadState s (WriterT w m) where
     get = lift get
     put = lift . put
