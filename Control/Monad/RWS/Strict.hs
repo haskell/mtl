@@ -12,8 +12,7 @@
 -- Strict RWS monad.
 --
 --      Inspired by the paper
---      /Functional Programming with Overloading and
---          Higher-Order Polymorphism/,
+--      /Functional Programming with Overloading and Higher-Order Polymorphism/,
 --        Mark P Jones (<http://web.cecs.pdx.edu/~mpj/>)
 --          Advanced School of Functional Programming, 1995.
 -----------------------------------------------------------------------------
