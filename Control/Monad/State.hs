@@ -3,7 +3,7 @@
 -- Module      :  Control.Monad.State
 -- Copyright   :  (c) Andy Gill 2001,
 --                (c) Oregon Graduate Institute of Science and Technology, 2001
--- License     :  BSD-style (see the file libraries/base/LICENSE)
+-- License     :  BSD-style (see the file LICENSE)
 --
 -- Maintainer  :  libraries@haskell.org
 -- Stability   :  experimental
@@ -24,4 +24,3 @@ module Control.Monad.State (
   ) where
 
 import Control.Monad.State.Lazy
-

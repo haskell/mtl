@@ -1,18 +1,19 @@
 name:         mtl
-version:      1.1.1.0
+version:      2.0.0.0
+cabal-version: >= 1.6
 license:      BSD3
 license-file: LICENSE
 author:       Andy Gill
 maintainer:   libraries@haskell.org
 category:     Control
-synopsis:     Monad transformer library
+synopsis:     Monad classes, using functional dependencies
 description:
-    A monad transformer library, inspired by the paper /Functional
-    Programming with Overloading and Higher-Order Polymorphism/,
-    by Mark P Jones (<http://web.cecs.pdx.edu/~mpj/pubs/springschool.html>),
-    Advanced School of Functional Programming, 1995.
+    Monad classes using functional dependencies, with instances
+    for various monad transformers, inspired by the paper
+    /Functional Programming with Overloading and Higher-Order Polymorphism/,
+    by Mark P Jones, in /Advanced School of Functional Programming/, 1995
+    (<http://web.cecs.pdx.edu/~mpj/pubs/springschool.html>).
 build-type: Simple
-ghc-options: -Wall
 exposed-modules:
     Control.Monad.Cont
     Control.Monad.Cont.Class
@@ -35,9 +36,8 @@ exposed-modules:
     Control.Monad.Writer.Class
     Control.Monad.Writer.Lazy
     Control.Monad.Writer.Strict
-build-depends: base < 5
-extensions: MultiParamTypeClasses,
-            FunctionalDependencies,
-            FlexibleInstances,
-            TypeSynonymInstances
-
+build-depends: base < 6, transformers == 0.2.*
+extensions:
+    MultiParamTypeClasses
+    FunctionalDependencies
+    FlexibleInstances

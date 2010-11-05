@@ -3,7 +3,7 @@
 -- Module      :  Control.Monad.RWS
 -- Copyright   :  (c) Andy Gill 2001,
 --                (c) Oregon Graduate Institute of Science and Technology, 2001
--- License     :  BSD-style (see the file libraries/base/LICENSE)
+-- License     :  BSD-style (see the file LICENSE)
 --
 -- Maintainer  :  libraries@haskell.org
 -- Stability   :  experimental
@@ -21,6 +21,5 @@
 module Control.Monad.RWS (
     module Control.Monad.RWS.Lazy
   ) where
-
+ 
 import Control.Monad.RWS.Lazy
-

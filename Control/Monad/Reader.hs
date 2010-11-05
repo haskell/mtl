@@ -1,11 +1,10 @@
-{-# LANGUAGE UndecidableInstances #-}
 {- |
 Module      :  Control.Monad.Reader
 Copyright   :  (c) Andy Gill 2001,
                (c) Oregon Graduate Institute of Science and Technology 2001,
                (c) Jeff Newbern 2003-2007,
                (c) Andriy Palamarchuk 2007
-License     :  BSD-style (see the file libraries/base/LICENSE)
+License     :  BSD-style (see the file LICENSE)
 
 Maintainer  :  libraries@haskell.org
 Stability   :  experimental
@@ -38,10 +37,15 @@ than using the 'Control.Monad.State.State' monad.
 -}
 
 module Control.Monad.Reader (
-    module Control.Monad.Reader.Class,
-    Reader(..),
+    -- * MonadReader class
+    MonadReader(..),
+    asks,
+    -- * The Reader monad
+    Reader,
+    runReader,
     mapReader,
     withReader,
+    -- * The ReaderT monad transformer
     ReaderT(..),
     mapReaderT,
     withReaderT,
@@ -58,131 +62,20 @@ module Control.Monad.Reader (
     -- $ReaderTExample
     ) where
 
-import Control.Monad
-import Control.Monad.Cont.Class
-import Control.Monad.Error.Class
-import Control.Monad.Fix
-import Control.Monad.Instances ()
 import Control.Monad.Reader.Class
-import Control.Monad.State.Class
+
+import Control.Monad.Trans.Reader (
+    Reader, runReader, mapReader, withReader,
+    ReaderT(..), mapReaderT, withReaderT)
 import Control.Monad.Trans
-import Control.Monad.Writer.Class
 
-{- |
-The parameterizable reader monad.
-
-The @return@ function creates a @Reader@ that ignores the environment,
-and produces the given value.
-
-The binding operator @>>=@ produces a @Reader@ that uses the environment
-to extract the value its left-hand side,
-and then applies the bound function to that value in the same environment.
--}
-newtype Reader r a = Reader {
-    {- |
-    Runs @Reader@ and extracts the final value from it.
-    To extract the value apply @(runReader reader)@ to an environment value.  
-    Parameters:
-
-    * A @Reader@ to run.
-
-    * An initial environment.
-    -}
-    runReader :: r -> a
-}
-
-mapReader :: (a -> b) -> Reader r a -> Reader r b
-mapReader f m = Reader $ f . runReader m
-
--- | A more general version of 'local'.
-
-withReader :: (r' -> r) -> Reader r a -> Reader r' a
-withReader f m = Reader $ runReader m . f
-
-instance Functor (Reader r) where
-    fmap f m = Reader $ \r -> f (runReader m r)
-
-instance Monad (Reader r) where
-    return a = Reader $ \_ -> a
-    m >>= k  = Reader $ \r -> runReader (k (runReader m r)) r
-
-instance MonadFix (Reader r) where
-    mfix f = Reader $ \r -> let a = runReader (f a) r in a
-
-instance MonadReader r (Reader r) where
-    ask       = Reader id
-    local f m = Reader $ runReader m . f
-
-{- |
-The reader monad transformer.
-Can be used to add environment reading functionality to other monads.
--}
-newtype ReaderT r m a = ReaderT { runReaderT :: r -> m a }
-
-mapReaderT :: (m a -> n b) -> ReaderT w m a -> ReaderT w n b
-mapReaderT f m = ReaderT $ f . runReaderT m
-
-withReaderT :: (r' -> r) -> ReaderT r m a -> ReaderT r' m a
-withReaderT f m = ReaderT $ runReaderT m . f
-
-instance (Monad m) => Functor (ReaderT r m) where
-    fmap f m = ReaderT $ \r -> do
-        a <- runReaderT m r
-        return (f a)
-
-instance (Monad m) => Monad (ReaderT r m) where
-    return a = ReaderT $ \_ -> return a
-    m >>= k  = ReaderT $ \r -> do
-        a <- runReaderT m r
-        runReaderT (k a) r
-    fail msg = ReaderT $ \_ -> fail msg
-
-instance (MonadPlus m) => MonadPlus (ReaderT r m) where
-    mzero       = ReaderT $ \_ -> mzero
-    m `mplus` n = ReaderT $ \r -> runReaderT m r `mplus` runReaderT n r
-
-instance (MonadFix m) => MonadFix (ReaderT r m) where
-    mfix f = ReaderT $ \r -> mfix $ \a -> runReaderT (f a) r
-
-instance (Monad m) => MonadReader r (ReaderT r m) where
-    ask       = ReaderT return
-    local f m = ReaderT $ \r -> runReaderT m (f r)
-
--- ---------------------------------------------------------------------------
--- Instances for other mtl transformers
-
-instance MonadTrans (ReaderT r) where
-    lift m = ReaderT $ \_ -> m
-
-instance (MonadIO m) => MonadIO (ReaderT r m) where
-    liftIO = lift . liftIO
-
-instance (MonadCont m) => MonadCont (ReaderT r m) where
-    callCC f = ReaderT $ \r ->
-        callCC $ \c ->
-        runReaderT (f (\a -> ReaderT $ \_ -> c a)) r
-
-instance (MonadError e m) => MonadError e (ReaderT r m) where
-    throwError       = lift . throwError
-    m `catchError` h = ReaderT $ \r -> runReaderT m r
-        `catchError` \e -> runReaderT (h e) r
-
--- Needs UndecidableInstances
-instance (MonadState s m) => MonadState s (ReaderT r m) where
-    get = lift get
-    put = lift . put
-
--- This instance needs UndecidableInstances, because
--- it does not satisfy the coverage condition
-instance (MonadWriter w m) => MonadWriter w (ReaderT r m) where
-    tell     = lift . tell
-    listen m = ReaderT $ \w -> listen (runReaderT m w)
-    pass   m = ReaderT $ \w -> pass   (runReaderT m w)
+import Control.Monad
+import Control.Monad.Fix
 
 {- $simpleReaderExample
 
 In this example the @Reader@ monad provides access to variable bindings.
-Bindings are a 'Map' of integer variables.
+Bindings are a @Map@ of integer variables.
 The variable @count@ contains number of variables in the bindings.
 You can see how to run a Reader monad and retrieve data from it
 with 'runReader', how to access the Reader data with 'ask' and 'asks'.

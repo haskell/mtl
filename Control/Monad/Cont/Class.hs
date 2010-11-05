@@ -1,16 +1,13 @@
-{-# LANGUAGE UndecidableInstances #-}
--- Search for UndecidableInstances to see why this is needed
-
 {- |
 Module      :  Control.Monad.Cont.Class
 Copyright   :  (c) The University of Glasgow 2001,
                (c) Jeff Newbern 2003-2007,
                (c) Andriy Palamarchuk 2007
-License     :  BSD-style (see the file libraries/base/LICENSE)
+License     :  BSD-style (see the file LICENSE)
 
 Maintainer  :  libraries@haskell.org
 Stability   :  experimental
-Portability :  non-portable (multi-parameter type classes)
+Portability :  portable
 
 [Computation type:] Computations which can be interrupted and resumed.
 
@@ -55,6 +52,23 @@ module Control.Monad.Cont.Class (
     MonadCont(..),
   ) where
 
+import Control.Monad.Trans.Cont (ContT)
+import qualified Control.Monad.Trans.Cont as ContT
+import Control.Monad.Trans.Error as Error
+import Control.Monad.Trans.Identity as Identity
+import Control.Monad.Trans.List as List
+import Control.Monad.Trans.Maybe as Maybe
+import Control.Monad.Trans.Reader as Reader
+import Control.Monad.Trans.RWS.Lazy as LazyRWS
+import Control.Monad.Trans.RWS.Strict as StrictRWS
+import Control.Monad.Trans.State.Lazy as LazyState
+import Control.Monad.Trans.State.Strict as StrictState
+import Control.Monad.Trans.Writer.Lazy as LazyWriter
+import Control.Monad.Trans.Writer.Strict as StrictWriter
+
+import Control.Monad
+import Data.Monoid
+
 class (Monad m) => MonadCont m where
     {- | @callCC@ (call-with-current-continuation)
     calls a function with the current continuation as its argument.
@@ -76,3 +90,41 @@ class (Monad m) => MonadCont m where
     -}
     callCC :: ((a -> m b) -> m a) -> m a
 
+instance MonadCont (ContT r m) where
+    callCC = ContT.callCC
+
+-- ---------------------------------------------------------------------------
+-- Instances for other mtl transformers
+
+instance (Error e, MonadCont m) => MonadCont (ErrorT e m) where
+    callCC = Error.liftCallCC callCC
+
+instance (MonadCont m) => MonadCont (IdentityT m) where
+    callCC = Identity.liftCallCC callCC
+
+instance (MonadCont m) => MonadCont (ListT m) where
+    callCC = List.liftCallCC callCC
+
+instance (MonadCont m) => MonadCont (MaybeT m) where
+    callCC = Maybe.liftCallCC callCC
+
+instance (MonadCont m) => MonadCont (ReaderT r m) where
+    callCC = Reader.liftCallCC callCC
+
+instance (Monoid w, MonadCont m) => MonadCont (LazyRWS.RWST r w s m) where
+    callCC = LazyRWS.liftCallCC' callCC
+
+instance (Monoid w, MonadCont m) => MonadCont (StrictRWS.RWST r w s m) where
+    callCC = StrictRWS.liftCallCC' callCC
+
+instance (MonadCont m) => MonadCont (LazyState.StateT s m) where
+    callCC = LazyState.liftCallCC' callCC
+
+instance (MonadCont m) => MonadCont (StrictState.StateT s m) where
+    callCC = StrictState.liftCallCC' callCC
+
+instance (Monoid w, MonadCont m) => MonadCont (LazyWriter.WriterT w m) where
+    callCC = LazyWriter.liftCallCC callCC
+
+instance (Monoid w, MonadCont m) => MonadCont (StrictWriter.WriterT w m) where
+    callCC = StrictWriter.liftCallCC callCC

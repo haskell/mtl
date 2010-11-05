@@ -1,12 +1,11 @@
 {-# LANGUAGE UndecidableInstances #-}
--- Needed for the same reasons as in Reader, State etc
 
 {- |
 Module      :  Control.Monad.Error.Class
 Copyright   :  (c) Michael Weber <michael.weber@post.rwth-aachen.de> 2001,
                (c) Jeff Newbern 2003-2006,
                (c) Andriy Palamarchuk 2006
-License     :  BSD-style (see the file libraries/base/LICENSE)
+License     :  BSD-style (see the file LICENSE)
 
 Maintainer  :  libraries@haskell.org
 Stability   :  experimental
@@ -24,7 +23,7 @@ or using exception handling to structure error handling.
 [Zero and plus:] Zero is represented by an empty error and the plus operation
 executes its second argument if the first fails.
 
-[Example type:] @'Data.Either' String a@
+[Example type:] @'Either' 'String' a@
 
 The Error monad (also called the Exception monad).
 -}
@@ -32,33 +31,31 @@ The Error monad (also called the Exception monad).
 {-
   Rendered by Michael Weber <mailto:michael.weber@post.rwth-aachen.de>,
   inspired by the Haskell Monad Template Library from
-    Andy Gill (<http://www.cse.ogi.edu/~andy/>)
+    Andy Gill (<http://web.cecs.pdx.edu/~andy/>)
 -}
 module Control.Monad.Error.Class (
     Error(..),
     MonadError(..),
   ) where
 
--- | An exception to be thrown.
--- An instance must redefine at least one of 'noMsg', 'strMsg'.
-class Error a where
-    -- | Creates an exception without a message.
-    -- Default implementation is @'strMsg' \"\"@.
-    noMsg  :: a
-    -- | Creates an exception with a message.
-    -- Default implementation is 'noMsg'.
-    strMsg :: String -> a
+import Control.Monad.Trans.Error (Error(..), ErrorT)
+import qualified Control.Monad.Trans.Error as ErrorT (throwError, catchError)
+import Control.Monad.Trans.Identity as Identity
+import Control.Monad.Trans.List as List
+import Control.Monad.Trans.Maybe as Maybe
+import Control.Monad.Trans.Reader as Reader
+import Control.Monad.Trans.RWS.Lazy as LazyRWS
+import Control.Monad.Trans.RWS.Strict as StrictRWS
+import Control.Monad.Trans.State.Lazy as LazyState
+import Control.Monad.Trans.State.Strict as StrictState
+import Control.Monad.Trans.Writer.Lazy as LazyWriter
+import Control.Monad.Trans.Writer.Strict as StrictWriter
 
-    noMsg    = strMsg ""
-    strMsg _ = noMsg
-
--- | A string can be thrown as an error.
-instance Error String where
-    noMsg  = ""
-    strMsg = id
-
-instance Error IOError where
-    strMsg = userError
+import Control.Monad.Trans.Class (lift)
+import Control.Exception (IOException)
+import Control.Monad
+import Control.Monad.Instances ()
+import Data.Monoid
 
 {- |
 The strategy of combining computations that can throw exceptions
@@ -72,7 +69,7 @@ for an error monad in which error descriptions take the form of strings.
 In that case and many other common cases the resulting monad is already defined
 as an instance of the 'MonadError' class.
 You can also define your own error type and\/or use a monad type constructor
-other than @'Data.Either' String@ or @'Data.Either' IOError@.
+other than @'Either' 'String'@ or @'Either' 'IOError'@.
 In these cases you will have to explicitly define instances of the 'Error'
 and\/or 'MonadError' classes.
 -}
@@ -91,3 +88,64 @@ class (Monad m) => MonadError e m | m -> e where
     -}
     catchError :: m a -> (e -> m a) -> m a
 
+instance MonadError IOException IO where
+    throwError = ioError
+    catchError = catch
+
+-- ---------------------------------------------------------------------------
+-- Our parameterizable error monad
+
+instance (Error e) => MonadError e (Either e) where
+    throwError             = Left
+    Left  l `catchError` h = h l
+    Right r `catchError` _ = Right r
+
+instance (Monad m, Error e) => MonadError e (ErrorT e m) where
+    throwError = ErrorT.throwError
+    catchError = ErrorT.catchError
+
+-- ---------------------------------------------------------------------------
+-- Instances for other mtl transformers
+--
+-- All of these instances need UndecidableInstances,
+-- because they do not satisfy the coverage condition.
+
+instance (MonadError e m) => MonadError e (IdentityT m) where
+    throwError = lift . throwError
+    catchError = Identity.liftCatch catchError
+
+instance (MonadError e m) => MonadError e (ListT m) where
+    throwError = lift . throwError
+    catchError = List.liftCatch catchError
+
+instance (MonadError e m) => MonadError e (MaybeT m) where
+    throwError = lift . throwError
+    catchError = Maybe.liftCatch catchError
+
+instance (MonadError e m) => MonadError e (ReaderT r m) where
+    throwError = lift . throwError
+    catchError = Reader.liftCatch catchError
+
+instance (Monoid w, MonadError e m) => MonadError e (LazyRWS.RWST r w s m) where
+    throwError = lift . throwError
+    catchError = LazyRWS.liftCatch catchError
+
+instance (Monoid w, MonadError e m) => MonadError e (StrictRWS.RWST r w s m) where
+    throwError = lift . throwError
+    catchError = StrictRWS.liftCatch catchError
+
+instance (MonadError e m) => MonadError e (LazyState.StateT s m) where
+    throwError = lift . throwError
+    catchError = LazyState.liftCatch catchError
+
+instance (MonadError e m) => MonadError e (StrictState.StateT s m) where
+    throwError = lift . throwError
+    catchError = StrictState.liftCatch catchError
+
+instance (Monoid w, MonadError e m) => MonadError e (LazyWriter.WriterT w m) where
+    throwError = lift . throwError
+    catchError = LazyWriter.liftCatch catchError
+
+instance (Monoid w, MonadError e m) => MonadError e (StrictWriter.WriterT w m) where
+    throwError = lift . throwError
+    catchError = StrictWriter.liftCatch catchError

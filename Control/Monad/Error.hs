@@ -1,16 +1,9 @@
--- Undecidable instances needed for the same reasons as in Reader, State etc:
-{-# LANGUAGE UndecidableInstances #-}
--- De-orphaning this module is tricky:
-{-# OPTIONS_GHC -fno-warn-orphans #-}
--- To handle instances moved to base:
-{-# LANGUAGE CPP #-}
-
 {- |
 Module      :  Control.Monad.Error
 Copyright   :  (c) Michael Weber <michael.weber@post.rwth-aachen.de> 2001,
                (c) Jeff Newbern 2003-2006,
                (c) Andriy Palamarchuk 2006
-License     :  BSD-style (see the file libraries/base/LICENSE)
+License     :  BSD-style (see the file LICENSE)
 
 Maintainer  :  libraries@haskell.org
 Stability   :  experimental
@@ -36,10 +29,13 @@ The Error monad (also called the Exception monad).
 {-
   Rendered by Michael Weber <mailto:michael.weber@post.rwth-aachen.de>,
   inspired by the Haskell Monad Template Library from
-    Andy Gill (<http://www.cse.ogi.edu/~andy/>)
+    Andy Gill (<http://web.cecs.pdx.edu/~andy/>)
 -}
 module Control.Monad.Error (
-    module Control.Monad.Error.Class,
+    -- * Monads with error handling
+    MonadError(..),
+    Error(..),
+    -- * The ErrorT monad transformer
     ErrorT(..),
     mapErrorT,
     module Control.Monad,
@@ -52,165 +48,13 @@ module Control.Monad.Error (
     -- $ErrorTExample
   ) where
 
-import Control.Monad
-import Control.Monad.Cont.Class
 import Control.Monad.Error.Class
-import Control.Monad.Fix
-import Control.Monad.Reader.Class
-import Control.Monad.State.Class
 import Control.Monad.Trans
-import Control.Monad.Writer.Class
-import Control.Monad.RWS.Class
+import Control.Monad.Trans.Error (ErrorT(..), mapErrorT)
 
+import Control.Monad
+import Control.Monad.Fix
 import Control.Monad.Instances ()
-
--- | Note: this instance does not satisfy the second 'MonadPlus' law
---
--- > v >> mzero   =  mzero
---
-instance MonadPlus IO where
-    mzero       = ioError (userError "mzero")
-    m `mplus` n = m `catch` \_ -> n
-
-instance MonadError IOError IO where
-    throwError = ioError
-    catchError = catch
-
--- ---------------------------------------------------------------------------
--- Our parameterizable error monad
-
-#if !(MIN_VERSION_base(4,2,1))
-
--- These instances are in base-4.3
-
-instance Monad (Either e) where
-    return        = Right
-    Left  l >>= _ = Left l
-    Right r >>= k = k r
-
-instance MonadFix (Either e) where
-    mfix f = let
-        a = f $ case a of
-            Right r -> r
-            _       -> error "empty mfix argument"
-        in a
-
-#endif /* base to 4.2.0.x */
-
-instance (Error e) => MonadPlus (Either e) where
-    mzero            = Left noMsg
-    Left _ `mplus` n = n
-    m      `mplus` _ = m
-
-instance (Error e) => MonadError e (Either e) where
-    throwError             = Left
-    Left  l `catchError` h = h l
-    Right r `catchError` _ = Right r
-
-{- |
-The error monad transformer. It can be used to add error handling to other
-monads.
-
-The @ErrorT@ Monad structure is parameterized over two things:
-
- * e - The error type.
-
- * m - The inner monad.
-
-Here are some examples of use:
-
-> -- wraps IO action that can throw an error e
-> type ErrorWithIO e a = ErrorT e IO a
-> ==> ErrorT (IO (Either e a))
->
-> -- IO monad wrapped in StateT inside of ErrorT
-> type ErrorAndStateWithIO e s a = ErrorT e (StateT s IO) a
-> ==> ErrorT (StateT s IO (Either e a))
-> ==> ErrorT (StateT (s -> IO (Either e a,s)))
--}
-
-newtype ErrorT e m a = ErrorT { runErrorT :: m (Either e a) }
-
-mapErrorT :: (m (Either e a) -> n (Either e' b))
-          -> ErrorT e m a
-          -> ErrorT e' n b
-mapErrorT f m = ErrorT $ f (runErrorT m)
-
-instance (Monad m) => Functor (ErrorT e m) where
-    fmap f m = ErrorT $ do
-        a <- runErrorT m
-        case a of
-            Left  l -> return (Left  l)
-            Right r -> return (Right (f r))
-
-instance (Monad m, Error e) => Monad (ErrorT e m) where
-    return a = ErrorT $ return (Right a)
-    m >>= k  = ErrorT $ do
-        a <- runErrorT m
-        case a of
-            Left  l -> return (Left l)
-            Right r -> runErrorT (k r)
-    fail msg = ErrorT $ return (Left (strMsg msg))
-
-instance (Monad m, Error e) => MonadPlus (ErrorT e m) where
-    mzero       = ErrorT $ return (Left noMsg)
-    m `mplus` n = ErrorT $ do
-        a <- runErrorT m
-        case a of
-            Left  _ -> runErrorT n
-            Right r -> return (Right r)
-
-instance (MonadFix m, Error e) => MonadFix (ErrorT e m) where
-    mfix f = ErrorT $ mfix $ \a -> runErrorT $ f $ case a of
-        Right r -> r
-        _       -> error "empty mfix argument"
-
-instance (Monad m, Error e) => MonadError e (ErrorT e m) where
-    throwError l     = ErrorT $ return (Left l)
-    m `catchError` h = ErrorT $ do
-        a <- runErrorT m
-        case a of
-            Left  l -> runErrorT (h l)
-            Right r -> return (Right r)
-
--- ---------------------------------------------------------------------------
--- Instances for other mtl transformers
-
-instance (Error e) => MonadTrans (ErrorT e) where
-    lift m = ErrorT $ do
-        a <- m
-        return (Right a)
-
-instance (Error e, MonadIO m) => MonadIO (ErrorT e m) where
-    liftIO = lift . liftIO
-
-instance (Error e, MonadCont m) => MonadCont (ErrorT e m) where
-    callCC f = ErrorT $
-        callCC $ \c ->
-        runErrorT (f (\a -> ErrorT $ c (Right a)))
-
-instance (Error e, MonadRWS r w s m) => MonadRWS r w s (ErrorT e m)
-
-instance (Error e, MonadReader r m) => MonadReader r (ErrorT e m) where
-    ask       = lift ask
-    local f m = ErrorT $ local f (runErrorT m)
-
-instance (Error e, MonadState s m) => MonadState s (ErrorT e m) where
-    get = lift get
-    put = lift . put
-
-instance (Error e, MonadWriter w m) => MonadWriter w (ErrorT e m) where
-    tell     = lift . tell
-    listen m = ErrorT $ do
-        (a, w) <- listen (runErrorT m)
-        case a of
-            Left  l -> return $ Left  l
-            Right r -> return $ Right (r, w)
-    pass   m = ErrorT $ pass $ do
-        a <- runErrorT m
-        case a of
-            Left  l      -> return (Left  l, id)
-            Right (r, f) -> return (Right r, f)
 
 {- $customErrorExample
 Here is an example that demonstrates the use of a custom 'Error' data type with
@@ -299,4 +143,3 @@ Here is an example how to combine it with an @IO@ monad:
 >reportResult (Right len) = putStrLn ("The length of the string is " ++ (show len))
 >reportResult (Left e) = putStrLn ("Length calculation failed with error: " ++ (show e))
 -}
-

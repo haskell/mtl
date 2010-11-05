@@ -1,16 +1,13 @@
-{-# LANGUAGE UndecidableInstances #-}
--- Search for UndecidableInstances to see why this is needed
-
 {- |
 Module      :  Control.Monad.Cont
 Copyright   :  (c) The University of Glasgow 2001,
                (c) Jeff Newbern 2003-2007,
                (c) Andriy Palamarchuk 2007
-License     :  BSD-style (see the file libraries/base/LICENSE)
+License     :  BSD-style (see the file LICENSE)
 
 Maintainer  :  libraries@haskell.org
 Stability   :  experimental
-Portability :  non-portable (multi-parameter type classes)
+Portability :  portable
 
 [Computation type:] Computations which can be interrupted and resumed.
 
@@ -52,10 +49,14 @@ to understand and maintain.
 -}
 
 module Control.Monad.Cont (
-    module Control.Monad.Cont.Class,
-    Cont(..),
+    -- * MonadCont class
+    MonadCont(..),
+    -- * The Cont monad
+    Cont,
+    runCont,
     mapCont,
     withCont,
+    -- * The ContT monad transformer
     ContT(..),
     mapContT,
     withContT,
@@ -71,92 +72,12 @@ module Control.Monad.Cont (
     -- $ContTExample
   ) where
 
-import Control.Monad
 import Control.Monad.Cont.Class
-import Control.Monad.Reader.Class
-import Control.Monad.State.Class
+
 import Control.Monad.Trans
+import Control.Monad.Trans.Cont
 
-{- |
-Continuation monad.
-@Cont r a@ is a CPS computation that produces an intermediate result
-of type @a@ within a CPS computation whose final result type is @r@.
-
-The @return@ function simply creates a continuation which passes the value on.
-
-The @>>=@ operator adds the bound function into the continuation chain.
--}
-newtype Cont r a = Cont {
-
-    {- | Runs a CPS computation, returns its result after applying
-    the final continuation to it.
-    Parameters:
-
-    * a continuation computation (@Cont@).
-
-    * the final continuation, which produces the final result (often @id@).
-    -}
-    runCont :: (a -> r) -> r
-}
-
-mapCont :: (r -> r) -> Cont r a -> Cont r a
-mapCont f m = Cont $ f . runCont m
-
-withCont :: ((b -> r) -> (a -> r)) -> Cont r a -> Cont r b
-withCont f m = Cont $ runCont m . f
-
-instance Functor (Cont r) where
-    fmap f m = Cont $ \c -> runCont m (c . f)
-
-instance Monad (Cont r) where
-    return a = Cont ($ a)
-    m >>= k  = Cont $ \c -> runCont m $ \a -> runCont (k a) c
-
-instance MonadCont (Cont r) where
-    callCC f = Cont $ \c -> runCont (f (\a -> Cont $ \_ -> c a)) c
-
-{- |
-The continuation monad transformer.
-Can be used to add continuation handling to other monads.
--}
-newtype ContT r m a = ContT { runContT :: (a -> m r) -> m r }
-
-mapContT :: (m r -> m r) -> ContT r m a -> ContT r m a
-mapContT f m = ContT $ f . runContT m
-
-withContT :: ((b -> m r) -> (a -> m r)) -> ContT r m a -> ContT r m b
-withContT f m = ContT $ runContT m . f
-
-instance (Monad m) => Functor (ContT r m) where
-    fmap f m = ContT $ \c -> runContT m (c . f)
-
-instance (Monad m) => Monad (ContT r m) where
-    return a = ContT ($ a)
-    m >>= k  = ContT $ \c -> runContT m (\a -> runContT (k a) c)
-
-instance (Monad m) => MonadCont (ContT r m) where
-    callCC f = ContT $ \c -> runContT (f (\a -> ContT $ \_ -> c a)) c
-
--- ---------------------------------------------------------------------------
--- Instances for other mtl transformers
-
-instance MonadTrans (ContT r) where
-    lift m = ContT (m >>=)
-
-instance (MonadIO m) => MonadIO (ContT r m) where
-    liftIO = lift . liftIO
-
--- Needs UndecidableInstances
-instance (MonadReader r' m) => MonadReader r' (ContT r m) where
-    ask       = lift ask
-    local f m = ContT $ \c -> do
-        r <- ask
-        local f (runContT m (local (const r) . c))
-
--- Needs UndecidableInstances
-instance (MonadState s m) => MonadState s (ContT r m) where
-    get = lift get
-    put = lift . put
+import Control.Monad
 
 {- $simpleContExample
 Calculating length of a list continuation-style:
@@ -203,15 +124,15 @@ Here is what this example does:
 (1) Runs an anonymous 'Cont' block and extracts value from it with
 @(\`runCont\` id)@. Here @id@ is the continuation, passed to the @Cont@ block.
 
-(1) Binds @response@ to the result of the following 'callCC' block,
+(1) Binds @response@ to the result of the following 'Control.Monad.Cont.Class.callCC' block,
 binds @exit@ to the continuation.
 
 (1) Validates @name@.
-This approach illustrates advantage of using 'callCC' over @return@.
+This approach illustrates advantage of using 'Control.Monad.Cont.Class.callCC' over @return@.
 We pass the continuation to @validateName@,
 and interrupt execution of the @Cont@ block from /inside/ of @validateName@.
 
-(1) Returns the welcome message from the @callCC@ block.
+(1) Returns the welcome message from the 'Control.Monad.Cont.Class.callCC' block.
 This line is not executed if @validateName@ fails.
 
 (1) Returns from the @Cont@ block.
