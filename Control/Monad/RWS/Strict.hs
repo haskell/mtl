@@ -20,6 +20,7 @@
 module Control.Monad.RWS.Strict (
     -- * The RWS monad
     RWS,
+    rws,
     runRWS,
     evalRWS,
     execRWS,
@@ -43,7 +44,7 @@ import Control.Monad.RWS.Class
 
 import Control.Monad.Trans
 import Control.Monad.Trans.RWS.Strict (
-    RWS, runRWS, evalRWS, execRWS, mapRWS, withRWS,
+    RWS, rws, runRWS, evalRWS, execRWS, mapRWS, withRWS,
     RWST(..), evalRWST, execRWST, mapRWST, withRWST)
 
 import Control.Monad

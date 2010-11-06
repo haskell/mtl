@@ -24,6 +24,7 @@ module Control.Monad.Writer.Strict (
     censor,
     -- * The Writer monad
     Writer,
+    writer,
     runWriter,
     execWriter,
     mapWriter,
@@ -41,7 +42,7 @@ import Control.Monad.Writer.Class
 
 import Control.Monad.Trans
 import Control.Monad.Trans.Writer.Strict (
-        Writer, runWriter, execWriter, mapWriter,
+        Writer, writer, runWriter, execWriter, mapWriter,
         WriterT(..), execWriterT, mapWriterT)
 
 import Control.Monad

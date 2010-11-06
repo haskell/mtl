@@ -53,6 +53,7 @@ module Control.Monad.Cont (
     MonadCont(..),
     -- * The Cont monad
     Cont,
+    cont,
     runCont,
     mapCont,
     withCont,

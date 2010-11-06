@@ -25,6 +25,7 @@ module Control.Monad.State.Lazy (
     gets,
     -- * The State monad
     State,
+    state,
     runState,
     evalState,
     execState,
@@ -47,7 +48,7 @@ import Control.Monad.State.Class
 
 import Control.Monad.Trans
 import Control.Monad.Trans.State.Lazy
-        (State, runState, evalState, execState, mapState, withState,
+        (State, state, runState, evalState, execState, mapState, withState,
          StateT(..), evalStateT, execStateT, mapStateT, withStateT)
 
 import Control.Monad
