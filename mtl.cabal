@@ -14,7 +14,9 @@ description:
     by Mark P Jones, in /Advanced School of Functional Programming/, 1995
     (<http://web.cecs.pdx.edu/~mpj/pubs/springschool.html>).
 build-type: Simple
-exposed-modules:
+
+Library
+  exposed-modules:
     Control.Monad.Cont
     Control.Monad.Cont.Class
     Control.Monad.Error
@@ -36,8 +38,8 @@ exposed-modules:
     Control.Monad.Writer.Class
     Control.Monad.Writer.Lazy
     Control.Monad.Writer.Strict
-build-depends: base < 6, transformers == 0.2.*
-extensions:
+  build-depends: base < 6, transformers == 0.2.*
+  extensions:
     MultiParamTypeClasses
     FunctionalDependencies
     FlexibleInstances
