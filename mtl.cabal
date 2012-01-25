@@ -1,10 +1,10 @@
 name:         mtl
-version:      2.0.1.0
+version:      2.0.1.1
 cabal-version: >= 1.6
 license:      BSD3
 license-file: LICENSE
 author:       Andy Gill
-maintainer:   libraries@haskell.org
+maintainer:   Edward Kmett <ekmett@gmail.com>
 category:     Control
 synopsis:     Monad classes, using functional dependencies
 description:
@@ -14,6 +14,10 @@ description:
     by Mark P Jones, in /Advanced School of Functional Programming/, 1995
     (<http://web.cecs.pdx.edu/~mpj/pubs/springschool.html>).
 build-type: Simple
+
+source-repository head
+  type: git
+  location: git://github.com/ekmett/mtl.git
 
 Library
   exposed-modules:
