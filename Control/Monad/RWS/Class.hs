@@ -21,7 +21,7 @@
 -----------------------------------------------------------------------------
 
 module Control.Monad.RWS.Class (
-    MonadRWS,
+    MonadRWS(..),
     module Control.Monad.Reader.Class,
     module Control.Monad.State.Class,
     module Control.Monad.Writer.Class,
@@ -31,6 +31,7 @@ import Control.Monad.Reader.Class
 import Control.Monad.State.Class
 import Control.Monad.Writer.Class
 
+import Control.Monad.Trans.Class
 import Control.Monad.Trans.Error(Error, ErrorT)
 import Control.Monad.Trans.Maybe(MaybeT)
 import Control.Monad.Trans.Identity(IdentityT)
@@ -43,6 +44,7 @@ class (Monoid w, MonadReader r m, MonadWriter w m, MonadState s m)
    => MonadRWS r w s m | m -> r, m -> w, m -> s
 
 instance (Monoid w, Monad m) => MonadRWS r w s (Lazy.RWST r w s m)
+
 instance (Monoid w, Monad m) => MonadRWS r w s (Strict.RWST r w s m)
  
 ---------------------------------------------------------------------------
@@ -50,7 +52,7 @@ instance (Monoid w, Monad m) => MonadRWS r w s (Strict.RWST r w s m)
 --
 -- All of these instances need UndecidableInstances,
 -- because they do not satisfy the coverage condition.
- 
+
 instance (Error e, MonadRWS r w s m) => MonadRWS r w s (ErrorT e m)
-instance (MonadRWS r w s m) => MonadRWS r w s (IdentityT m)
-instance (MonadRWS r w s m) => MonadRWS r w s (MaybeT m)
+instance MonadRWS r w s m => MonadRWS r w s (IdentityT m)
+instance MonadRWS r w s m => MonadRWS r w s (MaybeT m)

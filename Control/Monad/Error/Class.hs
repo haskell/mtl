@@ -95,7 +95,7 @@ instance MonadError IOException IO where
 -- ---------------------------------------------------------------------------
 -- Our parameterizable error monad
 
-instance (Error e) => MonadError e (Either e) where
+instance Error e => MonadError e (Either e) where
     throwError             = Left
     Left  l `catchError` h = h l
     Right r `catchError` _ = Right r
@@ -110,19 +110,19 @@ instance (Monad m, Error e) => MonadError e (ErrorT e m) where
 -- All of these instances need UndecidableInstances,
 -- because they do not satisfy the coverage condition.
 
-instance (MonadError e m) => MonadError e (IdentityT m) where
+instance MonadError e m => MonadError e (IdentityT m) where
     throwError = lift . throwError
     catchError = Identity.liftCatch catchError
 
-instance (MonadError e m) => MonadError e (ListT m) where
+instance MonadError e m => MonadError e (ListT m) where
     throwError = lift . throwError
     catchError = List.liftCatch catchError
 
-instance (MonadError e m) => MonadError e (MaybeT m) where
+instance MonadError e m => MonadError e (MaybeT m) where
     throwError = lift . throwError
     catchError = Maybe.liftCatch catchError
 
-instance (MonadError e m) => MonadError e (ReaderT r m) where
+instance MonadError e m => MonadError e (ReaderT r m) where
     throwError = lift . throwError
     catchError = Reader.liftCatch catchError
 
@@ -134,11 +134,11 @@ instance (Monoid w, MonadError e m) => MonadError e (StrictRWS.RWST r w s m) whe
     throwError = lift . throwError
     catchError = StrictRWS.liftCatch catchError
 
-instance (MonadError e m) => MonadError e (LazyState.StateT s m) where
+instance MonadError e m => MonadError e (LazyState.StateT s m) where
     throwError = lift . throwError
     catchError = LazyState.liftCatch catchError
 
-instance (MonadError e m) => MonadError e (StrictState.StateT s m) where
+instance MonadError e m => MonadError e (StrictState.StateT s m) where
     throwError = lift . throwError
     catchError = StrictState.liftCatch catchError
 

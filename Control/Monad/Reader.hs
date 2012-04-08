@@ -41,7 +41,6 @@ module Control.Monad.Reader (
     asks,
     -- * The Reader monad
     Reader,
-    reader,
     runReader,
     mapReader,
     withReader,
@@ -65,7 +64,7 @@ module Control.Monad.Reader (
 import Control.Monad.Reader.Class
 
 import Control.Monad.Trans.Reader (
-    Reader, reader, runReader, mapReader, withReader,
+    Reader, runReader, mapReader, withReader,
     ReaderT(..), mapReaderT, withReaderT)
 import Control.Monad.Trans
 

@@ -69,7 +69,7 @@ import Control.Monad.Trans.Writer.Strict as StrictWriter
 import Control.Monad
 import Data.Monoid
 
-class (Monad m) => MonadCont m where
+class Monad m => MonadCont m where
     {- | @callCC@ (call-with-current-continuation)
     calls a function with the current continuation as its argument.
     Provides an escape continuation mechanism for use with Continuation monads.
@@ -99,16 +99,16 @@ instance MonadCont (ContT r m) where
 instance (Error e, MonadCont m) => MonadCont (ErrorT e m) where
     callCC = Error.liftCallCC callCC
 
-instance (MonadCont m) => MonadCont (IdentityT m) where
+instance MonadCont m => MonadCont (IdentityT m) where
     callCC = Identity.liftCallCC callCC
 
-instance (MonadCont m) => MonadCont (ListT m) where
+instance MonadCont m => MonadCont (ListT m) where
     callCC = List.liftCallCC callCC
 
-instance (MonadCont m) => MonadCont (MaybeT m) where
+instance MonadCont m => MonadCont (MaybeT m) where
     callCC = Maybe.liftCallCC callCC
 
-instance (MonadCont m) => MonadCont (ReaderT r m) where
+instance MonadCont m => MonadCont (ReaderT r m) where
     callCC = Reader.liftCallCC callCC
 
 instance (Monoid w, MonadCont m) => MonadCont (LazyRWS.RWST r w s m) where
@@ -117,10 +117,10 @@ instance (Monoid w, MonadCont m) => MonadCont (LazyRWS.RWST r w s m) where
 instance (Monoid w, MonadCont m) => MonadCont (StrictRWS.RWST r w s m) where
     callCC = StrictRWS.liftCallCC' callCC
 
-instance (MonadCont m) => MonadCont (LazyState.StateT s m) where
+instance MonadCont m => MonadCont (LazyState.StateT s m) where
     callCC = LazyState.liftCallCC' callCC
 
-instance (MonadCont m) => MonadCont (StrictState.StateT s m) where
+instance MonadCont m => MonadCont (StrictState.StateT s m) where
     callCC = StrictState.liftCallCC' callCC
 
 instance (Monoid w, MonadCont m) => MonadCont (LazyWriter.WriterT w m) where

@@ -25,7 +25,6 @@ module Control.Monad.State.Strict (
     gets,
     -- * The State monad
     State,
-    state,
     runState,
     evalState,
     execState,
@@ -48,7 +47,7 @@ import Control.Monad.State.Class
 
 import Control.Monad.Trans
 import Control.Monad.Trans.State.Strict
-        (State, state, runState, evalState, execState, mapState, withState,
+        (State, runState, evalState, execState, mapState, withState,
          StateT(..), evalStateT, execStateT, mapStateT, withStateT)
 
 import Control.Monad

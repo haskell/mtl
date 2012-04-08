@@ -1,5 +1,5 @@
 name:         mtl
-version:      2.0.1.1
+version:      2.1
 cabal-version: >= 1.6
 license:      BSD3
 license-file: LICENSE
@@ -42,7 +42,7 @@ Library
     Control.Monad.Writer.Class
     Control.Monad.Writer.Lazy
     Control.Monad.Writer.Strict
-  build-depends: base < 6, transformers == 0.2.*
+  build-depends: base < 6, transformers == 0.3.*
   extensions:
     MultiParamTypeClasses
     FunctionalDependencies

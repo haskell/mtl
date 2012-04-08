@@ -48,9 +48,9 @@ import Control.Monad.Trans.Identity
 import Control.Monad.Trans.List
 import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.Reader (ReaderT)
-import qualified Control.Monad.Trans.Reader as ReaderT (ask, local)
-import qualified Control.Monad.Trans.RWS.Lazy as LazyRWS (RWST, ask, local)
-import qualified Control.Monad.Trans.RWS.Strict as StrictRWS (RWST, ask, local)
+import qualified Control.Monad.Trans.Reader as ReaderT (ask, local, reader)
+import qualified Control.Monad.Trans.RWS.Lazy as LazyRWS (RWST, ask, local, reader)
+import qualified Control.Monad.Trans.RWS.Strict as StrictRWS (RWST, ask, local, reader)
 import Control.Monad.Trans.State.Lazy as Lazy
 import Control.Monad.Trans.State.Strict as Strict
 import Control.Monad.Trans.Writer.Lazy as Lazy
@@ -67,22 +67,27 @@ import Data.Monoid
 -- | See examples in "Control.Monad.Reader".
 -- Note, the partially applied function type @(->) r@ is a simple reader monad.
 -- See the @instance@ declaration below.
-class (Monad m) => MonadReader r m | m -> r where
+class Monad m => MonadReader r m | m -> r where
     -- | Retrieves the monad environment.
     ask   :: m r
 
     -- | Executes a computation in a modified environment.
-    local :: (r -> r)	-- ^ The function to modify the environment.
-          -> m a	-- ^ @Reader@ to run in the modified environment.
+    local :: (r -> r) -- ^ The function to modify the environment.
+          -> m a      -- ^ @Reader@ to run in the modified environment.
           -> m a
 
+    -- | Retrieves a function of the current environment.
+    reader :: (r -> a) -- ^ The selector function to apply to the environment.
+           -> m a
+    reader f = do
+      r <- ask
+      return (f r)
+
 -- | Retrieves a function of the current environment.
-asks :: (MonadReader r m)
-    => (r -> a)		-- ^ The selector function to apply to the environment.
+asks :: MonadReader r m
+    => (r -> a) -- ^ The selector function to apply to the environment.
     -> m a
-asks f = do
-    r <- ask
-    return (f r)
+asks = reader
 
 -- ----------------------------------------------------------------------------
 -- The partially applied function type is a simple reader monad
@@ -90,18 +95,22 @@ asks f = do
 instance MonadReader r ((->) r) where
     ask       = id
     local f m = m . f
+    reader    = id
 
-instance (Monad m) => MonadReader r (ReaderT r m) where
+instance Monad m => MonadReader r (ReaderT r m) where
     ask = ReaderT.ask
     local = ReaderT.local
+    reader = ReaderT.reader
 
 instance (Monad m, Monoid w) => MonadReader r (LazyRWS.RWST r w s m) where
     ask = LazyRWS.ask
     local = LazyRWS.local
+    reader = LazyRWS.reader
 
 instance (Monad m, Monoid w) => MonadReader r (StrictRWS.RWST r w s m) where
     ask = StrictRWS.ask
     local = StrictRWS.local
+    reader = StrictRWS.reader
 
 -- ---------------------------------------------------------------------------
 -- Instances for other mtl transformers
@@ -109,38 +118,47 @@ instance (Monad m, Monoid w) => MonadReader r (StrictRWS.RWST r w s m) where
 -- All of these instances need UndecidableInstances,
 -- because they do not satisfy the coverage condition.
 
-instance (MonadReader r' m) => MonadReader r' (ContT r m) where
+instance MonadReader r' m => MonadReader r' (ContT r m) where
     ask   = lift ask
     local = Cont.liftLocal ask local
+    reader = lift . reader
 
 instance (Error e, MonadReader r m) => MonadReader r (ErrorT e m) where
     ask   = lift ask
     local = mapErrorT . local
+    reader = lift . reader
 
-instance (MonadReader r m) => MonadReader r (IdentityT m) where
+instance MonadReader r m => MonadReader r (IdentityT m) where
     ask   = lift ask
     local = mapIdentityT . local
+    reader = lift . reader
 
-instance (MonadReader r m) => MonadReader r (ListT m) where
+instance MonadReader r m => MonadReader r (ListT m) where
     ask   = lift ask
     local = mapListT . local
+    reader = lift . reader
 
-instance (MonadReader r m) => MonadReader r (MaybeT m) where
+instance MonadReader r m => MonadReader r (MaybeT m) where
     ask   = lift ask
     local = mapMaybeT . local
+    reader = lift . reader
 
-instance (MonadReader r m) => MonadReader r (Lazy.StateT s m) where
+instance MonadReader r m => MonadReader r (Lazy.StateT s m) where
     ask   = lift ask
     local = Lazy.mapStateT . local
+    reader = lift . reader
 
-instance (MonadReader r m) => MonadReader r (Strict.StateT s m) where
+instance MonadReader r m => MonadReader r (Strict.StateT s m) where
     ask   = lift ask
     local = Strict.mapStateT . local
+    reader = lift . reader
 
 instance (Monoid w, MonadReader r m) => MonadReader r (Lazy.WriterT w m) where
     ask   = lift ask
     local = Lazy.mapWriterT . local
+    reader = lift . reader
 
 instance (Monoid w, MonadReader r m) => MonadReader r (Strict.WriterT w m) where
     ask   = lift ask
     local = Strict.mapWriterT . local
+    reader = lift . reader

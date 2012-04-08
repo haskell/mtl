@@ -33,10 +33,10 @@ import Control.Monad.Trans.Identity
 import Control.Monad.Trans.List
 import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.Reader
-import qualified Control.Monad.Trans.RWS.Lazy as LazyRWS (RWST, get, put)
-import qualified Control.Monad.Trans.RWS.Strict as StrictRWS (RWST, get, put)
-import qualified Control.Monad.Trans.State.Lazy as Lazy (StateT, get, put)
-import qualified Control.Monad.Trans.State.Strict as Strict (StateT, get, put)
+import qualified Control.Monad.Trans.RWS.Lazy as LazyRWS (RWST, get, put, state)
+import qualified Control.Monad.Trans.RWS.Strict as StrictRWS (RWST, get, put, state)
+import qualified Control.Monad.Trans.State.Lazy as Lazy (StateT, get, put, state)
+import qualified Control.Monad.Trans.State.Strict as Strict (StateT, get, put, state)
 import Control.Monad.Trans.Writer.Lazy as Lazy
 import Control.Monad.Trans.Writer.Strict as Strict
 
@@ -46,11 +46,23 @@ import Data.Monoid
 
 -- ---------------------------------------------------------------------------
 
-class (Monad m) => MonadState s m | m -> s where
+-- | Minimal definition is either both of @get@ and @put@ or just @state@
+class Monad m => MonadState s m | m -> s where
     -- | Return the state from the internals of the monad.
     get :: m s
+    get = state (\s -> (s, s))
+
     -- | Replace the state inside the monad.
     put :: s -> m ()
+    put s = state (\_ -> ((), s))
+
+    -- | Embed a simple state action into the monad.
+    state :: (s -> (a, s)) -> m a
+    state f = do
+      s <- get
+      let ~(a, s) = f s
+      put s
+      return a
 
 -- | Monadic state transformer.
 --
@@ -63,35 +75,35 @@ class (Monad m) => MonadState s m | m -> s where
 --    This says that @modify (+1)@ acts over any
 --    Monad that is a member of the @MonadState@ class,
 --    with an @Int@ state.
-
-modify :: (MonadState s m) => (s -> s) -> m ()
-modify f = do
-    s <- get
-    put (f s)
+modify :: MonadState s m => (s -> s) -> m ()
+modify f = state (\s -> ((), f s))
 
 -- | Gets specific component of the state, using a projection function
 -- supplied.
-
-gets :: (MonadState s m) => (s -> a) -> m a
+gets :: MonadState s m => (s -> a) -> m a
 gets f = do
     s <- get
     return (f s)
 
-instance (Monad m) => MonadState s (Lazy.StateT s m) where
+instance Monad m => MonadState s (Lazy.StateT s m) where
     get = Lazy.get
     put = Lazy.put
+    state = Lazy.state
 
-instance (Monad m) => MonadState s (Strict.StateT s m) where
+instance Monad m => MonadState s (Strict.StateT s m) where
     get = Strict.get
     put = Strict.put
+    state = Strict.state
 
 instance (Monad m, Monoid w) => MonadState s (LazyRWS.RWST r w s m) where
     get = LazyRWS.get
     put = LazyRWS.put
+    state = LazyRWS.state
 
 instance (Monad m, Monoid w) => MonadState s (StrictRWS.RWST r w s m) where
     get = StrictRWS.get
     put = StrictRWS.put
+    state = StrictRWS.state
 
 -- ---------------------------------------------------------------------------
 -- Instances for other mtl transformers
@@ -99,34 +111,42 @@ instance (Monad m, Monoid w) => MonadState s (StrictRWS.RWST r w s m) where
 -- All of these instances need UndecidableInstances,
 -- because they do not satisfy the coverage condition.
 
-instance (MonadState s m) => MonadState s (ContT r m) where
+instance MonadState s m => MonadState s (ContT r m) where
     get = lift get
     put = lift . put
+    state = lift . state
 
 instance (Error e, MonadState s m) => MonadState s (ErrorT e m) where
     get = lift get
     put = lift . put
+    state = lift . state
 
-instance (MonadState s m) => MonadState s (IdentityT m) where
+instance MonadState s m => MonadState s (IdentityT m) where
     get = lift get
     put = lift . put
+    state = lift . state
 
-instance (MonadState s m) => MonadState s (ListT m) where
+instance MonadState s m => MonadState s (ListT m) where
     get = lift get
     put = lift . put
+    state = lift . state
 
-instance (MonadState s m) => MonadState s (MaybeT m) where
+instance MonadState s m => MonadState s (MaybeT m) where
     get = lift get
     put = lift . put
+    state = lift . state
 
-instance (MonadState s m) => MonadState s (ReaderT r m) where
+instance MonadState s m => MonadState s (ReaderT r m) where
     get = lift get
     put = lift . put
+    state = lift . state
 
 instance (Monoid w, MonadState s m) => MonadState s (Lazy.WriterT w m) where
     get = lift get
     put = lift . put
+    state = lift . state
 
 instance (Monoid w, MonadState s m) => MonadState s (Strict.WriterT w m) where
     get = lift get
     put = lift . put
+    state = lift . state
