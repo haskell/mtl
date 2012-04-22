@@ -47,3 +47,4 @@ Library
     MultiParamTypeClasses
     FunctionalDependencies
     FlexibleInstances
+  ghc-options: -Wall -fno-warn-unused-imports
