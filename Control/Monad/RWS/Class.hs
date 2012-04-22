@@ -21,7 +21,7 @@
 -----------------------------------------------------------------------------
 
 module Control.Monad.RWS.Class (
-    MonadRWS(..),
+    MonadRWS,
     module Control.Monad.Reader.Class,
     module Control.Monad.State.Class,
     module Control.Monad.Writer.Class,

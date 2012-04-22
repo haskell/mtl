@@ -60,8 +60,8 @@ class Monad m => MonadState s m | m -> s where
     state :: (s -> (a, s)) -> m a
     state f = do
       s <- get
-      let ~(a, s) = f s
-      put s
+      let ~(a, s') = f s
+      put s'
       return a
 
 -- | Monadic state transformer.
