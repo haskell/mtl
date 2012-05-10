@@ -7,6 +7,8 @@ author:       Andy Gill
 maintainer:   Edward Kmett <ekmett@gmail.com>
 category:     Control
 synopsis:     Monad classes, using functional dependencies
+homepage:     http://github.com/ekmett/mtl
+bug-reports:  http://github.com/ekmett/mtl/issues
 description:
     Monad classes using functional dependencies, with instances
     for various monad transformers, inspired by the paper
