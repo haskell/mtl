@@ -5,6 +5,7 @@ Module      :  Control.Monad.Error.Class
 Copyright   :  (c) Michael Weber <michael.weber@post.rwth-aachen.de> 2001,
                (c) Jeff Newbern 2003-2006,
                (c) Andriy Palamarchuk 2006
+               (c) Edward Kmett 2012
 License     :  BSD-style (see the file LICENSE)
 
 Maintainer  :  libraries@haskell.org
@@ -52,10 +53,11 @@ import Control.Monad.Trans.Writer.Lazy as LazyWriter
 import Control.Monad.Trans.Writer.Strict as StrictWriter
 
 import Control.Monad.Trans.Class (lift)
-import Control.Exception (IOException)
+import Control.Exception (IOException, catch, ioError)
 import Control.Monad
 import Control.Monad.Instances ()
 import Data.Monoid
+import Prelude (Either(..), (.), IO)
 
 {- |
 The strategy of combining computations that can throw exceptions

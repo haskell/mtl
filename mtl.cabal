@@ -1,5 +1,5 @@
 name:         mtl
-version:      2.1.1
+version:      2.1.2
 cabal-version: >= 1.6
 license:      BSD3
 license-file: LICENSE
