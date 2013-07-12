@@ -97,7 +97,7 @@ instance MonadError IOException IO where
 -- ---------------------------------------------------------------------------
 -- Our parameterizable error monad
 
-instance Error e => MonadError e (Either e) where
+instance MonadError e (Either e) where
     throwError             = Left
     Left  l `catchError` h = h l
     Right r `catchError` _ = Right r
