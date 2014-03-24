@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 {- |
@@ -55,7 +56,11 @@ import Control.Monad.Trans.Writer.Strict as StrictWriter
 import Control.Monad.Trans.Class (lift)
 import Control.Exception (IOException, catch, ioError)
 import Control.Monad
+
+#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ < 707
 import Control.Monad.Instances ()
+#endif
+
 import Data.Monoid
 import Prelude (Either(..), (.), IO)
 
