@@ -43,6 +43,7 @@ module Control.Monad.Reader.Class (
     ) where
 
 import Control.Monad.Trans.Cont as Cont
+import Control.Monad.Trans.Except
 import Control.Monad.Trans.Error
 import Control.Monad.Trans.Identity
 import Control.Monad.Trans.List
@@ -126,6 +127,11 @@ instance MonadReader r' m => MonadReader r' (ContT r m) where
 instance (Error e, MonadReader r m) => MonadReader r (ErrorT e m) where
     ask   = lift ask
     local = mapErrorT . local
+    reader = lift . reader
+
+instance MonadReader r m => MonadReader r (ExceptT e m) where
+    ask   = lift ask
+    local = mapExceptT . local
     reader = lift . reader
 
 instance MonadReader r m => MonadReader r (IdentityT m) where
