@@ -22,6 +22,7 @@ module Control.Monad.State.Strict (
     -- * MonadState class
     MonadState(..),
     modify,
+    modify',
     gets,
     -- * The State monad
     State,
