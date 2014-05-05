@@ -33,6 +33,7 @@ import Control.Monad.Writer.Class
 
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Error(Error, ErrorT)
+import Control.Monad.Trans.Except(ExceptT)
 import Control.Monad.Trans.Maybe(MaybeT)
 import Control.Monad.Trans.Identity(IdentityT)
 import Control.Monad.Trans.RWS.Lazy as Lazy (RWST)
@@ -53,6 +54,7 @@ instance (Monoid w, Monad m) => MonadRWS r w s (Strict.RWST r w s m)
 -- All of these instances need UndecidableInstances,
 -- because they do not satisfy the coverage condition.
 
+instance MonadRWS r w s m => MonadRWS r w s (ExceptT e m)
 instance (Error e, MonadRWS r w s m) => MonadRWS r w s (ErrorT e m)
 instance MonadRWS r w s m => MonadRWS r w s (IdentityT m)
 instance MonadRWS r w s m => MonadRWS r w s (MaybeT m)
