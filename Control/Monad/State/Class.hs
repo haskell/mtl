@@ -24,7 +24,8 @@
 module Control.Monad.State.Class (
     MonadState(..),
     modify,
-    gets,
+    modify',
+    gets
   ) where
 
 import Control.Monad.Trans.Cont
@@ -77,6 +78,11 @@ class Monad m => MonadState s m | m -> s where
 --    with an @Int@ state.
 modify :: MonadState s m => (s -> s) -> m ()
 modify f = state (\s -> ((), f s))
+
+-- | A variant of 'modify' in which the computation is strict in the
+-- new state.
+modify' :: MonadState s m => (s -> s) -> m ()
+modify' f = state (\s -> let s' = f s in s' `seq` ((), s'))
 
 -- | Gets specific component of the state, using a projection function
 -- supplied.
