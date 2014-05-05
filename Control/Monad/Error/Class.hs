@@ -40,7 +40,9 @@ module Control.Monad.Error.Class (
     MonadError(..),
   ) where
 
+import Control.Monad.Trans.Except (Except(..), ExceptT)
 import Control.Monad.Trans.Error (Error(..), ErrorT)
+import qualified Control.Monad.Trans.Except as ExceptT (throwE, catchE)
 import qualified Control.Monad.Trans.Error as ErrorT (throwError, catchError)
 import Control.Monad.Trans.Identity as Identity
 import Control.Monad.Trans.List as List
@@ -110,6 +112,10 @@ instance MonadError e (Either e) where
 instance (Monad m, Error e) => MonadError e (ErrorT e m) where
     throwError = ErrorT.throwError
     catchError = ErrorT.catchError
+
+instance Monad m => MonadError e (ExceptT e m) where
+    throwError = ExceptT.throwE
+    catchError = ExceptT.catchE
 
 -- ---------------------------------------------------------------------------
 -- Instances for other mtl transformers
