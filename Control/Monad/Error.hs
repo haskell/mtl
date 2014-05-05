@@ -37,7 +37,8 @@ module Control.Monad.Error (
     MonadError(..),
     Error(..),
     -- * The ErrorT monad transformer
-    ErrorT(..),
+    ErrorT(ErrorT),
+    runErrorT,
     mapErrorT,
     module Control.Monad,
     module Control.Monad.Fix,
@@ -51,7 +52,7 @@ module Control.Monad.Error (
 
 import Control.Monad.Error.Class
 import Control.Monad.Trans
-import Control.Monad.Trans.Error (ErrorT(..), mapErrorT)
+import Control.Monad.Trans.Error (ErrorT(ErrorT), runErrorT, mapErrorT)
 
 import Control.Monad
 import Control.Monad.Fix

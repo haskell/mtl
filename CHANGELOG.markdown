@@ -1,3 +1,7 @@
+2.2.0.1
+-------
+* Fixed a bug caused by the change in how `transformers` 0.4 exports its data types. We will now export `runFooT` for each transformer again!
+
 2.2
 ---
 * `transformers` 0.4 support

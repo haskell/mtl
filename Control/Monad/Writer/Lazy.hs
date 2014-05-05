@@ -28,7 +28,8 @@ module Control.Monad.Writer.Lazy (
     execWriter,
     mapWriter,
     -- * The WriterT monad transformer
-    WriterT(..),
+    WriterT(WriterT),
+    runWriterT,
     execWriterT,
     mapWriterT,
     module Control.Monad,
@@ -42,7 +43,7 @@ import Control.Monad.Writer.Class
 import Control.Monad.Trans
 import Control.Monad.Trans.Writer.Lazy (
         Writer, runWriter, execWriter, mapWriter,
-        WriterT(..), execWriterT, mapWriterT)
+        WriterT(WriterT), runWriterT, execWriterT, mapWriterT)
 
 import Control.Monad
 import Control.Monad.Fix
