@@ -55,6 +55,7 @@ module Control.Monad.Cont.Class (
 import Control.Monad.Trans.Cont (ContT)
 import qualified Control.Monad.Trans.Cont as ContT
 import Control.Monad.Trans.Error as Error
+import Control.Monad.Trans.Except as Except
 import Control.Monad.Trans.Identity as Identity
 import Control.Monad.Trans.List as List
 import Control.Monad.Trans.Maybe as Maybe
@@ -98,6 +99,9 @@ instance MonadCont (ContT r m) where
 
 instance (Error e, MonadCont m) => MonadCont (ErrorT e m) where
     callCC = Error.liftCallCC callCC
+
+instance MonadCont m => MonadCont (ExceptT e m) where
+    callCC = Except.liftCallCC callCC
 
 instance MonadCont m => MonadCont (IdentityT m) where
     callCC = Identity.liftCallCC callCC
