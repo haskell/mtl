@@ -1,4 +1,4 @@
-{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE CPP, UndecidableInstances #-}
 
 {- |
 Module      :  Control.Monad.Error.Class
@@ -56,6 +56,13 @@ import Control.Exception (IOException)
 import Control.Monad
 import Control.Monad.Instances ()
 import Data.Monoid
+
+#if MIN_VERSION_base(4,6,0)
+import System.IO.Error (catchIOError)
+
+catch :: IO a -> (IOError -> IO a) -> IO a
+catch = catchIOError
+#endif
 
 {- |
 The strategy of combining computations that can throw exceptions
