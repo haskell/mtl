@@ -28,6 +28,7 @@ Library
     Control.Monad.Cont.Class
     Control.Monad.Error
     Control.Monad.Error.Class
+    Control.Monad.Except
     Control.Monad.Identity
     Control.Monad.List
     Control.Monad.RWS
