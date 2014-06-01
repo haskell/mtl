@@ -40,7 +40,7 @@ module Control.Monad.Error.Class (
     MonadError(..),
   ) where
 
-import Control.Monad.Trans.Except (Except(..), ExceptT)
+import Control.Monad.Trans.Except (Except, ExceptT)
 import Control.Monad.Trans.Error (Error(..), ErrorT)
 import qualified Control.Monad.Trans.Except as ExceptT (throwE, catchE)
 import qualified Control.Monad.Trans.Error as ErrorT (throwError, catchError)
