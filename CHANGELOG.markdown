@@ -3,6 +3,7 @@
 * Provide MINIMAL pragmas for `MonadState`, `MonadWriter`, `MonadReader`
 * Added a cyclic definition of `ask` in terms of `reader` for consistency with `get`/`put` vs. `state` and `tell` vs. `writer`
 * Fix deprecation warnings caused by `transformers` 0.4 deprecating `ErrorT`.
+* Added `Control.Monad.Except` in the style of the other `mtl` re-export modules
 
 2.2.0.1
 -------
