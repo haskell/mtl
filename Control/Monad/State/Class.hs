@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE UndecidableInstances #-}
 -- Search for UndecidableInstances to see why this is needed
 
@@ -65,6 +66,9 @@ class Monad m => MonadState s m | m -> s where
       let ~(a, s') = f s
       put s'
       return a
+#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 707
+    {-# MINIMAL state | get, put #-}
+#endif
 
 -- | Monadic state transformer.
 --

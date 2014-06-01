@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE UndecidableInstances #-}
 -- Search for UndecidableInstances to see why this is needed
 {- |
@@ -69,8 +70,12 @@ import Data.Monoid
 -- Note, the partially applied function type @(->) r@ is a simple reader monad.
 -- See the @instance@ declaration below.
 class Monad m => MonadReader r m | m -> r where
+#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 707
+    {-# MINIMAL (ask | reader), local #-}
+#endif
     -- | Retrieves the monad environment.
     ask   :: m r
+    ask = reader id
 
     -- | Executes a computation in a modified environment.
     local :: (r -> r) -- ^ The function to modify the environment.
