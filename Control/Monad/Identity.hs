@@ -13,7 +13,7 @@ Portability :  portable
 [Computation type:] Simple function application.
 
 [Binding strategy:] The bound function is applied to the input value.
-@'Identity' x >>= f == 'Identity' (f x)@
+@'Identity' x >>= f == f x@
 
 [Useful for:] Monads can be derived from monad transformers applied to the
 'Identity' monad.
