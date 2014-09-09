@@ -1,6 +1,6 @@
 {-# LANGUAGE CPP #-}
 {- |
-Module      :  Control.Monad.Error
+Module      :  Control.Monad.Except
 Copyright   :  (c) Michael Weber <michael.weber@post.rwth-aachen.de> 2001,
                (c) Jeff Newbern 2003-2006,
                (c) Andriy Palamarchuk 2006
