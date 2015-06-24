@@ -99,18 +99,13 @@ or a string longer than 5 characters. Otherwise it prints length of the string.
 >  s <- getLine
 >  reportResult (calculateLength s)
 >
->-- Wraps length calculation to catch the errors.
->-- Returns either length of the string or an error.
->calculateLength :: String -> LengthMonad Int
->calculateLength s = (calculateLengthOrFail s) `catchError` Left
->
 >-- Attempts to calculate length and throws an error if the provided string is
 >-- empty or longer than 5 characters.
->-- The processing is done in Either monad.
->calculateLengthOrFail :: String -> LengthMonad Int
->calculateLengthOrFail [] = throwError EmptyString
->calculateLengthOrFail s | len > 5 = throwError (StringTooLong len)
->                        | otherwise = return len
+>-- (Throwing an error in this monad means returning a 'Left'.)
+>calculateLength :: String -> LengthMonad Int
+>calculateLength [] = throwError EmptyString
+>calculateLength s | len > 5 = throwError (StringTooLong len)
+>                  | otherwise = return len
 >  where len = length s
 >
 >-- Prints result of the string length calculation.

@@ -79,8 +79,10 @@ In that case and many other common cases the resulting monad is already defined
 as an instance of the 'MonadError' class.
 You can also define your own error type and\/or use a monad type constructor
 other than @'Either' 'String'@ or @'Either' 'IOError'@.
-In these cases you will have to explicitly define instances of the 'Error'
-and\/or 'MonadError' classes.
+In these cases you will have to explicitly define instances of the 'MonadError'
+class.
+(If you are using the deprecated "Control.Monad.Error" or
+"Control.Monad.Trans.Error", you may also have to define an 'Error' instance.)
 -}
 class (Monad m) => MonadError e m | m -> e where
     -- | Is used within a monadic computation to begin exception processing.
