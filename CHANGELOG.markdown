@@ -1,3 +1,7 @@
+2.2.2
+-----
+* `Control.Monad.Identity` now re-exports `Control.Monad.Trans.Identity`
+
 2.2.1
 -------
 * Provide MINIMAL pragmas for `MonadState`, `MonadWriter`, `MonadReader`
