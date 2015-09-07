@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {- |
 Module      :  Control.Monad.Cont.Class
 Copyright   :  (c) The University of Glasgow 2001,
@@ -90,6 +91,9 @@ class Monad m => MonadCont m where
     even if it is many layers deep within nested computations.
     -}
     callCC :: ((a -> m b) -> m a) -> m a
+#if __GLASGOW_HASKELL__ >= 707
+    {-# MINIMAL callCC #-}
+#endif
 
 instance MonadCont (ContT r m) where
     callCC = ContT.callCC

@@ -70,7 +70,7 @@ import Data.Monoid
 -- Note, the partially applied function type @(->) r@ is a simple reader monad.
 -- See the @instance@ declaration below.
 class Monad m => MonadReader r m | m -> r where
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 707
+#if __GLASGOW_HASKELL__ >= 707
     {-# MINIMAL (ask | reader), local #-}
 #endif
     -- | Retrieves the monad environment.

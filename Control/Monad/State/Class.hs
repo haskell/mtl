@@ -66,7 +66,7 @@ class Monad m => MonadState s m | m -> s where
       let ~(a, s') = f s
       put s'
       return a
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 707
+#if __GLASGOW_HASKELL__ >= 707
     {-# MINIMAL state | get, put #-}
 #endif
 

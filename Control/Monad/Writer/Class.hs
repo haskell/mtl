@@ -60,7 +60,7 @@ import Data.Monoid
 -- the written object.
 
 class (Monoid w, Monad m) => MonadWriter w m | m -> w where
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ >= 707
+#if __GLASGOW_HASKELL__ >= 707
     {-# MINIMAL (writer | tell), listen, pass #-}
 #endif
     -- | @'writer' (a,w)@ embeds a simple writer action.

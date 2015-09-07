@@ -98,6 +98,9 @@ class (Monad m) => MonadError e m | m -> e where
     Note that @handler@ and the do-block must have the same return type.
     -}
     catchError :: m a -> (e -> m a) -> m a
+#if __GLASGOW_HASKELL__ >= 707
+    {-# MINIMAL throwError, catchError #-}
+#endif
 
 instance MonadError IOException IO where
     throwError = ioError
