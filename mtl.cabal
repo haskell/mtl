@@ -54,7 +54,7 @@ Library
     Control.Monad.Writer.Class
     Control.Monad.Writer.Lazy
     Control.Monad.Writer.Strict
-  build-depends: base < 6, transformers == 0.4.*
+  build-depends: base < 6, transformers >= 0.4 && <0.6
   extensions:
     MultiParamTypeClasses
     FunctionalDependencies
