@@ -106,6 +106,11 @@ instance MonadError IOException IO where
     throwError = ioError
     catchError = catch
 
+instance MonadError () Maybe where
+    throwError ()        = Nothing
+    catchError Nothing f = f ()
+    catchError x       _ = x
+
 -- ---------------------------------------------------------------------------
 -- Our parameterizable error monad
 
