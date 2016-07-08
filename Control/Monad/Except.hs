@@ -33,6 +33,7 @@ module Control.Monad.Except
   (
     -- * Monads with error handling
     MonadError(..),
+    liftEither,
     -- * The ExceptT monad transformer
     ExceptT(ExceptT),
     Except,

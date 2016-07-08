@@ -38,6 +38,7 @@ The Error monad (also called the Exception monad).
 module Control.Monad.Error.Class (
     Error(..),
     MonadError(..),
+    liftEither,
   ) where
 
 import Control.Monad.Trans.Except (Except, ExceptT)
@@ -64,7 +65,7 @@ import Control.Monad.Instances ()
 #endif
 
 import Data.Monoid
-import Prelude (Either(..), (.), IO)
+import Prelude (Either(..), either, (.), IO)
 
 {- |
 The strategy of combining computations that can throw exceptions
@@ -101,6 +102,16 @@ class (Monad m) => MonadError e m | m -> e where
 #if __GLASGOW_HASKELL__ >= 707
     {-# MINIMAL throwError, catchError #-}
 #endif
+
+{- |
+Lifts an @'Either' e@ into any @'MonadError' e@.
+
+> do { val <- liftEither =<< action1; action2 }
+
+where @action1@ returns an 'Either' to represent errors.
+-}
+liftEither :: MonadError e m => Either e a -> m a
+liftEither = either throwError return
 
 instance MonadError IOException IO where
     throwError = ioError
