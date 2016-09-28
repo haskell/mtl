@@ -96,7 +96,7 @@ with 'runReader', how to access the Reader data with 'ask' and 'asks'.
 >-- The selector function to  use with 'asks'.
 >-- Returns value of the variable with specified name.
 >lookupVar :: String -> Bindings -> Int
->lookupVar name bindings = fromJust (Map.lookup name bindings)
+>lookupVar name bindings = maybe 0 id (Map.lookup name bindings)
 >
 >sampleBindings = Map.fromList [("count",3), ("1",1), ("b",2)]
 >
