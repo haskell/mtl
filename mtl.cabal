@@ -1,6 +1,6 @@
 name:         mtl
 version:      2.2.2
-cabal-version: >= 1.6
+cabal-version: >= 1.10
 license:      BSD3
 license-file: LICENSE
 author:       Andy Gill
@@ -24,11 +24,13 @@ tested-with:
   GHC==7.6.3,
   GHC==7.8.4,
   GHC==7.10.3,
-  GHC==7.11.*
+  GHC==8.0.2,
+  GHC==8.2.1,
+  GHC==8.3.*
 
 source-repository head
   type: git
-  location: git://github.com/ekmett/mtl.git
+  location: https://github.com/ekmett/mtl.git
 
 Library
   exposed-modules:
@@ -54,9 +56,17 @@ Library
     Control.Monad.Writer.Class
     Control.Monad.Writer.Lazy
     Control.Monad.Writer.Strict
-  build-depends: base < 6, transformers >= 0.4 && <0.6
-  extensions:
+  build-depends: base < 5, transformers >= 0.4 && <0.6
+
+  default-language: Haskell2010
+  other-extensions:
+    CPP
     MultiParamTypeClasses
     FunctionalDependencies
     FlexibleInstances
+    UndecidableInstances
+
   ghc-options: -Wall -fno-warn-unused-imports -fno-warn-warnings-deprecations
+
+  if impl(ghc >= 8.0)
+    ghc-options: -Wcompat -Wnoncanonical-monad-instances -Wnoncanonical-monadfail-instances
