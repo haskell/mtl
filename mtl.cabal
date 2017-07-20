@@ -7,8 +7,8 @@ author:       Andy Gill
 maintainer:   Edward Kmett <ekmett@gmail.com>
 category:     Control
 synopsis:     Monad classes, using functional dependencies
-homepage:     http://github.com/ekmett/mtl
-bug-reports:  http://github.com/ekmett/mtl/issues
+homepage:     http://github.com/haskell/mtl
+bug-reports:  http://github.com/haskell/mtl/issues
 description:
     Monad classes using functional dependencies, with instances
     for various monad transformers, inspired by the paper
@@ -30,7 +30,7 @@ tested-with:
 
 source-repository head
   type: git
-  location: https://github.com/ekmett/mtl.git
+  location: https://github.com/haskell/mtl.git
 
 Library
   exposed-modules:
