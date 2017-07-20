@@ -59,7 +59,7 @@ import Control.Monad.Fix
 -- $examples
 -- A function to increment a counter.  Taken from the paper
 -- /Generalising Monads to Arrows/, John
--- Hughes (<http://www.math.chalmers.se/~rjmh/>), November 1998:
+-- Hughes (<http://www.cse.chalmers.se/~rjmh/Papers/arrows.pdf>), November 1998:
 --
 -- > tick :: State Int Int
 -- > tick = do n <- get
