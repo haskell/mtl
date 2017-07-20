@@ -16,7 +16,7 @@ description:
     by Mark P Jones, in /Advanced School of Functional Programming/, 1995
     (<http://web.cecs.pdx.edu/~mpj/pubs/springschool.html>).
 build-type: Simple
-extra-source-files: CHANGELOG.markdown
+extra-source-files: CHANGELOG.markdown, README.markdown
 tested-with:
   GHC==7.0.4,
   GHC==7.2.2,
