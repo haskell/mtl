@@ -130,7 +130,7 @@ Shows how to modify Reader content with 'local'.
 
 Now you are thinking: 'Wow, what a great monad! I wish I could use
 Reader functionality in MyFavoriteComplexMonad!'. Don't worry.
-This can be easy done with the 'ReaderT' monad transformer.
+This can be easily done with the 'ReaderT' monad transformer.
 This example shows how to combine @ReaderT@ with the IO monad.
 
 >-- The Reader/IO combined monad, where Reader stores a string.
