@@ -91,8 +91,8 @@ modify f = state (\s -> ((), f s))
 -- new state.
 modify' :: MonadState s m => (s -> s) -> m ()
 modify' f = do
-  s' <- liftM f get
-  s' `seq` put s'
+  s' <- get
+  put $! f s'
 
 -- | Gets specific component of the state, using a projection function
 -- supplied.
