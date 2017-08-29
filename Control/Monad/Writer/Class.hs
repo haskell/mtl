@@ -103,6 +103,12 @@ censor f m = pass $ do
     a <- m
     return (a, f)
 
+instance (Monoid w) => MonadWriter w ((,) w) where
+  writer ~(a, w) = (w, a)
+  tell w = (w, ())
+  listen ~(w, a) = (w, (a, w))
+  pass ~(w, (a, f)) = (f w, a)
+
 instance (Monoid w, Monad m) => MonadWriter w (Lazy.WriterT w m) where
     writer = Lazy.writer
     tell   = Lazy.tell
