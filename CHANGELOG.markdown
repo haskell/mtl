@@ -3,6 +3,10 @@
 * `Control.Monad.Identity` now re-exports `Control.Monad.Trans.Identity`
 * Fix a bug in which `Control.Monad.State.Class.modify'` was not as strict in
   the new state as its counterparts in `transformers`
+* Add a `MonadError () Maybe` instance
+* Add `liftEither :: MonadError e m => Either e a -> m a` to
+  `Control.Monad.Except{.Class}`
+* Add a `MonadWriter w ((,) w)` instance (when built against `base-4.9` or later)
 
 2.2.1
 -------
