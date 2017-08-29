@@ -68,7 +68,7 @@ import Control.Monad.Instances ()
 #endif
 
 import Data.Monoid
-import Prelude (Either(..), either, (.), IO)
+import Prelude (Either(..), Maybe(..), either, (.), IO)
 
 {- |
 The strategy of combining computations that can throw exceptions
