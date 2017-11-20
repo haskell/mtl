@@ -77,11 +77,11 @@ import Control.Monad.Instances ()
 Please do not confuse 'ExceptT' and 'throwError' with 'Control.Exception.Exception' /
 'Control.Exception.SomeException' and 'Control.Exception.catch', respectively. The latter
 are for exceptions built into GHC, by default, and are mostly used from within the IO monad.
-They and do not interact with the "exceptions" in this package at all. This package allows you
+They do not interact with the "exceptions" in this package at all. This package allows you
 to define a new kind of exception control mechanism which does not necessarily need your code to
 be placed in the IO monad.
 
-In short, all "catching" mechanims in this library will be unable to catch exceptions thrown
+In short, all "catching" mechanisms in this library will be unable to catch exceptions thrown
 by functions in the 'Control.Exception' package, and vice-versa.
 -}
 
