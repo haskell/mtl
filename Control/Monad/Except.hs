@@ -31,6 +31,8 @@ The Error monad (also called the Exception monad).
 -}
 module Control.Monad.Except
   (
+    -- * Warning
+    -- $warning
     -- * Monads with error handling
     MonadError(..),
     liftEither,
@@ -70,6 +72,18 @@ import Control.Monad.Fix
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ < 707
 import Control.Monad.Instances ()
 #endif
+
+{- $warning
+Please do not confuse 'ExceptT' and 'throwError' with 'Contorl.Exception.Exception' / 
+'Control.Exception.SomeException' and 'Control.Exception.catch', respectively. The latter
+are for exceptions built into GHC, by default, and are mostly used from within the IO monad.
+They and do not interact with the "exceptions" in this package at all. This package allows you
+to define a new kind of exception control mechanism which does not necessarily need your code to
+be placed in the IO monad.
+
+In short, all "catching" mechanims in this library will be unable to catch exceptions thrown 
+by functions in the 'Control.Exception' package, and vice-versa.
+-}
 
 {- $customErrorExample
 Here is an example that demonstrates the use of a custom error data type with
