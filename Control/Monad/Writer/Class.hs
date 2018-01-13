@@ -30,6 +30,7 @@ module Control.Monad.Writer.Class (
     censor,
   ) where
 
+import Control.Monad.Trans.Accum as Accum
 import Control.Monad.Trans.Error as Error
 import Control.Monad.Trans.Except as Except
 import Control.Monad.Trans.Identity as Identity
@@ -140,6 +141,12 @@ instance (Monoid w, Monad m) => MonadWriter w (StrictRWS.RWST r w s m) where
 --
 -- All of these instances need UndecidableInstances,
 -- because they do not satisfy the coverage condition.
+
+instance (Monoid v, MonadWriter w m) => MonadWriter w (AccumT v m) where
+    writer = lift . writer
+    tell   = lift . tell
+    listen m = AccumT $ fmap (\(~((x,v),w)) -> ((x,w),v)) . listen . runAccumT m
+    pass   m = AccumT $ pass . fmap (\(~((x,v),w)) -> ((x,w),v)) . runAccumT m
 
 instance (Error e, MonadWriter w m) => MonadWriter w (ErrorT e m) where
     writer = lift . writer

@@ -34,6 +34,7 @@ import Control.Monad.Reader.Class
 import Control.Monad.State.Class
 import Control.Monad.Writer.Class
 
+import Control.Monad.Trans.Accum
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Error(Error, ErrorT)
 import Control.Monad.Trans.Except(ExceptT)
@@ -57,6 +58,7 @@ instance (Monoid w, Monad m) => MonadRWS r w s (Strict.RWST r w s m)
 -- All of these instances need UndecidableInstances,
 -- because they do not satisfy the coverage condition.
 
+instance (Monoid v, MonadRWS r w s m) => MonadRWS r w s (AccumT v m)
 instance MonadRWS r w s m => MonadRWS r w s (ExceptT e m)
 instance (Error e, MonadRWS r w s m) => MonadRWS r w s (ErrorT e m)
 instance MonadRWS r w s m => MonadRWS r w s (IdentityT m)

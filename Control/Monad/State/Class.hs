@@ -32,6 +32,7 @@ module Control.Monad.State.Class (
     gets
   ) where
 
+import Control.Monad.Trans.Accum
 import Control.Monad.Trans.Cont
 import Control.Monad.Trans.Error
 import Control.Monad.Trans.Except
@@ -126,6 +127,11 @@ instance (Monad m, Monoid w) => MonadState s (StrictRWS.RWST r w s m) where
 --
 -- All of these instances need UndecidableInstances,
 -- because they do not satisfy the coverage condition.
+
+instance (Monoid w, MonadState s m) => MonadState s (AccumT w m) where
+    get = lift get
+    put = lift . put
+    state = lift . state
 
 instance MonadState s m => MonadState s (ContT r m) where
     get = lift get

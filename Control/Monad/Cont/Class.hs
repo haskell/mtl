@@ -55,6 +55,7 @@ module Control.Monad.Cont.Class (
 
 import Control.Monad.Trans.Cont (ContT)
 import qualified Control.Monad.Trans.Cont as ContT
+import Control.Monad.Trans.Accum as Accum
 import Control.Monad.Trans.Error as Error
 import Control.Monad.Trans.Except as Except
 import Control.Monad.Trans.Identity as Identity
@@ -100,6 +101,10 @@ instance MonadCont (ContT r m) where
 
 -- ---------------------------------------------------------------------------
 -- Instances for other mtl transformers
+
+instance (Monoid w, MonadCont m) => MonadCont (AccumT w m) where
+    callCC f = AccumT $ \s -> callCC $ \c ->
+        runAccumT (f (\a -> AccumT $ \s' -> c (a, s'))) s
 
 instance (Error e, MonadCont m) => MonadCont (ErrorT e m) where
     callCC = Error.liftCallCC callCC

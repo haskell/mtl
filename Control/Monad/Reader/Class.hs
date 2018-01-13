@@ -46,6 +46,7 @@ module Control.Monad.Reader.Class (
     asks,
     ) where
 
+import Control.Monad.Trans.Accum
 import Control.Monad.Trans.Cont as Cont
 import Control.Monad.Trans.Except
 import Control.Monad.Trans.Error
@@ -126,6 +127,11 @@ instance (Monad m, Monoid w) => MonadReader r (StrictRWS.RWST r w s m) where
 --
 -- All of these instances need UndecidableInstances,
 -- because they do not satisfy the coverage condition.
+
+instance (Monoid w, MonadReader r m) => MonadReader r (AccumT w m) where
+    ask   = lift ask
+    local = mapAccumT . local
+    reader = lift . reader
 
 instance MonadReader r' m => MonadReader r' (ContT r m) where
     ask   = lift ask

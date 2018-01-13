@@ -44,6 +44,7 @@ module Control.Monad.Error.Class (
     liftEither,
   ) where
 
+import Control.Monad.Trans.Accum as Accum
 import Control.Monad.Trans.Except (Except, ExceptT)
 import Control.Monad.Trans.Error (Error(..), ErrorT)
 import qualified Control.Monad.Trans.Except as ExceptT (throwE, catchE)
@@ -68,7 +69,7 @@ import Control.Monad.Instances ()
 #endif
 
 import Data.Monoid
-import Prelude (Either(..), Maybe(..), either, (.), IO)
+import Prelude (Either(..), Maybe(..), either, (.), IO, ($))
 
 {- |
 The strategy of combining computations that can throw exceptions
@@ -146,6 +147,11 @@ instance Monad m => MonadError e (ExceptT e m) where
 --
 -- All of these instances need UndecidableInstances,
 -- because they do not satisfy the coverage condition.
+
+instance (Monoid w, MonadError e m) => MonadError e (AccumT w m) where
+    throwError = lift . throwError
+    catchError m h = AccumT $ \s -> runAccumT m s `catchError` \e ->
+        runAccumT (h e) s
 
 instance MonadError e m => MonadError e (IdentityT m) where
     throwError = lift . throwError
