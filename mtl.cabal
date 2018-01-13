@@ -34,6 +34,8 @@ source-repository head
 
 Library
   exposed-modules:
+    Control.Monad.Accum
+    Control.Monad.Accum.Class
     Control.Monad.Cont
     Control.Monad.Cont.Class
     Control.Monad.Error
@@ -56,7 +58,7 @@ Library
     Control.Monad.Writer.Class
     Control.Monad.Writer.Lazy
     Control.Monad.Writer.Strict
-  build-depends: base < 5, transformers >= 0.4 && <0.6
+  build-depends: base < 5, transformers >= 0.5.5 && <0.6
 
   default-language: Haskell2010
   other-extensions:
