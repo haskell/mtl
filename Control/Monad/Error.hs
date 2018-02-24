@@ -22,7 +22,7 @@ or using exception handling to structure error handling.
 [Zero and plus:] Zero is represented by an empty error and the plus operation
 executes its second argument if the first fails.
 
-[Example type:] @'Data.Either' String a@
+[Example type:] @'Either' String a@
 
 The Error monad (also called the Exception monad).
 -}
