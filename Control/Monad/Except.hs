@@ -82,7 +82,7 @@ to define a new kind of exception control mechanism which does not necessarily n
 be placed in the IO monad.
 
 In short, all \"catching\" mechanisms in this library will be unable to catch exceptions thrown
-by functions in the 'Control.Exception' module, and vice-versa.
+by functions in the "Control.Exception" module, and vice-versa.
 -}
 
 {- $customErrorExample
