@@ -33,7 +33,7 @@ The Error monad (also called the Exception monad).
     Andy Gill (<http://web.cecs.pdx.edu/~andy/>)
 -}
 module Control.Monad.Error
-  {-# DEPRECATED "Use Control.Monad.Except instead" #-} (
+  {-# DEPRECATED "Use \"Control.Monad.Except\" instead" #-} (
     -- * Monads with error handling
     MonadError(..),
     Error(..),
