@@ -104,6 +104,9 @@ censor f m = pass $ do
     return (a, f)
 
 #if MIN_VERSION_base(4,9,0)
+-- | __NOTE__: This instance is only defined for @base >= 4.9.0@.
+--
+-- @since 2.2.2
 instance (Monoid w) => MonadWriter w ((,) w) where
   writer ~(a, w) = (w, a)
   tell w = (w, ())
@@ -147,6 +150,7 @@ instance (Error e, MonadWriter w m) => MonadWriter w (ErrorT e m) where
     listen = Error.liftListen listen
     pass   = Error.liftPass pass
 
+-- | @since 2.2
 instance MonadWriter w m => MonadWriter w (ExceptT e m) where
     writer = lift . writer
     tell   = lift . tell

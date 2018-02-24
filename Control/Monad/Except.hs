@@ -22,6 +22,8 @@ or using exception handling to structure error handling.
 [Example type:] @'Either' String a@
 
 The Error monad (also called the Exception monad).
+
+@since 2.2.1
 -}
 
 {-

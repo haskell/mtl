@@ -112,6 +112,8 @@ Lifts an @'Either' e@ into any @'MonadError' e@.
 > do { val <- liftEither =<< action1; action2 }
 
 where @action1@ returns an 'Either' to represent errors.
+
+@since 2.2.2
 -}
 liftEither :: MonadError e m => Either e a -> m a
 liftEither = either throwError return
@@ -120,6 +122,7 @@ instance MonadError IOException IO where
     throwError = ioError
     catchError = catch
 
+{- | @since 2.2.2 -}
 instance MonadError () Maybe where
     throwError ()        = Nothing
     catchError Nothing f = f ()
@@ -137,6 +140,7 @@ instance (Monad m, Error e) => MonadError e (ErrorT e m) where
     throwError = ErrorT.throwError
     catchError = ErrorT.catchError
 
+{- | @since 2.2 -}
 instance Monad m => MonadError e (ExceptT e m) where
     throwError = ExceptT.throwE
     catchError = ExceptT.catchE

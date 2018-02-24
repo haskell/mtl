@@ -104,6 +104,7 @@ instance MonadCont (ContT r m) where
 instance (Error e, MonadCont m) => MonadCont (ErrorT e m) where
     callCC = Error.liftCallCC callCC
 
+{- | @since 2.2 -}
 instance MonadCont m => MonadCont (ExceptT e m) where
     callCC = Except.liftCallCC callCC
 

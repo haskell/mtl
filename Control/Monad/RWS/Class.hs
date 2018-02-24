@@ -57,6 +57,7 @@ instance (Monoid w, Monad m) => MonadRWS r w s (Strict.RWST r w s m)
 -- All of these instances need UndecidableInstances,
 -- because they do not satisfy the coverage condition.
 
+-- | @since 2.2
 instance MonadRWS r w s m => MonadRWS r w s (ExceptT e m)
 instance (Error e, MonadRWS r w s m) => MonadRWS r w s (ErrorT e m)
 instance MonadRWS r w s m => MonadRWS r w s (IdentityT m)

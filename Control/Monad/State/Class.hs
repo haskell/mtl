@@ -89,6 +89,8 @@ modify f = state (\s -> ((), f s))
 
 -- | A variant of 'modify' in which the computation is strict in the
 -- new state.
+--
+-- @since 2.2
 modify' :: MonadState s m => (s -> s) -> m ()
 modify' f = do
   s' <- get
@@ -137,6 +139,7 @@ instance (Error e, MonadState s m) => MonadState s (ErrorT e m) where
     put = lift . put
     state = lift . state
 
+-- | @since 2.2
 instance MonadState s m => MonadState s (ExceptT e m) where
     get = lift get
     put = lift . put

@@ -137,6 +137,7 @@ instance (Error e, MonadReader r m) => MonadReader r (ErrorT e m) where
     local = mapErrorT . local
     reader = lift . reader
 
+{- | @since 2.2 -}
 instance MonadReader r m => MonadReader r (ExceptT e m) where
     ask   = lift ask
     local = mapExceptT . local
