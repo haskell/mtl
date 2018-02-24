@@ -66,6 +66,11 @@ Library
     FlexibleInstances
     UndecidableInstances
 
+  -- This is a SafeHaskell safeguard (pun intended) to explicitly declare the API contract of `mtl`
+  -- GHC versions before 7.4 were hopelessly broken or incapable of SafeHaskell
+  if impl(ghc >= 7.4)
+    default-extensions: Safe
+
   ghc-options: -Wall -fno-warn-unused-imports -fno-warn-warnings-deprecations
 
   if impl(ghc >= 8.0)
