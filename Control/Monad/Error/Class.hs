@@ -77,7 +77,7 @@ from the point an exception is thrown to the point that it is handled.
 
 Is parameterized over the type of error information and
 the monad type constructor.
-It is common to use @'Data.Either' String@ as the monad type constructor
+It is common to use @'Either' String@ as the monad type constructor
 for an error monad in which error descriptions take the form of strings.
 In that case and many other common cases the resulting monad is already defined
 as an instance of the 'MonadError' class.

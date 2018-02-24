@@ -19,7 +19,7 @@ other values are used as inputs to the bound function.
 [Useful for:] Building computations from sequences of functions that may fail
 or using exception handling to structure error handling.
 
-[Example type:] @'Data.Either' String a@
+[Example type:] @'Either' String a@
 
 The Error monad (also called the Exception monad).
 -}
