@@ -80,7 +80,11 @@ The variable @count@ contains number of variables in the bindings.
 You can see how to run a Reader monad and retrieve data from it
 with 'runReader', how to access the Reader data with 'ask' and 'asks'.
 
-> type Bindings = Map String Int;
+>import           Control.Monad.Reader
+>import           Data.Map (Map)
+>import qualified Data.Map as Map
+>
+>type Bindings = Map String Int
 >
 >-- Returns True if the "count" variable contains correct bindings size.
 >isCountCorrect :: Bindings -> Bool
@@ -93,22 +97,26 @@ with 'runReader', how to access the Reader data with 'ask' and 'asks'.
 >    bindings <- ask
 >    return (count == (Map.size bindings))
 >
->-- The selector function to  use with 'asks'.
+>-- The selector function to use with 'asks'.
 >-- Returns value of the variable with specified name.
 >lookupVar :: String -> Bindings -> Int
 >lookupVar name bindings = maybe 0 id (Map.lookup name bindings)
 >
->sampleBindings = Map.fromList [("count",3), ("1",1), ("b",2)]
+>sampleBindings :: Bindings
+>sampleBindings = Map.fromList [("count", 3), ("1", 1), ("b", 2)]
 >
+>main :: IO ()
 >main = do
->    putStr $ "Count is correct for bindings " ++ (show sampleBindings) ++ ": ";
->    putStrLn $ show (isCountCorrect sampleBindings);
+>    putStr $ "Count is correct for bindings " ++ (show sampleBindings) ++ ": "
+>    putStrLn $ show (isCountCorrect sampleBindings)
 -}
 
 {- $localExample
 
 Shows how to modify Reader content with 'local'.
 
+>import Control.Monad.Reader
+>
 >calculateContentLen :: Reader String Int
 >calculateContentLen = do
 >    content <- ask
@@ -118,6 +126,7 @@ Shows how to modify Reader content with 'local'.
 >calculateModifiedContentLen :: Reader String Int
 >calculateModifiedContentLen = local ("Prefix " ++) calculateContentLen
 >
+>main :: IO ()
 >main = do
 >    let s = "12345";
 >    let modifiedLen = runReader calculateModifiedContentLen s
@@ -133,12 +142,14 @@ Reader functionality in MyFavoriteComplexMonad!'. Don't worry.
 This can be easily done with the 'ReaderT' monad transformer.
 This example shows how to combine @ReaderT@ with the IO monad.
 
+>import Control.Monad.Reader
+>
 >-- The Reader/IO combined monad, where Reader stores a string.
 >printReaderContent :: ReaderT String IO ()
 >printReaderContent = do
 >    content <- ask
 >    liftIO $ putStrLn ("The Reader Content: " ++ content)
 >
->main = do
->    runReaderT printReaderContent "Some Content"
+>main :: IO ()
+>main = runReaderT printReaderContent "Some Content"
 -}
