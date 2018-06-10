@@ -6,12 +6,13 @@ license-file: LICENSE
 author:       Andy Gill
 maintainer:   Edward Kmett <ekmett@gmail.com>
 category:     Control
-synopsis:     Monad transformers, using functional dependencies
+synopsis:     Monad classes for transformers, using functional dependencies
 homepage:     http://github.com/haskell/mtl
 bug-reports:  http://github.com/haskell/mtl/issues
 description:
-  MTL is an implementation of monad transformers, using functional
-  dependencies for generic lifting of monadic actions.
+  MTL is a collection of monad classes, extending the 'transformers'
+  package, using functional dependencies for generic lifting of
+  monadic actions.
 build-type: Simple
 extra-source-files: CHANGELOG.markdown, README.markdown
 tested-with:

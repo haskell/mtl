@@ -1,16 +1,17 @@
 # `mtl` [![Hackage](https://img.shields.io/hackage/v/mtl.svg)](https://hackage.haskell.org/package/mtl) [![Build Status](https://travis-ci.org/haskell/mtl.svg)](https://travis-ci.org/haskell/mtl)
 
-MTL is an implementation of monad transformers, using functional
-dependencies for generic lifting of monadic actions.
+MTL is a collection of monad classes, extending the `transformers`
+package, using functional dependencies for generic lifting of monadic
+actions.
 
 ## Structure
 
 Transformers in MTL are divided into classes and data types. Classes
-define the monadic operations of transformers. Data types implement
-transformers, providing instances for _all_ the transformer type classes
-in MTL.
+define the monadic operations of transformers. Data types, generally
+from the `transformers` package, implement transformers, and MTL
+provides instances for all the transformer type classes.
 
-The transformers in MTL use a common module, data type, and function
+MTL and `transformers` use a common module, data type, and function
 naming scheme. As an example, let's imagine we have a transformer
 `Foo`.
 
@@ -18,7 +19,9 @@ In the `Control.Monad.Foo` module, we'd find:
 
 * A type class `StateFoo` with the transformer operations.
 * A data type `FooT` with instances for all monad transformer classes.
-* Functions to run the transformed computation, e.g. `runFooT`.
+* Functions to run the transformed computation, e.g. `runFooT`. For
+  the actual transformers, there are usually a number of useful runner
+  functions.
 
 ### Lifting
 
@@ -47,10 +50,10 @@ mightFail = do
 
 ### Transformers
 
-The following outlines the available monad transformers in MTL. For
-more details, and the corresponding documentation of the `mtl` version
-you are using, see [the documentation on
-Hackage](https://hackage.haskell.org/package/mtl).
+The following outlines the available monad classes and transformers in
+MTL and `transformers`. For more details, and the corresponding
+documentation of the `mtl` version you are using, see [the
+documentation on Hackage](https://hackage.haskell.org/package/mtl).
 
 * `Control.Monad.Cont`
 
@@ -105,7 +108,7 @@ Hackage](https://hackage.haskell.org/package/mtl).
 * `Control.Monad.Reader`
 
     The Reader monad transformer represents a computation which can
-    read values from a shared environment.
+    read values from an environment.
 
     - Class: `Control.Monad.Reader.Class.MonadReader`
     - Transformer: `Control.Monad.Reader.ReaderT`
@@ -127,7 +130,8 @@ Hackage](https://hackage.haskell.org/package/mtl).
     The Writer monad transformer represents a computation that can
     produce a stream of data in addition to the computed values. This
     can be used to collect values in some data structure with a
-    `Monoid` instance.
+    `Monoid` instance. This can be used for things like logging and
+    accumulating values throughout a computation.
 
     - Class: `Control.Monad.Writer.Class.MonadWriter`
     - Lazy transformers: `Control.Monad.Writer.Lazy.WriterT`
