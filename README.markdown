@@ -17,7 +17,7 @@ naming scheme. As an example, let's imagine we have a transformer
 
 In the `Control.Monad.Foo` module, we'd find:
 
-* A type class `StateFoo` with the transformer operations.
+* A type class `MonadFoo` with the transformer operations.
 * A data type `FooT` with instances for all monad transformer classes.
 * Functions to run the transformed computation, e.g. `runFooT`. For
   the actual transformers, there are usually a number of useful runner
