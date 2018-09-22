@@ -1,6 +1,7 @@
 dist
 dist-boot
 dist-install
+dist-newstyle
 ghc.mk
 GNUmakefile
 cabal-dev
