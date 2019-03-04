@@ -42,8 +42,10 @@ module Control.Monad.Error.Class (
     Error(..),
     MonadError(..),
     liftEither,
+    tryError,
   ) where
 
+import Control.Applicative (Applicative(pure))
 import Control.Monad.Trans.Except (Except, ExceptT)
 import Control.Monad.Trans.Error (Error(..), ErrorT)
 import qualified Control.Monad.Trans.Except as ExceptT (throwE, catchE)
@@ -117,6 +119,11 @@ where @action1@ returns an 'Either' to represent errors.
 -}
 liftEither :: MonadError e m => Either e a -> m a
 liftEither = either throwError return
+
+-- | Catch an exception and return it in 'Left', or return a successful result
+-- in 'Right'.
+tryError :: (MonadError e m, Applicative m) => m a -> m (Either e a)
+tryError m = catchError (fmap Right m) (pure . Left)
 
 instance MonadError IOException IO where
     throwError = ioError
