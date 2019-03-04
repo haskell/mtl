@@ -16,7 +16,7 @@ Maintainer  :  libraries@haskell.org
 Stability   :  experimental
 Portability :  non-portable (multi-parameter type classes)
 
-[Computation type:] Computations which may fail or throw exceptions.
+[Computation type:] Computations which may throw exceptions.
 
 [Binding strategy:] Failure records information about the cause\/location
 of the failure. Failure values bypass the bound function,
@@ -72,30 +72,39 @@ import Control.Monad.Instances ()
 import Data.Monoid
 import Prelude (Either(..), Maybe(..), either, (.), IO)
 
-{- |
-The strategy of combining computations that can throw exceptions
-by bypassing bound functions
-from the point an exception is thrown to the point that it is handled.
-
-Is parameterized over the type of error information and
-the monad type constructor.
-It is common to use @'Either' String@ as the monad type constructor
-for an error monad in which error descriptions take the form of strings.
-In that case and many other common cases the resulting monad is already defined
-as an instance of the 'MonadError' class.
-You can also define your own error type and\/or use a monad type constructor
-other than @'Either' 'String'@ or @'Either' 'IOError'@.
-In these cases you will have to explicitly define instances of the 'MonadError'
-class.
-(If you are using the deprecated "Control.Monad.Error" or
-"Control.Monad.Trans.Error", you may also have to define an 'Error' instance.)
--}
+-- | Monads with a notion of exceptions which can be thrown and caught.
+--
+-- === Laws
+--
+-- 'catchError' and 'throwError' form a monad, with @('>>=')@
+-- interpreted as 'catchError' and 'pure' as 'throwError'.
+--
+-- @
+-- 'catchError' ('throwError' e) h   = h e
+-- 'catchError' m 'throwError'       = m
+-- 'catchError' ('catchError' m k) h = 'catchError' m (\\e -> 'catchError' (k e) h)
+-- @
+--
+-- 'pure' and 'throwError' are left zeros for 'catchError' and @('>>=')@
+-- respectively.
+--
+-- @
+-- 'catchError' ('pure' a) h         = 'pure' a
+-- 'throwError' e '>>=' k            = 'throwError' e
+-- @
+--
+-- 'catchError' commutes with 'fmap' (it is a natual transformation).
+--
+-- @
+-- 'fmap' f ('catchError' u h)       = 'catchError' ('fmap' f u) ('fmap' f '.' h)
+-- @
+--
+-- The last two laws are guaranteed by parametricity.
 class (Monad m) => MonadError e m | m -> e where
-    -- | Is used within a monadic computation to begin exception processing.
+    -- | Throw an exception.
     throwError :: e -> m a
 
-    {- |
-    A handler function to handle previous errors and return to normal execution.
+    {- | Handle an exception and return to normal execution.
     A common idiom is:
 
     > do { action1; action2; action3 } `catchError` handler
