@@ -152,5 +152,5 @@ script:
   # haddock
   - if $HADDOCK; then cabal new-haddock -w ${HC} ${TEST} ${BENCH} all; else echo "Skipping haddock generation";fi
 
-# REGENDATA ["-o",".travis.yml","--ghc-head","--irc-channel=irc.freenode.org#haskell-lens","--no-no-tests-no-bench","--no-unconstrained","--env=7.6.3:HADDOCK=false","--env=7.8.4:NOINSTALLEDCONSTRAINTS=true","cabal.project"]
+# REGENDATA ["--output=.travis.yml","--config=cabal.haskell-ci","cabal.project"]
 # EOF
