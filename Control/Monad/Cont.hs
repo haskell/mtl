@@ -55,11 +55,13 @@ module Control.Monad.Cont (
     Cont,
     cont,
     runCont,
+    evalCont,
     mapCont,
     withCont,
     -- * The ContT monad transformer
     ContT(ContT),
     runContT,
+    evalContT,
     mapContT,
     withContT,
     module Control.Monad,

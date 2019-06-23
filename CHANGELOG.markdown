@@ -1,3 +1,7 @@
+Unreleased
+----------
+* `Control.Monad.Cont` now re-exports `evalCont` and `evalContT`
+
 2.2.2
 -----
 * `Control.Monad.Identity` now re-exports `Control.Monad.Trans.Identity`
