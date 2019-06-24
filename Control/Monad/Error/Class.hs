@@ -72,12 +72,7 @@ import Control.Monad.Instances ()
 #endif
 
 import Data.Monoid
-import Prelude (Either(..), Maybe(..), either, flip, (.), IO)
-#if MIN_VERSION_base(4,8,0)
-import Prelude ((<$>), pure)
-#else
-import Control.Applicative ((<$>), pure)
-#endif
+import Prelude (Either(..), Maybe(..), either, flip, fmap, (.), IO)
 
 {- |
 The strategy of combining computations that can throw exceptions
@@ -202,7 +197,7 @@ instance (Monoid w, MonadError e m) => MonadError e (StrictWriter.WriterT w m) w
 
 -- | MonadError analog to the 'try' function.
 tryError :: MonadError e m => m a -> m (Either e a)
-tryError action = (Right <$> action) `catchError` (return . Left)
+tryError action = (fmap Right action) `catchError` (return . Left)
 
 -- | Modify the value (but not the type) of an error.  The type is
 -- fixed because of the functional dependency @m -> e@.  If you need
