@@ -72,7 +72,12 @@ import Control.Monad.Instances ()
 #endif
 
 import Data.Monoid
-import Prelude (Either(..), Maybe(..), either, flip, (.), (<$>), IO)
+import Prelude (Either(..), Maybe(..), either, flip, (.), IO)
+#if MIN_VERSION_base(4,8,0)
+import Prelude ((<$>), pure)
+#else
+import Control.Applicative ((<$>), pure)
+#endif
 
 {- |
 The strategy of combining computations that can throw exceptions

@@ -1,6 +1,8 @@
 Unreleased
 ----------
 * `Control.Monad.Cont` now re-exports `evalCont` and `evalContT`
+* Add `tryError`, `withError`, `handleError`, and `mapError` to
+  `Control.Monad.Error.Class`, and re-export from `Control.Monad.Except`.
 
 2.2.2
 -----
