@@ -16,7 +16,7 @@ Maintainer  :  libraries@haskell.org
 Stability   :  experimental
 Portability :  non-portable (multi-parameter type classes)
 
-[Computation type:] Computations which may fail or throw exceptions.
+[Computation type:] Computations which may throw exceptions.
 
 [Binding strategy:] Failure records information about the cause\/location
 of the failure. Failure values bypass the bound function,
@@ -42,8 +42,10 @@ module Control.Monad.Error.Class (
     Error(..),
     MonadError(..),
     liftEither,
+    tryError,
   ) where
 
+import Control.Applicative (Applicative(pure))
 import Control.Monad.Trans.Except (Except, ExceptT)
 import Control.Monad.Trans.Error (Error(..), ErrorT)
 import qualified Control.Monad.Trans.Except as ExceptT (throwE, catchE)
@@ -70,30 +72,24 @@ import Control.Monad.Instances ()
 import Data.Monoid
 import Prelude (Either(..), Maybe(..), either, (.), IO)
 
-{- |
-The strategy of combining computations that can throw exceptions
-by bypassing bound functions
-from the point an exception is thrown to the point that it is handled.
-
-Is parameterized over the type of error information and
-the monad type constructor.
-It is common to use @'Either' String@ as the monad type constructor
-for an error monad in which error descriptions take the form of strings.
-In that case and many other common cases the resulting monad is already defined
-as an instance of the 'MonadError' class.
-You can also define your own error type and\/or use a monad type constructor
-other than @'Either' 'String'@ or @'Either' 'IOError'@.
-In these cases you will have to explicitly define instances of the 'MonadError'
-class.
-(If you are using the deprecated "Control.Monad.Error" or
-"Control.Monad.Trans.Error", you may also have to define an 'Error' instance.)
--}
+-- | Monads with a notion of exceptions which can be thrown and caught.
+--
+-- === Laws
+--
+-- @
+-- 'catchError' ('throwError' e) h   = h e
+-- 'catchError' ('catchError' m k) h = 'catchError' m (\\e -> 'catchError' (k e) h)
+-- 'catchError' ('pure' a) h         = 'pure' a
+-- 'catchError' (m '>>=' k) h        = 'tryError' m '>>=' 'either' h (\\x -> 'catchError' (k x) h)
+--
+-- 'catchError' m 'throwError'       = m
+-- 'throwError' e '>>=' k            = 'throwError' e
+-- @
 class (Monad m) => MonadError e m | m -> e where
-    -- | Is used within a monadic computation to begin exception processing.
+    -- | Throw an exception.
     throwError :: e -> m a
 
-    {- |
-    A handler function to handle previous errors and return to normal execution.
+    {- | Handle an exception and return to normal execution.
     A common idiom is:
 
     > do { action1; action2; action3 } `catchError` handler
@@ -117,6 +113,11 @@ where @action1@ returns an 'Either' to represent errors.
 -}
 liftEither :: MonadError e m => Either e a -> m a
 liftEither = either throwError return
+
+-- | Catch an exception and return it in 'Left', or return a successful result
+-- in 'Right'.
+tryError :: (MonadError e m, Applicative m) => m a -> m (Either e a)
+tryError m = catchError (fmap Right m) (pure . Left)
 
 instance MonadError IOException IO where
     throwError = ioError
