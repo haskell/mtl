@@ -42,8 +42,13 @@ module Control.Monad.Error.Class (
     Error(..),
     MonadError(..),
     liftEither,
+    tryError,
+    withError,
+    handleError,
+    mapError,
   ) where
 
+import qualified Control.Exception
 import Control.Monad.Trans.Except (Except, ExceptT)
 import Control.Monad.Trans.Error (Error(..), ErrorT)
 import qualified Control.Monad.Trans.Except as ExceptT (throwE, catchE)
@@ -68,7 +73,7 @@ import Control.Monad.Instances ()
 #endif
 
 import Data.Monoid
-import Prelude (Either(..), Maybe(..), either, (.), IO)
+import Prelude (Either(..), Maybe(..), either, flip, (.), IO)
 
 {- |
 The strategy of combining computations that can throw exceptions
@@ -190,3 +195,25 @@ instance (Monoid w, MonadError e m) => MonadError e (LazyWriter.WriterT w m) whe
 instance (Monoid w, MonadError e m) => MonadError e (StrictWriter.WriterT w m) where
     throwError = lift . throwError
     catchError = StrictWriter.liftCatch catchError
+
+-- | 'MonadError' analogue to the 'Control.Exception.try' function.
+tryError :: MonadError e m => m a -> m (Either e a)
+tryError action = (liftM Right action) `catchError` (return . Left)
+
+-- | 'MonadError' analogue to the 'withExceptT' function.
+-- Modify the value (but not the type) of an error.  The type is
+-- fixed because of the functional dependency @m -> e@.  If you need
+-- to change the type of @e@ use 'mapError'.
+withError :: MonadError e m => (e -> e) -> m a -> m a
+withError f action = tryError action >>= either (throwError . f) return
+
+-- | As 'handle' is flipped 'Control.Exception.catch', 'handleError'
+-- is flipped 'catchError'.
+handleError :: MonadError e m => (e -> m a) -> m a -> m a
+handleError = flip catchError
+
+-- | 'MonadError' analogue of the 'mapExceptT' function.  The
+-- computation is unwrapped, a function is applied to the @Either@, and
+-- the result is lifted into the second 'MonadError' instance.
+mapError :: (MonadError e m, MonadError e' n) => (m (Either e a) -> n (Either e' b)) -> m a -> n b
+mapError f action = f (tryError action) >>= liftEither

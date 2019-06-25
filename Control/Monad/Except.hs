@@ -38,6 +38,11 @@ module Control.Monad.Except
     -- * Monads with error handling
     MonadError(..),
     liftEither,
+    tryError,
+    withError,
+    handleError,
+    mapError,
+
     -- * The ExceptT monad transformer
     ExceptT(ExceptT),
     Except,
