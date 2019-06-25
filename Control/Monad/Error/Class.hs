@@ -196,11 +196,12 @@ instance (Monoid w, MonadError e m) => MonadError e (StrictWriter.WriterT w m) w
     throwError = lift . throwError
     catchError = StrictWriter.liftCatch catchError
 
--- | 'MonadError' analog to the 'Control.Exception.try' function.
+-- | 'MonadError' analogue to the 'Control.Exception.try' function.
 tryError :: MonadError e m => m a -> m (Either e a)
 tryError action = (liftM Right action) `catchError` (return . Left)
 
--- | Modify the value (but not the type) of an error.  The type is
+-- | 'MonadError' analogue to the 'withExceptT' function.
+-- Modify the value (but not the type) of an error.  The type is
 -- fixed because of the functional dependency @m -> e@.  If you need
 -- to change the type of @e@ use 'mapError'.
 withError :: MonadError e m => (e -> e) -> m a -> m a
