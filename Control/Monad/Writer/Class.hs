@@ -46,6 +46,13 @@ import qualified Control.Monad.Trans.Writer.Lazy as Lazy (
 import qualified Control.Monad.Trans.Writer.Strict as Strict (
         WriterT, writer, tell, listen, pass)
 
+#if MIN_VERSION_transformers(0,5,6)
+import qualified Control.Monad.Trans.RWS.CPS as CPSRWS (
+        RWST, writer, tell, listen, pass)
+import qualified Control.Monad.Trans.Writer.CPS as CPS (
+        WriterT, writer, tell, listen, pass)
+#endif
+
 import Control.Monad.Trans.Class (lift)
 import Control.Monad
 import Data.Monoid
@@ -114,6 +121,15 @@ instance (Monoid w) => MonadWriter w ((,) w) where
   pass ~(w, (a, f)) = (f w, a)
 #endif
 
+#if MIN_VERSION_transformers(0,5,6)
+-- | @since 2.3
+instance (Monoid w, Monad m) => MonadWriter w (CPS.WriterT w m) where
+    writer = CPS.writer
+    tell   = CPS.tell
+    listen = CPS.listen
+    pass   = CPS.pass
+#endif
+
 instance (Monoid w, Monad m) => MonadWriter w (Lazy.WriterT w m) where
     writer = Lazy.writer
     tell   = Lazy.tell
@@ -125,6 +141,15 @@ instance (Monoid w, Monad m) => MonadWriter w (Strict.WriterT w m) where
     tell   = Strict.tell
     listen = Strict.listen
     pass   = Strict.pass
+
+#if MIN_VERSION_transformers(0,5,6)
+-- | @since 2.3
+instance (Monoid w, Monad m) => MonadWriter w (CPSRWS.RWST r w s m) where
+    writer = CPSRWS.writer
+    tell   = CPSRWS.tell
+    listen = CPSRWS.listen
+    pass   = CPSRWS.pass
+#endif
 
 instance (Monoid w, Monad m) => MonadWriter w (LazyRWS.RWST r w s m) where
     writer = LazyRWS.writer

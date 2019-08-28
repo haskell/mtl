@@ -64,6 +64,11 @@ import Control.Monad.Trans.State.Strict as StrictState
 import Control.Monad.Trans.Writer.Lazy as LazyWriter
 import Control.Monad.Trans.Writer.Strict as StrictWriter
 
+#if MIN_VERSION_transformers(0,5,6)
+import Control.Monad.Trans.RWS.CPS as CPSRWS
+import Control.Monad.Trans.Writer.CPS as CPSWriter
+#endif
+
 import Control.Monad.Trans.Class (lift)
 import Control.Exception (IOException, catch, ioError)
 import Control.Monad
@@ -195,6 +200,18 @@ instance (Monoid w, MonadError e m) => MonadError e (LazyWriter.WriterT w m) whe
 instance (Monoid w, MonadError e m) => MonadError e (StrictWriter.WriterT w m) where
     throwError = lift . throwError
     catchError = StrictWriter.liftCatch catchError
+
+#if MIN_VERSION_transformers(0,5,6)
+-- | @since 2.3
+instance (Monoid w, MonadError e m) => MonadError e (CPSRWS.RWST r w s m) where
+    throwError = lift . throwError
+    catchError = CPSRWS.liftCatch catchError
+
+-- | @since 2.3
+instance (Monoid w, MonadError e m) => MonadError e (CPSWriter.WriterT w m) where
+    throwError = lift . throwError
+    catchError = CPSWriter.liftCatch catchError
+#endif
 
 -- | 'MonadError' analogue to the 'Control.Exception.try' function.
 tryError :: MonadError e m => m a -> m (Either e a)

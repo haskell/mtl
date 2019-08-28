@@ -42,6 +42,7 @@ Library
     Control.Monad.List
     Control.Monad.RWS
     Control.Monad.RWS.Class
+    Control.Monad.RWS.CPS
     Control.Monad.RWS.Lazy
     Control.Monad.RWS.Strict
     Control.Monad.Reader
@@ -53,6 +54,7 @@ Library
     Control.Monad.Trans
     Control.Monad.Writer
     Control.Monad.Writer.Class
+    Control.Monad.Writer.CPS
     Control.Monad.Writer.Lazy
     Control.Monad.Writer.Strict
   build-depends: base < 5, transformers >= 0.4 && <0.6
