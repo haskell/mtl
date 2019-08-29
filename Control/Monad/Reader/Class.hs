@@ -61,6 +61,11 @@ import Control.Monad.Trans.State.Strict as Strict
 import Control.Monad.Trans.Writer.Lazy as Lazy
 import Control.Monad.Trans.Writer.Strict as Strict
 
+#if MIN_VERSION_transformers(0,5,6)
+import qualified Control.Monad.Trans.RWS.CPS as CPSRWS (RWST, ask, local, reader)
+import Control.Monad.Trans.Writer.CPS as CPS
+#endif
+
 import Control.Monad.Trans.Class (lift)
 import Control.Monad
 import Data.Monoid
@@ -110,6 +115,14 @@ instance Monad m => MonadReader r (ReaderT r m) where
     ask = ReaderT.ask
     local = ReaderT.local
     reader = ReaderT.reader
+
+#if MIN_VERSION_transformers(0,5,6)
+-- | @since 2.3
+instance (Monad m, Monoid w) => MonadReader r (CPSRWS.RWST r w s m) where
+    ask = CPSRWS.ask
+    local = CPSRWS.local
+    reader = CPSRWS.reader
+#endif
 
 instance (Monad m, Monoid w) => MonadReader r (LazyRWS.RWST r w s m) where
     ask = LazyRWS.ask
@@ -167,6 +180,14 @@ instance MonadReader r m => MonadReader r (Strict.StateT s m) where
     ask   = lift ask
     local = Strict.mapStateT . local
     reader = lift . reader
+
+#if MIN_VERSION_transformers(0,5,6)
+-- | @since 2.3
+instance (Monoid w, MonadReader r m) => MonadReader r (CPS.WriterT w m) where
+    ask   = lift ask
+    local = CPS.mapWriterT . local
+    reader = lift . reader
+#endif
 
 instance (Monoid w, MonadReader r m) => MonadReader r (Lazy.WriterT w m) where
     ask   = lift ask

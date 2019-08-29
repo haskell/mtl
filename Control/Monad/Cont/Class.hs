@@ -68,6 +68,11 @@ import Control.Monad.Trans.State.Strict as StrictState
 import Control.Monad.Trans.Writer.Lazy as LazyWriter
 import Control.Monad.Trans.Writer.Strict as StrictWriter
 
+#if MIN_VERSION_transformers(0,5,6)
+import Control.Monad.Trans.RWS.CPS as CPSRWS
+import Control.Monad.Trans.Writer.CPS as CPSWriter
+#endif
+
 import Control.Monad
 import Data.Monoid
 
@@ -137,3 +142,13 @@ instance (Monoid w, MonadCont m) => MonadCont (LazyWriter.WriterT w m) where
 
 instance (Monoid w, MonadCont m) => MonadCont (StrictWriter.WriterT w m) where
     callCC = StrictWriter.liftCallCC callCC
+
+#if MIN_VERSION_transformers(0,5,6)
+-- | @since 2.3
+instance (Monoid w, MonadCont m) => MonadCont (CPSRWS.RWST r w s m) where
+    callCC = CPSRWS.liftCallCC' callCC
+
+-- | @since 2.3
+instance (Monoid w, MonadCont m) => MonadCont (CPSWriter.WriterT w m) where
+    callCC = CPSWriter.liftCallCC callCC
+#endif
