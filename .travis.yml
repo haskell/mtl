@@ -134,7 +134,7 @@ install:
   - |
     echo "packages: ." >> cabal.project
   - |
-  - "for pkg in $($HCPKG list --simple-output); do echo $pkg | sed 's/-[^-]*$//' | (grep -vE -- '^(mtl)$' || true) | sed 's/^/constraints: /' | sed 's/$/ installed/' >> cabal.project.local; done"
+  - "for pkg in $($HCPKG list --simple-output); do echo $pkg | sed 's/-[^-]*$//' | (grep -vE -- '^(mtl|transformers)$' || true) | sed 's/^/constraints: /' | sed 's/$/ installed/' >> cabal.project.local; done"
   - cat cabal.project || true
   - cat cabal.project.local || true
   - if [ -f "./configure.ac" ]; then (cd "." && autoreconf -i); fi
@@ -158,7 +158,7 @@ script:
   - |
     echo "packages: ${PKGDIR_mtl}" >> cabal.project
   - |
-  - "for pkg in $($HCPKG list --simple-output); do echo $pkg | sed 's/-[^-]*$//' | (grep -vE -- '^(mtl)$' || true) | sed 's/^/constraints: /' | sed 's/$/ installed/' >> cabal.project.local; done"
+  - "for pkg in $($HCPKG list --simple-output); do echo $pkg | sed 's/-[^-]*$//' | (grep -vE -- '^(mtl|transformers)$' || true) | sed 's/^/constraints: /' | sed 's/$/ installed/' >> cabal.project.local; done"
   - cat cabal.project || true
   - cat cabal.project.local || true
   # Building with tests and benchmarks...
@@ -169,8 +169,8 @@ script:
   # haddock...
   - if [ $HCNUMVER -lt 70600 ] || [ $HCNUMVER -ge 70800 ] ; then ${CABAL} v2-haddock $WITHCOMPILER ${TEST} ${BENCH} all | color_cabal_output ; fi
   # Building without installed constraints for packages in global-db...
-  - if [ $HCNUMVER -lt 70800 ] || [ $HCNUMVER -ge 71000 ] ; then rm -f cabal.project.local ; fi
-  - if [ $HCNUMVER -lt 70800 ] || [ $HCNUMVER -ge 71000 ] ; then ${CABAL} v2-build $WITHCOMPILER --disable-tests --disable-benchmarks all | color_cabal_output ; fi
+  - rm -f cabal.project.local
+  - ${CABAL} v2-build $WITHCOMPILER --disable-tests --disable-benchmarks all | color_cabal_output
 
 # REGENDATA ["--output=.travis.yml","--config=cabal.haskell-ci","cabal.project"]
 # EOF
