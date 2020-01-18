@@ -51,6 +51,7 @@ import qualified Control.Monad.Trans.RWS.CPS as CPSRWS (RWST, get, put, state)
 import Control.Monad.Trans.Writer.CPS as CPS
 #endif
 
+import qualified Control.Monad.Reader.Class as MonadReader
 import Control.Monad.Trans.Class (lift)
 import Control.Monad
 import Data.Monoid
@@ -142,10 +143,11 @@ instance (Monad m, Monoid w) => MonadState s (StrictRWS.RWST r w s m) where
 -- All of these instances need UndecidableInstances,
 -- because they do not satisfy the coverage condition.
 
-instance MonadState s m => MonadState s (ContT r m) where
-    get = lift get
-    put = lift . put
-    state = lift . state
+instance MonadReader.MonadReader r m => MonadState r (ContT r' m) where
+  get = ContT (MonadReader.ask >>=)
+  {-# INLINE get #-}
+  put s = ContT (\k -> MonadReader.local (const s) (k ()))
+  {-# INLINE put #-}
 
 instance (Error e, MonadState s m) => MonadState s (ErrorT e m) where
     get = lift get
