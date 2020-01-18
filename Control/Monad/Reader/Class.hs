@@ -52,7 +52,7 @@ import Control.Monad.Trans.Error
 import Control.Monad.Trans.Identity
 import Control.Monad.Trans.List
 import Control.Monad.Trans.Maybe
-import Control.Monad.Trans.Reader (ReaderT)
+import Control.Monad.Trans.Reader (ReaderT(..))
 import qualified Control.Monad.Trans.Reader as ReaderT (ask, local, reader)
 import qualified Control.Monad.Trans.RWS.Lazy as LazyRWS (RWST, ask, local, reader)
 import qualified Control.Monad.Trans.RWS.Strict as StrictRWS (RWST, ask, local, reader)
@@ -115,6 +115,11 @@ instance Monad m => MonadReader r (ReaderT r m) where
     ask = ReaderT.ask
     local = ReaderT.local
     reader = ReaderT.reader
+
+instance {-# OVERLAPPABLE #-} MonadReader r m => MonadReader r (ReaderT r' m) where
+    ask = lift ask
+    local f m = ReaderT (local f . runReaderT m)
+    reader = lift . reader
 
 #if MIN_VERSION_transformers(0,5,6)
 -- | @since 2.3
