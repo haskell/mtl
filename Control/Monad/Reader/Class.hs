@@ -48,9 +48,7 @@ module Control.Monad.Reader.Class (
 
 import Control.Monad.Trans.Cont as Cont
 import Control.Monad.Trans.Except
-import Control.Monad.Trans.Error
 import Control.Monad.Trans.Identity
-import Control.Monad.Trans.List
 import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.Reader (ReaderT)
 import qualified Control.Monad.Trans.Reader as ReaderT (ask, local, reader)
@@ -145,11 +143,6 @@ instance MonadReader r' m => MonadReader r' (ContT r m) where
     local = Cont.liftLocal ask local
     reader = lift . reader
 
-instance (Error e, MonadReader r m) => MonadReader r (ErrorT e m) where
-    ask   = lift ask
-    local = mapErrorT . local
-    reader = lift . reader
-
 {- | @since 2.2 -}
 instance MonadReader r m => MonadReader r (ExceptT e m) where
     ask   = lift ask
@@ -159,11 +152,6 @@ instance MonadReader r m => MonadReader r (ExceptT e m) where
 instance MonadReader r m => MonadReader r (IdentityT m) where
     ask   = lift ask
     local = mapIdentityT . local
-    reader = lift . reader
-
-instance MonadReader r m => MonadReader r (ListT m) where
-    ask   = lift ask
-    local = mapListT . local
     reader = lift . reader
 
 instance MonadReader r m => MonadReader r (MaybeT m) where
