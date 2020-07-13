@@ -210,6 +210,7 @@ instance MonadWriter w m => MonadWriter w (Strict.StateT s m) where
     pass   = Strict.liftPass pass
 
 #if MIN_VERSION_transformers(0,5,3)
+-- | @since 2.3
 instance (Monoid w, MonadWriter w m) => MonadWriter w (AccumT w m) where
     writer = lift . writer
     tell   = lift . tell
