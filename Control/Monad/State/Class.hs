@@ -44,6 +44,10 @@ import qualified Control.Monad.Trans.State.Strict as Strict (StateT, get, put, s
 import Control.Monad.Trans.Writer.Lazy as Lazy
 import Control.Monad.Trans.Writer.Strict as Strict
 
+#if MIN_VERSION_transformers(0,5,3)
+import Control.Monad.Trans.Accum as Accum
+#endif
+
 #if MIN_VERSION_transformers(0,5,6)
 import qualified Control.Monad.Trans.RWS.CPS as CPSRWS (RWST, get, put, state)
 import Control.Monad.Trans.Writer.CPS as CPS
@@ -183,3 +187,12 @@ instance (Monoid w, MonadState s m) => MonadState s (Strict.WriterT w m) where
     get = lift get
     put = lift . put
     state = lift . state
+
+#if MIN_VERSION_transformers(0,5,3)
+-- | @since 2.3
+instance (Monoid w, MonadState s m) => MonadState s (AccumT w m) where
+    get = lift get
+    put = lift . put
+    state = lift . state
+#endif
+

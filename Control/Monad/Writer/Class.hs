@@ -45,6 +45,10 @@ import qualified Control.Monad.Trans.Writer.Lazy as Lazy (
 import qualified Control.Monad.Trans.Writer.Strict as Strict (
         WriterT, writer, tell, listen, pass)
 
+#if MIN_VERSION_transformers(0,5,3)
+import Control.Monad.Trans.Accum as Accum
+#endif
+
 #if MIN_VERSION_transformers(0,5,6)
 import qualified Control.Monad.Trans.RWS.CPS as CPSRWS (
         RWST, writer, tell, listen, pass)
@@ -204,3 +208,11 @@ instance MonadWriter w m => MonadWriter w (Strict.StateT s m) where
     tell   = lift . tell
     listen = Strict.liftListen listen
     pass   = Strict.liftPass pass
+
+#if MIN_VERSION_transformers(0,5,3)
+instance (Monoid w, MonadWriter w m) => MonadWriter w (AccumT w m) where
+    writer = lift . writer
+    tell   = lift . tell
+    listen = Accum.liftListen listen
+    pass   = Accum.liftPass pass
+#endif
