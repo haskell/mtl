@@ -39,7 +39,6 @@ The Error monad (also called the Exception monad).
     Andy Gill (<http://web.cecs.pdx.edu/~andy/>)
 -}
 module Control.Monad.Error.Class (
-    Error(..),
     MonadError(..),
     liftEither,
     tryError,
@@ -50,11 +49,8 @@ module Control.Monad.Error.Class (
 
 import qualified Control.Exception
 import Control.Monad.Trans.Except (Except, ExceptT)
-import Control.Monad.Trans.Error (Error(..), ErrorT)
 import qualified Control.Monad.Trans.Except as ExceptT (throwE, catchE)
-import qualified Control.Monad.Trans.Error as ErrorT (throwError, catchError)
 import Control.Monad.Trans.Identity as Identity
-import Control.Monad.Trans.List as List
 import Control.Monad.Trans.Maybe as Maybe
 import Control.Monad.Trans.Reader as Reader
 import Control.Monad.Trans.RWS.Lazy as LazyRWS
@@ -146,10 +142,6 @@ instance MonadError e (Either e) where
     Left  l `catchError` h = h l
     Right r `catchError` _ = Right r
 
-instance (Monad m, Error e) => MonadError e (ErrorT e m) where
-    throwError = ErrorT.throwError
-    catchError = ErrorT.catchError
-
 {- | @since 2.2 -}
 instance Monad m => MonadError e (ExceptT e m) where
     throwError = ExceptT.throwE
@@ -164,10 +156,6 @@ instance Monad m => MonadError e (ExceptT e m) where
 instance MonadError e m => MonadError e (IdentityT m) where
     throwError = lift . throwError
     catchError = Identity.liftCatch catchError
-
-instance MonadError e m => MonadError e (ListT m) where
-    throwError = lift . throwError
-    catchError = List.liftCatch catchError
 
 instance MonadError e m => MonadError e (MaybeT m) where
     throwError = lift . throwError

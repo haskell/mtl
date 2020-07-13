@@ -33,10 +33,8 @@ module Control.Monad.State.Class (
   ) where
 
 import Control.Monad.Trans.Cont
-import Control.Monad.Trans.Error
 import Control.Monad.Trans.Except
 import Control.Monad.Trans.Identity
-import Control.Monad.Trans.List
 import Control.Monad.Trans.Maybe
 import Control.Monad.Trans.Reader
 import qualified Control.Monad.Trans.RWS.Lazy as LazyRWS (RWST, get, put, state)
@@ -147,11 +145,6 @@ instance MonadState s m => MonadState s (ContT r m) where
     put = lift . put
     state = lift . state
 
-instance (Error e, MonadState s m) => MonadState s (ErrorT e m) where
-    get = lift get
-    put = lift . put
-    state = lift . state
-
 -- | @since 2.2
 instance MonadState s m => MonadState s (ExceptT e m) where
     get = lift get
@@ -159,11 +152,6 @@ instance MonadState s m => MonadState s (ExceptT e m) where
     state = lift . state
 
 instance MonadState s m => MonadState s (IdentityT m) where
-    get = lift get
-    put = lift . put
-    state = lift . state
-
-instance MonadState s m => MonadState s (ListT m) where
     get = lift get
     put = lift . put
     state = lift . state

@@ -55,10 +55,8 @@ module Control.Monad.Cont.Class (
 
 import Control.Monad.Trans.Cont (ContT)
 import qualified Control.Monad.Trans.Cont as ContT
-import Control.Monad.Trans.Error as Error
 import Control.Monad.Trans.Except as Except
 import Control.Monad.Trans.Identity as Identity
-import Control.Monad.Trans.List as List
 import Control.Monad.Trans.Maybe as Maybe
 import Control.Monad.Trans.Reader as Reader
 import Control.Monad.Trans.RWS.Lazy as LazyRWS
@@ -82,9 +80,9 @@ class Monad m => MonadCont m where
     Provides an escape continuation mechanism for use with Continuation monads.
     Escape continuations allow to abort the current computation and return
     a value immediately.
-    They achieve a similar effect to 'Control.Monad.Error.throwError'
-    and 'Control.Monad.Error.catchError'
-    within an 'Control.Monad.Error.Error' monad.
+    They achieve a similar effect to 'Control.Monad.Error.Class.throwError'
+    and 'Control.Monad.Error.Class.catchError'
+    within an 'Control.Monad.Except.Except' monad.
     Advantage of this function over calling @return@ is that it makes
     the continuation explicit,
     allowing more flexibility and better control
@@ -106,18 +104,12 @@ instance MonadCont (ContT r m) where
 -- ---------------------------------------------------------------------------
 -- Instances for other mtl transformers
 
-instance (Error e, MonadCont m) => MonadCont (ErrorT e m) where
-    callCC = Error.liftCallCC callCC
-
 {- | @since 2.2 -}
 instance MonadCont m => MonadCont (ExceptT e m) where
     callCC = Except.liftCallCC callCC
 
 instance MonadCont m => MonadCont (IdentityT m) where
     callCC = Identity.liftCallCC callCC
-
-instance MonadCont m => MonadCont (ListT m) where
-    callCC = List.liftCallCC callCC
 
 instance MonadCont m => MonadCont (MaybeT m) where
     callCC = Maybe.liftCallCC callCC

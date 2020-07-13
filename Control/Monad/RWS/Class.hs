@@ -36,7 +36,6 @@ import Control.Monad.State.Class
 import Control.Monad.Writer.Class
 
 import Control.Monad.Trans.Class
-import Control.Monad.Trans.Error(Error, ErrorT)
 import Control.Monad.Trans.Except(ExceptT)
 import Control.Monad.Trans.Maybe(MaybeT)
 import Control.Monad.Trans.Identity(IdentityT)
@@ -68,6 +67,5 @@ instance (Monoid w, Monad m) => MonadRWS r w s (Strict.RWST r w s m)
 
 -- | @since 2.2
 instance MonadRWS r w s m => MonadRWS r w s (ExceptT e m)
-instance (Error e, MonadRWS r w s m) => MonadRWS r w s (ErrorT e m)
 instance MonadRWS r w s m => MonadRWS r w s (IdentityT m)
 instance MonadRWS r w s m => MonadRWS r w s (MaybeT m)
