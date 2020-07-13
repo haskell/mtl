@@ -77,4 +77,6 @@ Library
   ghc-options: -Wall -fno-warn-unused-imports -fno-warn-warnings-deprecations
 
   if impl(ghc >= 8.0)
-    ghc-options: -Wcompat -Wnoncanonical-monad-instances -Wnoncanonical-monadfail-instances
+    ghc-options: -Wcompat -Wnoncanonical-monad-instances
+    if impl(ghc < 8.8)
+      ghc-options: -Wnoncanonical-monadfail-instances
