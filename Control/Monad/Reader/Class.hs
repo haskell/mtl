@@ -193,7 +193,13 @@ instance (Monoid w, MonadReader r m) => MonadReader r (Strict.WriterT w m) where
 
 #if MIN_VERSION_transformers(0,5,3)
 -- | @since 2.3
-instance (Monoid w, MonadReader r m) => MonadReader r (AccumT w m) where
+instance
+  ( Monoid w
+  , MonadReader r m
+#if !MIN_VERSION_base(4,8,0)
+  , Functor m
+#endif
+  ) => MonadReader r (AccumT w m) where
     ask = lift ask
     local = Accum.mapAccumT . local
     reader = lift . reader

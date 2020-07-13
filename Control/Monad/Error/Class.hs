@@ -207,7 +207,13 @@ instance (Monoid w, MonadError e m) => MonadError e (CPSWriter.WriterT w m) wher
 
 #if MIN_VERSION_transformers(0,5,3)
 -- | @since 2.3
-instance (Monoid w, MonadError e m) => MonadError e (AccumT w m) where
+instance
+  ( Monoid w
+  , MonadError e m
+#if !MIN_VERSION_base(4,8,0)
+  , Functor m
+#endif
+  ) => MonadError e (AccumT w m) where
     throwError = lift . throwError
     catchError = Accum.liftCatch catchError
 #endif

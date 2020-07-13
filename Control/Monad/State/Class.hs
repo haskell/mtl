@@ -190,7 +190,13 @@ instance (Monoid w, MonadState s m) => MonadState s (Strict.WriterT w m) where
 
 #if MIN_VERSION_transformers(0,5,3)
 -- | @since 2.3
-instance (Monoid w, MonadState s m) => MonadState s (AccumT w m) where
+instance
+  ( Monoid w
+  , MonadState s m
+#if !MIN_VERSION_base(4,8,0)
+  , Functor m
+#endif
+  ) => MonadState s (AccumT w m) where
     get = lift get
     put = lift . put
     state = lift . state

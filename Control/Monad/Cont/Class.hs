@@ -151,6 +151,12 @@ instance (Monoid w, MonadCont m) => MonadCont (CPSWriter.WriterT w m) where
 
 #if MIN_VERSION_transformers(0,5,3)
 -- | @since 2.3
-instance (Monoid w, MonadCont m) => MonadCont (AccumT w m) where
+instance
+  ( Monoid w
+  , MonadCont m
+#if !MIN_VERSION_base(4,8,0)
+  , Functor m
+#endif
+  ) => MonadCont (AccumT w m) where
     callCC = Accum.liftCallCC callCC
 #endif
