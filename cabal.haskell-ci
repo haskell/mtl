@@ -1,4 +1,4 @@
-ghc-head:               True
+ghc-head:               False
 no-tests-no-benchmarks: False
 irc-channels:           irc.freenode.org#haskell-lens
 installed:              +all -transformers
