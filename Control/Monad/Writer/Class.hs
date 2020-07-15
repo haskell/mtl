@@ -210,7 +210,15 @@ instance MonadWriter w m => MonadWriter w (Strict.StateT s m) where
     pass   = Strict.liftPass pass
 
 #if MIN_VERSION_transformers(0,5,3)
--- | @since 2.3
+-- | There are two valid instances for 'AccumT'. It could either:
+--
+--   1. Lifts the operations to the inner @MonadWriter@
+--   2. Handle the operations itself, à la a @WriterT@.
+--
+--   This instance chooses (1), reflecting that the intent
+--   of 'AccumT' as a type is different than that of @WriterT@.
+--
+-- @since 2.3
 instance
   ( Monoid w
   , MonadWriter w m
