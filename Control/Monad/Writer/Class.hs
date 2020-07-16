@@ -212,7 +212,7 @@ instance MonadWriter w m => MonadWriter w (Strict.StateT s m) where
 #if MIN_VERSION_transformers(0,5,3)
 -- | There are two valid instances for 'AccumT'. It could either:
 --
---   1. Lifts the operations to the inner @MonadWriter@
+--   1. Lift the operations to the inner @MonadWriter@
 --   2. Handle the operations itself, à la a @WriterT@.
 --
 --   This instance chooses (1), reflecting that the intent
