@@ -66,6 +66,10 @@ import Control.Monad.Trans.State.Strict as StrictState
 import Control.Monad.Trans.Writer.Lazy as LazyWriter
 import Control.Monad.Trans.Writer.Strict as StrictWriter
 
+#if MIN_VERSION_transformers(0,5,3)
+import Control.Monad.Trans.Accum as Accum
+#endif
+
 #if MIN_VERSION_transformers(0,5,6)
 import Control.Monad.Trans.RWS.CPS as CPSRWS
 import Control.Monad.Trans.Writer.CPS as CPSWriter
@@ -143,4 +147,16 @@ instance (Monoid w, MonadCont m) => MonadCont (CPSRWS.RWST r w s m) where
 -- | @since 2.3
 instance (Monoid w, MonadCont m) => MonadCont (CPSWriter.WriterT w m) where
     callCC = CPSWriter.liftCallCC callCC
+#endif
+
+#if MIN_VERSION_transformers(0,5,3)
+-- | @since 2.3
+instance
+  ( Monoid w
+  , MonadCont m
+#if !MIN_VERSION_base(4,8,0)
+  , Functor m
+#endif
+  ) => MonadCont (AccumT w m) where
+    callCC = Accum.liftCallCC callCC
 #endif

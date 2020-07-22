@@ -59,6 +59,10 @@ import Control.Monad.Trans.State.Strict as Strict
 import Control.Monad.Trans.Writer.Lazy as Lazy
 import Control.Monad.Trans.Writer.Strict as Strict
 
+#if MIN_VERSION_transformers(0,5,3)
+import Control.Monad.Trans.Accum as Accum
+#endif
+
 #if MIN_VERSION_transformers(0,5,6)
 import qualified Control.Monad.Trans.RWS.CPS as CPSRWS (RWST, ask, local, reader)
 import Control.Monad.Trans.Writer.CPS as CPS
@@ -186,3 +190,17 @@ instance (Monoid w, MonadReader r m) => MonadReader r (Strict.WriterT w m) where
     ask   = lift ask
     local = Strict.mapWriterT . local
     reader = lift . reader
+
+#if MIN_VERSION_transformers(0,5,3)
+-- | @since 2.3
+instance
+  ( Monoid w
+  , MonadReader r m
+#if !MIN_VERSION_base(4,8,0)
+  , Functor m
+#endif
+  ) => MonadReader r (AccumT w m) where
+    ask = lift ask
+    local = Accum.mapAccumT . local
+    reader = lift . reader
+#endif

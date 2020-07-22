@@ -45,6 +45,10 @@ import qualified Control.Monad.Trans.Writer.Lazy as Lazy (
 import qualified Control.Monad.Trans.Writer.Strict as Strict (
         WriterT, writer, tell, listen, pass)
 
+#if MIN_VERSION_transformers(0,5,3)
+import Control.Monad.Trans.Accum as Accum
+#endif
+
 #if MIN_VERSION_transformers(0,5,6)
 import qualified Control.Monad.Trans.RWS.CPS as CPSRWS (
         RWST, writer, tell, listen, pass)
@@ -204,3 +208,26 @@ instance MonadWriter w m => MonadWriter w (Strict.StateT s m) where
     tell   = lift . tell
     listen = Strict.liftListen listen
     pass   = Strict.liftPass pass
+
+#if MIN_VERSION_transformers(0,5,3)
+-- | There are two valid instances for 'AccumT'. It could either:
+--
+--   1. Lift the operations to the inner @MonadWriter@
+--   2. Handle the operations itself, à la a @WriterT@.
+--
+--   This instance chooses (1), reflecting that the intent
+--   of 'AccumT' as a type is different than that of @WriterT@.
+--
+-- @since 2.3
+instance
+  ( Monoid w
+  , MonadWriter w m
+#if !MIN_VERSION_base(4,8,0)
+  , Functor m
+#endif
+  ) => MonadWriter w (AccumT w m) where
+    writer = lift . writer
+    tell   = lift . tell
+    listen = Accum.liftListen listen
+    pass   = Accum.liftPass pass
+#endif
