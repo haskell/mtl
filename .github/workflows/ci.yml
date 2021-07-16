@@ -36,23 +36,3 @@ jobs:
       run: cabal build
     - name: Haddock
       run: cabal haddock
-
-  build-freebsd:
-    # This job intentionally is using macOS because at the time of the writing
-    # Linux and Windows environments don't have the necessary virtualization features.
-    # See https://github.com/vmactions/freebsd-vm#under-the-hood.
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Test
-      id: build-freebsd
-      uses: vmactions/freebsd-vm@v0.1.4
-      with:
-        usesh: true
-        mem: 4096
-        prepare: pkg install -y ghc hs-cabal-install git
-        # Virtual machine does not allow to leverage cache
-        # and is quite slow, so only tests are run.
-        run: |
-          cabal update
-          cabal build
