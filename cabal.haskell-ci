@@ -1,6 +1,0 @@
-ghc-head:               False
-no-tests-no-benchmarks: False
-irc-channels:           irc.freenode.org#haskell-lens
-installed:              +all -transformers
--- Work around https://github.com/haskell/haddock/issues/242
-haddock:                <7.6 || >=7.8
