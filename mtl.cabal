@@ -35,6 +35,8 @@ source-repository head
 
 Library
   exposed-modules:
+    Control.Monad.Accum
+    Control.Monad.Accum.Class
     Control.Monad.Cont
     Control.Monad.Cont.Class
     Control.Monad.Error.Class

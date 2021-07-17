@@ -7,6 +7,7 @@ Unreleased
 * Remove `Control.Monad.List` and `Control.Monad.Error`
 * Remove instances of deprecated `ListT` and `ErrorT`
 * Add instances for `Control.Monad.Trans.Accum` and `Control.Monad.Trans.Select`
+* Add `MonadAccum` and corresponding instances
 
 2.2.2
 -----
