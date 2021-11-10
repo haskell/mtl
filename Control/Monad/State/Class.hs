@@ -202,6 +202,7 @@ instance
     put = lift . put
     state = lift . state
 
+-- | @since 2.3
 instance MonadState s m => MonadState s (SelectT r m) where
     get = lift get
     put = lift . put
