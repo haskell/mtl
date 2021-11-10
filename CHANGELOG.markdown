@@ -1,5 +1,5 @@
-Unreleased
-----------
+2.3
+---
 * Add instances for `Control.Monad.Trans.Writer.CPS` and `Control.Monad.Trans.RWS.CPS` from `transformers` 0.5.6 and add `Control.Monad.Writer.CPS` and `Control.Monad.RWS.CPS`.
 * `Control.Monad.Cont` now re-exports `evalCont` and `evalContT`
 * Add `tryError`, `withError`, `handleError`, and `mapError` to
