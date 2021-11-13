@@ -16,6 +16,12 @@ description:
 build-type: Simple
 extra-source-files: CHANGELOG.markdown, README.markdown
 tested-with:
+  GHC==7.0.4,
+  GHC==7.2.2,
+  GHC==7.4.2,
+  GHC==7.6.3,
+  GHC==7.8.4,
+  GHC==7.10.3,
   GHC==8.0.2,
   GHC==8.2.2,
   GHC==8.4.4,
@@ -53,7 +59,7 @@ Library
     Control.Monad.Writer.CPS
     Control.Monad.Writer.Lazy
     Control.Monad.Writer.Strict
-  build-depends: base < 5, transformers >= 0.4 && <0.7
+  build-depends: base >=4.3 && < 5, transformers >= 0.4 && <0.7
 
   default-language: Haskell2010
   other-extensions:
