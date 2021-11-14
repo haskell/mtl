@@ -31,15 +31,12 @@ module Control.Monad.Writer.Strict (
     WriterT(..),
     execWriterT,
     mapWriterT,
-    module Control.Monad,
-    module Control.Monad.Fix,
     module Control.Monad.Trans,
-    module Data.Monoid,
   ) where
 
 import Control.Monad.Writer.Class
 
-import Control.Monad.Trans
+import Control.Monad.Trans (MonadTrans(lift))
 import Control.Monad.Trans.Writer.Strict (
         Writer, runWriter, execWriter, mapWriter,
         WriterT(..), execWriterT, mapWriterT)

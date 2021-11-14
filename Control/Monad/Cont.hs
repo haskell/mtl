@@ -64,7 +64,6 @@ module Control.Monad.Cont (
     evalContT,
     mapContT,
     withContT,
-    module Control.Monad,
     module Control.Monad.Trans,
     -- * Example 1: Simple Continuation Usage
     -- $simpleContExample
@@ -78,7 +77,7 @@ module Control.Monad.Cont (
 
 import Control.Monad.Cont.Class
 
-import Control.Monad.Trans
+import Control.Monad.Trans (MonadTrans (lift))
 import Control.Monad.Trans.Cont
 
 import Control.Monad

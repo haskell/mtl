@@ -35,19 +35,12 @@ module Control.Monad.RWS.Lazy (
     withRWST,
     -- * Lazy Reader-writer-state monads
     module Control.Monad.RWS.Class,
-    module Control.Monad,
-    module Control.Monad.Fix,
     module Control.Monad.Trans,
-    module Data.Monoid,
   ) where
 
 import Control.Monad.RWS.Class
 
-import Control.Monad.Trans
+import Control.Monad.Trans (MonadTrans(lift))
 import Control.Monad.Trans.RWS.Lazy (
     RWS, rws, runRWS, evalRWS, execRWS, mapRWS, withRWS,
     RWST(RWST), runRWST, evalRWST, execRWST, mapRWST, withRWST)
-
-import Control.Monad
-import Control.Monad.Fix
-import Data.Monoid

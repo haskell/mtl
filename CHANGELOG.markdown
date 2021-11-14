@@ -7,6 +7,7 @@
 * Remove `Control.Monad.List` and `Control.Monad.Error`
 * Remove instances of deprecated `ListT` and `ErrorT`
 * Add instances for `Control.Monad.Trans.Accum` and `Control.Monad.Trans.Select`
+* Remove re-exports of `Control.Monad`, `Control.Monad.Fix` and `Data.Monoid` modules
 
 2.2.2
 -----
