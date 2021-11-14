@@ -4,7 +4,7 @@ cabal-version: >= 1.10
 license:      BSD3
 license-file: LICENSE
 author:       Andy Gill
-maintainer:   Edward Kmett <ekmett@gmail.com>
+maintainer:   chessai <chessai1996@gmail.com>, Emily Pillmore <emilypi@cohomolo.gy>
 category:     Control
 synopsis:     Monad classes for transformers, using functional dependencies
 homepage:     http://github.com/haskell/mtl
