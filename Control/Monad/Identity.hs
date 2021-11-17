@@ -37,7 +37,7 @@ module Control.Monad.Identity (
     module Control.Monad.Trans.Identity,
    ) where
 
--- We do this so, because transformers-0.4.0.0
+-- We do this because transformers-0.4.0.0
 -- https://hackage.haskell.org/package/transformers-0.4.0.0/docs/Data-Functor-Identity.html
 -- doesn't have runIdentity as a field name.
 import Data.Functor.Identity (Identity(Identity), runIdentity)
