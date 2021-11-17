@@ -49,8 +49,6 @@ module Control.Monad.Reader (
     runReaderT,
     mapReaderT,
     withReaderT,
-    module Control.Monad,
-    module Control.Monad.Fix,
     module Control.Monad.Trans,
     -- * Example 1: Simple Reader Usage
     -- $simpleReaderExample
@@ -67,10 +65,7 @@ import Control.Monad.Reader.Class
 import Control.Monad.Trans.Reader (
     Reader, runReader, mapReader, withReader,
     ReaderT(ReaderT), runReaderT, mapReaderT, withReaderT)
-import Control.Monad.Trans
-
-import Control.Monad
-import Control.Monad.Fix
+import Control.Monad.Trans (MonadTrans(lift))
 
 {- $simpleReaderExample
 

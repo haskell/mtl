@@ -38,8 +38,6 @@ module Control.Monad.State.Lazy (
     execStateT,
     mapStateT,
     withStateT,
-    module Control.Monad,
-    module Control.Monad.Fix,
     module Control.Monad.Trans,
     -- * Examples
     -- $examples
@@ -47,13 +45,10 @@ module Control.Monad.State.Lazy (
 
 import Control.Monad.State.Class
 
-import Control.Monad.Trans
+import Control.Monad.Trans (MonadTrans(lift))
 import Control.Monad.Trans.State.Lazy
         (State, runState, evalState, execState, mapState, withState,
          StateT(StateT), runStateT, evalStateT, execStateT, mapStateT, withStateT)
-
-import Control.Monad
-import Control.Monad.Fix
 
 -- ---------------------------------------------------------------------------
 -- $examples
