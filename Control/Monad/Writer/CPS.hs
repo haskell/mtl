@@ -36,15 +36,22 @@ module Control.Monad.Writer.CPS (
     WriterT,
     execWriterT,
     mapWriterT,
+    module Control.Monad,
+    module Control.Monad.Fix,
     module Control.Monad.Trans,
+    module Data.Monoid,
   ) where
 
 import Control.Monad.Writer.Class
 
-import Control.Monad.Trans (MonadTrans (lift))
+import Control.Monad.Trans
 import Control.Monad.Trans.Writer.CPS (
         Writer, runWriter, execWriter, mapWriter,
         WriterT, execWriterT, mapWriterT)
+
+import Control.Monad
+import Control.Monad.Fix
+import Data.Monoid
 
 #else
 -- | This module ordinarily re-exports @Control.Monad.Trans.Writer.CPS@ from

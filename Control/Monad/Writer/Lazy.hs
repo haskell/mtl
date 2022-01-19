@@ -32,12 +32,19 @@ module Control.Monad.Writer.Lazy (
     runWriterT,
     execWriterT,
     mapWriterT,
+    module Control.Monad,
+    module Control.Monad.Fix,
     module Control.Monad.Trans,
+    module Data.Monoid,
   ) where
 
 import Control.Monad.Writer.Class
 
-import Control.Monad.Trans (MonadTrans(lift))
+import Control.Monad.Trans
 import Control.Monad.Trans.Writer.Lazy (
         Writer, runWriter, execWriter, mapWriter,
         WriterT(WriterT), runWriterT, execWriterT, mapWriterT)
+
+import Control.Monad
+import Control.Monad.Fix
+import Data.Monoid
