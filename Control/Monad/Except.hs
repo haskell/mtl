@@ -54,6 +54,8 @@ module Control.Monad.Except
     mapExcept,
     withExcept,
 
+    module Control.Monad,
+    module Control.Monad.Fix,
     module Control.Monad.Trans,
     -- * Example 1: Custom Error Data Type
     -- $customErrorExample
@@ -63,13 +65,16 @@ module Control.Monad.Except
   ) where
 
 import Control.Monad.Error.Class
-import Control.Monad.Trans (MonadTrans (lift))
+import Control.Monad.Trans
 import Control.Monad.Trans.Except
   ( ExceptT(ExceptT), Except, except
   , runExcept, runExceptT
   , mapExcept, mapExceptT
   , withExcept, withExceptT
   )
+
+import Control.Monad
+import Control.Monad.Fix
 
 #if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ < 707
 import Control.Monad.Instances ()

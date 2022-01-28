@@ -30,5 +30,5 @@ module Control.Monad.Trans (
     module Control.Monad.IO.Class
   ) where
 
-import Control.Monad.IO.Class (MonadIO(liftIO))
-import Control.Monad.Trans.Class (MonadTrans(lift))
+import Control.Monad.IO.Class
+import Control.Monad.Trans.Class
