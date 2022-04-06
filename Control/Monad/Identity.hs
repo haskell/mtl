@@ -33,9 +33,14 @@ version of that monad.
 -}
 
 module Control.Monad.Identity (
-    module Data.Functor.Identity,
     module Control.Monad.Trans.Identity,
 
+    -- * Deprecated re-exports
+    --
+    -- | ⚠ WARNING: Do not use anything imported via these re-exports.
+    -- They may be removed in the future without notice (except
+    -- @Identity@ and @runIdentity@).
+    module Data.Functor.Identity,
     module Control.Monad,
     module Control.Monad.Fix,
    ) where

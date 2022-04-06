@@ -49,9 +49,6 @@ module Control.Monad.Reader (
     runReaderT,
     mapReaderT,
     withReaderT,
-    module Control.Monad,
-    module Control.Monad.Fix,
-    module Control.Monad.Trans,
     -- * Example 1: Simple Reader Usage
     -- $simpleReaderExample
 
@@ -60,6 +57,15 @@ module Control.Monad.Reader (
 
     -- * Example 3: @ReaderT@ Monad Transformer
     -- $ReaderTExample
+
+    -- * Deprecated re-exports
+    --
+    -- | ⚠ WARNING: Do not use anything imported via these re-exports.
+    -- They may be removed in the future without notice (except
+    -- 'Control.Monad.Trans.lift' from @Control.Monad.Trans@).
+    module Control.Monad,
+    module Control.Monad.Fix,
+    module Control.Monad.Trans,
     ) where
 
 import Control.Monad.Reader.Class

@@ -54,14 +54,20 @@ module Control.Monad.Except
     mapExcept,
     withExcept,
 
-    module Control.Monad,
-    module Control.Monad.Fix,
-    module Control.Monad.Trans,
     -- * Example 1: Custom Error Data Type
     -- $customErrorExample
 
     -- * Example 2: Using ExceptT Monad Transformer
     -- $ExceptTExample
+
+    -- * Deprecated re-exports
+    --
+    -- | ⚠ WARNING: Do not use anything imported via these re-exports.
+    -- They may be removed in the future without notice (except
+    -- 'Control.Monad.Trans.lift' from @Control.Monad.Trans@).
+    module Control.Monad,
+    module Control.Monad.Fix,
+    module Control.Monad.Trans,
   ) where
 
 import Control.Monad.Error.Class

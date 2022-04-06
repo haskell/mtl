@@ -26,6 +26,10 @@
 -----------------------------------------------------------------------------
 
 module Control.Monad.Trans (
+    -- | ⚠ WARNING: Do not use anything imported via these re-exports.
+    -- They may be removed in the future without notice (except
+    -- @MonadIO@, @liftIO@, @MonadTrans@ and @lift@).
+    module Control.Monad.Trans,
     module Control.Monad.Trans.Class,
     module Control.Monad.IO.Class
   ) where

@@ -32,6 +32,12 @@ module Control.Monad.Writer.Lazy (
     runWriterT,
     execWriterT,
     mapWriterT,
+
+    -- * Deprecated re-export
+    --
+    -- | ⚠ WARNING: Do not use anything imported via these re-exports.
+    -- They may be removed in the future without notice (except
+    -- 'Control.Monad.Trans.lift' from @Control.Monad.Trans@).
     module Control.Monad,
     module Control.Monad.Fix,
     module Control.Monad.Trans,

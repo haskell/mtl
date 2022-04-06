@@ -64,8 +64,6 @@ module Control.Monad.Cont (
     evalContT,
     mapContT,
     withContT,
-    module Control.Monad,
-    module Control.Monad.Trans,
     -- * Example 1: Simple Continuation Usage
     -- $simpleContExample
 
@@ -74,6 +72,14 @@ module Control.Monad.Cont (
     
     -- * Example 3: Using @ContT@ Monad Transformer
     -- $ContTExample
+
+    -- * Deprecated re-exports
+    --
+    -- | ⚠ WARNING: Do not use anything imported via these re-exports.
+    -- They may be removed in the future without notice (except
+    -- 'Control.Monad.Trans.lift' from @Control.Monad.Trans@).
+    module Control.Monad,
+    module Control.Monad.Trans,
   ) where
 
 import Control.Monad.Cont.Class
