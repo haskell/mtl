@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -43,17 +42,10 @@ import qualified Control.Monad.Trans.State.Lazy as Lazy
 import qualified Control.Monad.Trans.State.Strict as Strict
 import qualified Control.Monad.Trans.Writer.Lazy as Lazy
 import qualified Control.Monad.Trans.Writer.Strict as Strict 
-
-#if MIN_VERSION_transformers(0,5,3)
 import Control.Monad.Trans.Accum (AccumT)
 import qualified Control.Monad.Trans.Accum as Accum
-#endif
-
-#if MIN_VERSION_transformers(0,5,6)
 import qualified Control.Monad.Trans.RWS.CPS as CPSRWS
 import qualified Control.Monad.Trans.Writer.CPS as CPS
-#endif
-
 import Control.Monad.Trans.Class (lift)
 
 -- ---------------------------------------------------------------------------
@@ -114,14 +106,12 @@ instance (Monoid w) => MonadWriter w ((,) w) where
   listen ~(w, a) = (w, (a, w))
   pass ~(w, (a, f)) = (f w, a)
 
-#if MIN_VERSION_transformers(0,5,6)
 -- | @since 2.3
 instance (Monoid w, Monad m) => MonadWriter w (CPS.WriterT w m) where
     writer = CPS.writer
     tell   = CPS.tell
     listen = CPS.listen
     pass   = CPS.pass
-#endif
 
 instance (Monoid w, Monad m) => MonadWriter w (Lazy.WriterT w m) where
     writer = Lazy.writer
@@ -135,14 +125,12 @@ instance (Monoid w, Monad m) => MonadWriter w (Strict.WriterT w m) where
     listen = Strict.listen
     pass   = Strict.pass
 
-#if MIN_VERSION_transformers(0,5,6)
 -- | @since 2.3
 instance (Monoid w, Monad m) => MonadWriter w (CPSRWS.RWST r w s m) where
     writer = CPSRWS.writer
     tell   = CPSRWS.tell
     listen = CPSRWS.listen
     pass   = CPSRWS.pass
-#endif
 
 instance (Monoid w, Monad m) => MonadWriter w (LazyRWS.RWST r w s m) where
     writer = LazyRWS.writer
@@ -199,7 +187,6 @@ instance MonadWriter w m => MonadWriter w (Strict.StateT s m) where
     listen = Strict.liftListen listen
     pass   = Strict.liftPass pass
 
-#if MIN_VERSION_transformers(0,5,3)
 -- | There are two valid instances for 'AccumT'. It could either:
 --
 --   1. Lift the operations to the inner @MonadWriter@
@@ -212,12 +199,8 @@ instance MonadWriter w m => MonadWriter w (Strict.StateT s m) where
 instance
   ( Monoid w
   , MonadWriter w m
-#if !MIN_VERSION_base(4,8,0)
-  , Functor m
-#endif
   ) => MonadWriter w (AccumT w m) where
     writer = lift . writer
     tell   = lift . tell
     listen = Accum.liftListen listen
     pass   = Accum.liftPass pass
-#endif

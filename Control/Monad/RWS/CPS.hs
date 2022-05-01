@@ -1,5 +1,3 @@
-{-# LANGUAGE CPP #-}
-#if MIN_VERSION_transformers(0,5,6)
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Monad.RWS.Strict
@@ -49,11 +47,3 @@ import Control.Monad.Trans
 import Control.Monad.Trans.RWS.CPS (
     RWS, rws, runRWS, evalRWS, execRWS, mapRWS, withRWS,
     RWST, runRWST, evalRWST, execRWST, mapRWST, withRWST)
-
-#else
--- | This module ordinarily re-exports @Control.Monad.Trans.RWS.CPS@ from
--- @transformers >= 0.5.6@, which is not currently installed. Therefore, this
--- module currently provides nothing; use "Control.Monad.RWS.Lazy" or
--- "Control.Monad.RWS.Strict" instead.
-module Control.Monad.RWS.CPS () where
-#endif

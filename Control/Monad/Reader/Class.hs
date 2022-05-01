@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -63,21 +62,12 @@ import qualified Control.Monad.Trans.State.Lazy as Lazy
 import qualified Control.Monad.Trans.State.Strict as Strict
 import qualified Control.Monad.Trans.Writer.Lazy as Lazy
 import qualified Control.Monad.Trans.Writer.Strict as Strict
-
-#if MIN_VERSION_transformers(0,5,3)
 import Control.Monad.Trans.Accum (AccumT)
 import qualified Control.Monad.Trans.Accum as Accum
 import Control.Monad.Trans.Select (SelectT (SelectT), runSelectT)
-#endif
-
-#if MIN_VERSION_transformers(0,5,6)
 import qualified Control.Monad.Trans.RWS.CPS as CPSRWS
 import qualified Control.Monad.Trans.Writer.CPS as CPS
-#endif
-
 import Control.Monad.Trans.Class (lift)
-import Control.Monad ()
-import Data.Monoid ()
 
 -- ----------------------------------------------------------------------------
 -- class MonadReader
@@ -123,13 +113,11 @@ instance Monad m => MonadReader r (ReaderT r m) where
     local = ReaderT.local
     reader = ReaderT.reader
 
-#if MIN_VERSION_transformers(0,5,6)
 -- | @since 2.3
 instance (Monad m, Monoid w) => MonadReader r (CPSRWS.RWST r w s m) where
     ask = CPSRWS.ask
     local = CPSRWS.local
     reader = CPSRWS.reader
-#endif
 
 instance (Monad m, Monoid w) => MonadReader r (LazyRWS.RWST r w s m) where
     ask = LazyRWS.ask
@@ -178,13 +166,11 @@ instance MonadReader r m => MonadReader r (Strict.StateT s m) where
     local = Strict.mapStateT . local
     reader = lift . reader
 
-#if MIN_VERSION_transformers(0,5,6)
 -- | @since 2.3
 instance (Monoid w, MonadReader r m) => MonadReader r (CPS.WriterT w m) where
     ask   = lift ask
     local = CPS.mapWriterT . local
     reader = lift . reader
-#endif
 
 instance (Monoid w, MonadReader r m) => MonadReader r (Lazy.WriterT w m) where
     ask   = lift ask
@@ -196,7 +182,6 @@ instance (Monoid w, MonadReader r m) => MonadReader r (Strict.WriterT w m) where
     local = Strict.mapWriterT . local
     reader = lift . reader
 
-#if MIN_VERSION_transformers(0,5,3)
 -- | @since 2.3
 instance
   ( Monoid w
@@ -216,4 +201,3 @@ instance
       r <- ask
       local f (runSelectT m (local (const r) . c))
     reader = lift . reader
-#endif

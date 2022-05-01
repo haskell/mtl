@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 -- Needed because the CPSed versions of Writer and State are secretly State
 -- wrappers, which don't force such constraints, even though they should legally
 -- be there.
@@ -60,25 +59,24 @@ module Control.Monad.Cont.Class (
 
 import Control.Monad.Trans.Cont (ContT)
 import qualified Control.Monad.Trans.Cont as ContT
-import Control.Monad.Trans.Except as Except
-import Control.Monad.Trans.Identity as Identity
-import Control.Monad.Trans.Maybe as Maybe
-import Control.Monad.Trans.Reader as Reader
-import Control.Monad.Trans.RWS.Lazy as LazyRWS
-import Control.Monad.Trans.RWS.Strict as StrictRWS
-import Control.Monad.Trans.State.Lazy as LazyState
-import Control.Monad.Trans.State.Strict as StrictState
-import Control.Monad.Trans.Writer.Lazy as LazyWriter
-import Control.Monad.Trans.Writer.Strict as StrictWriter
-
-#if MIN_VERSION_transformers(0,5,3)
-import Control.Monad.Trans.Accum as Accum
-#endif
-
-#if MIN_VERSION_transformers(0,5,6)
-import Control.Monad.Trans.RWS.CPS as CPSRWS
-import Control.Monad.Trans.Writer.CPS as CPSWriter
-#endif
+import Control.Monad.Trans.Except (ExceptT)
+import qualified Control.Monad.Trans.Except as Except
+import Control.Monad.Trans.Identity (IdentityT)
+import qualified Control.Monad.Trans.Identity as Identity
+import Control.Monad.Trans.Maybe (MaybeT)
+import qualified Control.Monad.Trans.Maybe as Maybe
+import Control.Monad.Trans.Reader (ReaderT)
+import qualified Control.Monad.Trans.Reader as Reader
+import qualified Control.Monad.Trans.RWS.Lazy as LazyRWS
+import qualified Control.Monad.Trans.RWS.Strict as StrictRWS
+import qualified Control.Monad.Trans.State.Lazy as LazyState
+import qualified Control.Monad.Trans.State.Strict as StrictState
+import qualified Control.Monad.Trans.Writer.Lazy as LazyWriter
+import qualified Control.Monad.Trans.Writer.Strict as StrictWriter
+import Control.Monad.Trans.Accum (AccumT)
+import qualified Control.Monad.Trans.Accum as Accum
+import qualified Control.Monad.Trans.RWS.CPS as CPSRWS
+import qualified Control.Monad.Trans.Writer.CPS as CPSWriter
 
 class Monad m => MonadCont m where
     {- | @callCC@ (call-with-current-continuation)
@@ -139,7 +137,6 @@ instance (Monoid w, MonadCont m) => MonadCont (LazyWriter.WriterT w m) where
 instance (Monoid w, MonadCont m) => MonadCont (StrictWriter.WriterT w m) where
     callCC = StrictWriter.liftCallCC callCC
 
-#if MIN_VERSION_transformers(0,5,6)
 -- | @since 2.3
 instance (Monoid w, MonadCont m) => MonadCont (CPSRWS.RWST r w s m) where
     callCC = CPSRWS.liftCallCC' callCC
@@ -147,16 +144,10 @@ instance (Monoid w, MonadCont m) => MonadCont (CPSRWS.RWST r w s m) where
 -- | @since 2.3
 instance (Monoid w, MonadCont m) => MonadCont (CPSWriter.WriterT w m) where
     callCC = CPSWriter.liftCallCC callCC
-#endif
 
-#if MIN_VERSION_transformers(0,5,3)
 -- | @since 2.3
 instance
   ( Monoid w
   , MonadCont m
-#if !MIN_VERSION_base(4,8,0)
-  , Functor m
-#endif
   ) => MonadCont (AccumT w m) where
     callCC = Accum.liftCallCC callCC
-#endif

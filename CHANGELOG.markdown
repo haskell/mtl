@@ -12,6 +12,7 @@
 * Add instances for `Control.Monad.Trans.Accum` and 
   `Control.Monad.Trans.Select`.
 * Require GHC 8.6 or higher, and `cabal-install` 3.0 or higher.
+* Require `transformers-0.5.6` or higher.
 
 2.2.2
 -----

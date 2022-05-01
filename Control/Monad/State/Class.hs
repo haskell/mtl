@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -47,17 +46,10 @@ import qualified Control.Monad.Trans.State.Lazy as Lazy
 import qualified Control.Monad.Trans.State.Strict as Strict
 import qualified Control.Monad.Trans.Writer.Lazy as Lazy
 import qualified Control.Monad.Trans.Writer.Strict as Strict
-
-#if MIN_VERSION_transformers(0,5,3)
 import Control.Monad.Trans.Accum (AccumT)
 import Control.Monad.Trans.Select (SelectT)
-#endif
-
-#if MIN_VERSION_transformers(0,5,6)
 import qualified Control.Monad.Trans.RWS.CPS as CPSRWS
 import qualified Control.Monad.Trans.Writer.CPS as CPS
-#endif
-
 import Control.Monad.Trans.Class (lift)
 
 -- ---------------------------------------------------------------------------
@@ -121,13 +113,11 @@ instance Monad m => MonadState s (Strict.StateT s m) where
     put = Strict.put
     state = Strict.state
 
-#if MIN_VERSION_transformers(0,5,6)
 -- | @since 2.3
 instance (Monad m, Monoid w) => MonadState s (CPSRWS.RWST r w s m) where
     get = CPSRWS.get
     put = CPSRWS.put
     state = CPSRWS.state
-#endif
 
 instance (Monad m, Monoid w) => MonadState s (LazyRWS.RWST r w s m) where
     get = LazyRWS.get
@@ -171,13 +161,11 @@ instance MonadState s m => MonadState s (ReaderT r m) where
     put = lift . put
     state = lift . state
 
-#if MIN_VERSION_transformers(0,5,6)
 -- | @since 2.3
 instance (Monoid w, MonadState s m) => MonadState s (CPS.WriterT w m) where
     get = lift get
     put = lift . put
     state = lift . state
-#endif
 
 instance (Monoid w, MonadState s m) => MonadState s (Lazy.WriterT w m) where
     get = lift get
@@ -189,14 +177,10 @@ instance (Monoid w, MonadState s m) => MonadState s (Strict.WriterT w m) where
     put = lift . put
     state = lift . state
 
-#if MIN_VERSION_transformers(0,5,3)
 -- | @since 2.3
 instance
   ( Monoid w
   , MonadState s m
-#if !MIN_VERSION_base(4,8,0)
-  , Functor m
-#endif
   ) => MonadState s (AccumT w m) where
     get = lift get
     put = lift . put
@@ -207,5 +191,3 @@ instance MonadState s m => MonadState s (SelectT r m) where
     get = lift get
     put = lift . put
     state = lift . state
-#endif
-

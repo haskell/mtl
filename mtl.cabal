@@ -55,7 +55,7 @@ Library
   
   build-depends: 
     , base >=4.12 && < 5
-    , transformers >= 0.4 && <0.7
+    , transformers >= 0.5.6 && <0.7
 
   ghc-options: 
     -Wall -Wcompat -Wincomplete-record-updates

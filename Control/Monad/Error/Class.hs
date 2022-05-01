@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -53,25 +52,22 @@ module Control.Monad.Error.Class (
 
 import Control.Monad.Trans.Except (ExceptT)
 import qualified Control.Monad.Trans.Except as ExceptT (throwE, catchE)
-import Control.Monad.Trans.Identity as Identity
-import Control.Monad.Trans.Maybe as Maybe
-import Control.Monad.Trans.Reader as Reader
-import Control.Monad.Trans.RWS.Lazy as LazyRWS
-import Control.Monad.Trans.RWS.Strict as StrictRWS
-import Control.Monad.Trans.State.Lazy as LazyState
-import Control.Monad.Trans.State.Strict as StrictState
-import Control.Monad.Trans.Writer.Lazy as LazyWriter
-import Control.Monad.Trans.Writer.Strict as StrictWriter
-
-#if MIN_VERSION_transformers(0,5,3)
-import Control.Monad.Trans.Accum as Accum
-#endif
-
-#if MIN_VERSION_transformers(0,5,6)
-import Control.Monad.Trans.RWS.CPS as CPSRWS
-import Control.Monad.Trans.Writer.CPS as CPSWriter
-#endif
-
+import Control.Monad.Trans.Identity (IdentityT)
+import qualified Control.Monad.Trans.Identity as Identity
+import Control.Monad.Trans.Maybe (MaybeT)
+import qualified Control.Monad.Trans.Maybe as Maybe
+import Control.Monad.Trans.Reader (ReaderT)
+import qualified Control.Monad.Trans.Reader as Reader
+import qualified Control.Monad.Trans.RWS.Lazy as LazyRWS
+import qualified Control.Monad.Trans.RWS.Strict as StrictRWS
+import qualified Control.Monad.Trans.State.Lazy as LazyState
+import qualified Control.Monad.Trans.State.Strict as StrictState
+import qualified Control.Monad.Trans.Writer.Lazy as LazyWriter
+import qualified Control.Monad.Trans.Writer.Strict as StrictWriter
+import Control.Monad.Trans.Accum (AccumT)
+import qualified Control.Monad.Trans.Accum as Accum
+import qualified Control.Monad.Trans.RWS.CPS as CPSRWS
+import qualified Control.Monad.Trans.Writer.CPS as CPSWriter
 import Control.Monad.Trans.Class (lift)
 import Control.Exception (IOException, catch, ioError)
 import Control.Monad (Monad)
@@ -189,7 +185,6 @@ instance (Monoid w, MonadError e m) => MonadError e (StrictWriter.WriterT w m) w
     throwError = lift . throwError
     catchError = StrictWriter.liftCatch catchError
 
-#if MIN_VERSION_transformers(0,5,6)
 -- | @since 2.3
 instance (Monoid w, MonadError e m) => MonadError e (CPSRWS.RWST r w s m) where
     throwError = lift . throwError
@@ -199,20 +194,14 @@ instance (Monoid w, MonadError e m) => MonadError e (CPSRWS.RWST r w s m) where
 instance (Monoid w, MonadError e m) => MonadError e (CPSWriter.WriterT w m) where
     throwError = lift . throwError
     catchError = CPSWriter.liftCatch catchError
-#endif
 
-#if MIN_VERSION_transformers(0,5,3)
 -- | @since 2.3
 instance
   ( Monoid w
   , MonadError e m
-#if !MIN_VERSION_base(4,8,0)
-  , Functor m
-#endif
   ) => MonadError e (AccumT w m) where
     throwError = lift . throwError
     catchError = Accum.liftCatch catchError
-#endif
 
 -- | 'MonadError' analogue to the 'Control.Exception.try' function.
 tryError :: MonadError e m => m a -> m (Either e a)

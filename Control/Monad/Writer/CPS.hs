@@ -1,5 +1,3 @@
-{-# LANGUAGE CPP #-}
-#if MIN_VERSION_transformers(0,5,6)
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Monad.Writer.Strict
@@ -44,11 +42,3 @@ import Control.Monad.Trans
 import Control.Monad.Trans.Writer.CPS (
         Writer, runWriter, execWriter, mapWriter,
         WriterT, execWriterT, mapWriterT)
-
-#else
--- | This module ordinarily re-exports @Control.Monad.Trans.Writer.CPS@ from
--- @transformers >= 0.5.6@, which is not currently installed. Therefore, this
--- module currently provides nothing; use "Control.Monad.Writer.Lazy" or
--- "Control.Monad.Writer.Strict" instead.
-module Control.Monad.Writer.CPS () where
-#endif
