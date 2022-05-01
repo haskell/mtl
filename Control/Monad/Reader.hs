@@ -37,8 +37,8 @@ than using the 'Control.Monad.State.State' monad.
 
 module Control.Monad.Reader (
     -- * MonadReader class
-    MonadReader(..),
-    asks,
+    MonadReader.MonadReader(..),
+    MonadReader.asks,
     -- * The Reader monad
     Reader,
     runReader,
@@ -49,8 +49,6 @@ module Control.Monad.Reader (
     runReaderT,
     mapReaderT,
     withReaderT,
-    module Control.Monad,
-    module Control.Monad.Fix,
     module Control.Monad.Trans,
     -- * Example 1: Simple Reader Usage
     -- $simpleReaderExample
@@ -62,15 +60,12 @@ module Control.Monad.Reader (
     -- $ReaderTExample
     ) where
 
-import Control.Monad.Reader.Class
+import qualified Control.Monad.Reader.Class as MonadReader
+import Control.Monad.Trans
 
 import Control.Monad.Trans.Reader (
     Reader, runReader, mapReader, withReader,
     ReaderT(ReaderT), runReaderT, mapReaderT, withReaderT)
-import Control.Monad.Trans
-
-import Control.Monad
-import Control.Monad.Fix
 
 {- $simpleReaderExample
 

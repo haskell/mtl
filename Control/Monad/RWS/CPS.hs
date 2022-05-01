@@ -40,10 +40,7 @@ module Control.Monad.RWS.CPS (
     withRWST,
     -- * Strict Reader-writer-state monads
     module Control.Monad.RWS.Class,
-    module Control.Monad,
-    module Control.Monad.Fix,
     module Control.Monad.Trans,
-    module Data.Monoid,
   ) where
 
 import Control.Monad.RWS.Class
@@ -52,10 +49,6 @@ import Control.Monad.Trans
 import Control.Monad.Trans.RWS.CPS (
     RWS, rws, runRWS, evalRWS, execRWS, mapRWS, withRWS,
     RWST, runRWST, evalRWST, execRWST, mapRWST, withRWST)
-
-import Control.Monad
-import Control.Monad.Fix
-import Data.Monoid
 
 #else
 -- | This module ordinarily re-exports @Control.Monad.Trans.RWS.CPS@ from

@@ -30,35 +30,31 @@ module Control.Monad.Writer.Class (
     censor,
   ) where
 
-import Control.Monad.Trans.Except as Except
-import Control.Monad.Trans.Identity as Identity
-import Control.Monad.Trans.Maybe as Maybe
-import Control.Monad.Trans.Reader
-import qualified Control.Monad.Trans.RWS.Lazy as LazyRWS (
-        RWST, writer, tell, listen, pass)
-import qualified Control.Monad.Trans.RWS.Strict as StrictRWS (
-        RWST, writer, tell, listen, pass)
-import Control.Monad.Trans.State.Lazy as Lazy
-import Control.Monad.Trans.State.Strict as Strict
-import qualified Control.Monad.Trans.Writer.Lazy as Lazy (
-        WriterT, writer, tell, listen, pass)
-import qualified Control.Monad.Trans.Writer.Strict as Strict (
-        WriterT, writer, tell, listen, pass)
+import Control.Monad.Trans.Except (ExceptT)
+import qualified Control.Monad.Trans.Except as Except
+import Control.Monad.Trans.Identity (IdentityT)
+import qualified Control.Monad.Trans.Identity as Identity
+import Control.Monad.Trans.Maybe (MaybeT)
+import qualified Control.Monad.Trans.Maybe as Maybe
+import Control.Monad.Trans.Reader (ReaderT, mapReaderT)
+import qualified Control.Monad.Trans.RWS.Lazy as LazyRWS 
+import qualified Control.Monad.Trans.RWS.Strict as StrictRWS 
+import qualified Control.Monad.Trans.State.Lazy as Lazy
+import qualified Control.Monad.Trans.State.Strict as Strict
+import qualified Control.Monad.Trans.Writer.Lazy as Lazy
+import qualified Control.Monad.Trans.Writer.Strict as Strict 
 
 #if MIN_VERSION_transformers(0,5,3)
-import Control.Monad.Trans.Accum as Accum
+import Control.Monad.Trans.Accum (AccumT)
+import qualified Control.Monad.Trans.Accum as Accum
 #endif
 
 #if MIN_VERSION_transformers(0,5,6)
-import qualified Control.Monad.Trans.RWS.CPS as CPSRWS (
-        RWST, writer, tell, listen, pass)
-import qualified Control.Monad.Trans.Writer.CPS as CPS (
-        WriterT, writer, tell, listen, pass)
+import qualified Control.Monad.Trans.RWS.CPS as CPSRWS
+import qualified Control.Monad.Trans.Writer.CPS as CPS
 #endif
 
 import Control.Monad.Trans.Class (lift)
-import Control.Monad
-import Data.Monoid
 
 -- ---------------------------------------------------------------------------
 -- MonadWriter class
@@ -73,9 +69,7 @@ import Data.Monoid
 -- the written object.
 
 class (Monoid w, Monad m) => MonadWriter w m | m -> w where
-#if __GLASGOW_HASKELL__ >= 707
     {-# MINIMAL (writer | tell), listen, pass #-}
-#endif
     -- | @'writer' (a,w)@ embeds a simple writer action.
     writer :: (a,w) -> m a
     writer ~(a, w) = do
@@ -113,16 +107,12 @@ censor f m = pass $ do
     a <- m
     return (a, f)
 
-#if MIN_VERSION_base(4,9,0)
--- | __NOTE__: This instance is only defined for @base >= 4.9.0@.
---
--- @since 2.2.2
+-- | @since 2.2.2
 instance (Monoid w) => MonadWriter w ((,) w) where
   writer ~(a, w) = (w, a)
   tell w = (w, ())
   listen ~(w, a) = (w, (a, w))
   pass ~(w, (a, f)) = (f w, a)
-#endif
 
 #if MIN_VERSION_transformers(0,5,6)
 -- | @since 2.3

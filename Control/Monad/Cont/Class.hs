@@ -1,4 +1,9 @@
 {-# LANGUAGE CPP #-}
+-- Needed because the CPSed versions of Writer and State are secretly State
+-- wrappers, which don't force such constraints, even though they should legally
+-- be there.
+{-# OPTIONS_GHC -Wno-redundant-constraints #-}
+
 {- |
 Module      :  Control.Monad.Cont.Class
 Copyright   :  (c) The University of Glasgow 2001,
@@ -75,9 +80,6 @@ import Control.Monad.Trans.RWS.CPS as CPSRWS
 import Control.Monad.Trans.Writer.CPS as CPSWriter
 #endif
 
-import Control.Monad
-import Data.Monoid
-
 class Monad m => MonadCont m where
     {- | @callCC@ (call-with-current-continuation)
     calls a function with the current continuation as its argument.
@@ -98,9 +100,7 @@ class Monad m => MonadCont m where
     even if it is many layers deep within nested computations.
     -}
     callCC :: ((a -> m b) -> m a) -> m a
-#if __GLASGOW_HASKELL__ >= 707
     {-# MINIMAL callCC #-}
-#endif
 
 instance MonadCont (ContT r m) where
     callCC = ContT.callCC

@@ -1,0 +1,4 @@
+packages: ./mtl.cabal
+
+package mtl
+  ghc-options: -Werror

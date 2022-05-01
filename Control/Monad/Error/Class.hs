@@ -3,6 +3,10 @@
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE UndecidableInstances #-}
+-- Needed because the CPSed versions of Writer and State are secretly State
+-- wrappers, which don't force such constraints, even though they should legally
+-- be there.
+{-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
 {- |
 Module      :  Control.Monad.Error.Class
@@ -47,8 +51,7 @@ module Control.Monad.Error.Class (
     mapError,
   ) where
 
-import qualified Control.Exception
-import Control.Monad.Trans.Except (Except, ExceptT)
+import Control.Monad.Trans.Except (ExceptT)
 import qualified Control.Monad.Trans.Except as ExceptT (throwE, catchE)
 import Control.Monad.Trans.Identity as Identity
 import Control.Monad.Trans.Maybe as Maybe
@@ -71,14 +74,9 @@ import Control.Monad.Trans.Writer.CPS as CPSWriter
 
 import Control.Monad.Trans.Class (lift)
 import Control.Exception (IOException, catch, ioError)
-import Control.Monad
-
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ < 707
-import Control.Monad.Instances ()
-#endif
-
-import Data.Monoid
-import Prelude (Either(..), Maybe(..), either, flip, (.), IO)
+import Control.Monad (Monad)
+import Data.Monoid (Monoid)
+import Prelude (Either (Left, Right), Maybe (Nothing), either, flip, (.), IO, pure, (<$>), (>>=))
 
 {- |
 The strategy of combining computations that can throw exceptions
@@ -112,9 +110,7 @@ class (Monad m) => MonadError e m | m -> e where
     Note that @handler@ and the do-block must have the same return type.
     -}
     catchError :: m a -> (e -> m a) -> m a
-#if __GLASGOW_HASKELL__ >= 707
     {-# MINIMAL throwError, catchError #-}
-#endif
 
 {- |
 Lifts an @'Either' e@ into any @'MonadError' e@.
@@ -126,7 +122,7 @@ where @action1@ returns an 'Either' to represent errors.
 @since 2.2.2
 -}
 liftEither :: MonadError e m => Either e a -> m a
-liftEither = either throwError return
+liftEither = either throwError pure
 
 instance MonadError IOException IO where
     throwError = ioError
@@ -220,14 +216,14 @@ instance
 
 -- | 'MonadError' analogue to the 'Control.Exception.try' function.
 tryError :: MonadError e m => m a -> m (Either e a)
-tryError action = (liftM Right action) `catchError` (return . Left)
+tryError action = (Right <$> action) `catchError` (pure . Left)
 
 -- | 'MonadError' analogue to the 'withExceptT' function.
 -- Modify the value (but not the type) of an error.  The type is
 -- fixed because of the functional dependency @m -> e@.  If you need
 -- to change the type of @e@ use 'mapError'.
 withError :: MonadError e m => (e -> e) -> m a -> m a
-withError f action = tryError action >>= either (throwError . f) return
+withError f action = tryError action >>= either (throwError . f) pure
 
 -- | As 'handle' is flipped 'Control.Exception.catch', 'handleError'
 -- is flipped 'catchError'.

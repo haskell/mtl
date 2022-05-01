@@ -2,8 +2,12 @@
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE UndecidableInstances #-}
 -- Search for UndecidableInstances to see why this is needed
+{-# LANGUAGE UndecidableInstances #-}
+-- Needed because the CPSed versions of Writer and State are secretly State
+-- wrappers, which don't force such constraints, even though they should legally
+-- be there.
+{-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -32,31 +36,29 @@ module Control.Monad.State.Class (
     gets
   ) where
 
-import Control.Monad.Trans.Cont
-import Control.Monad.Trans.Except
-import Control.Monad.Trans.Identity
-import Control.Monad.Trans.Maybe
-import Control.Monad.Trans.Reader
-import qualified Control.Monad.Trans.RWS.Lazy as LazyRWS (RWST, get, put, state)
-import qualified Control.Monad.Trans.RWS.Strict as StrictRWS (RWST, get, put, state)
-import qualified Control.Monad.Trans.State.Lazy as Lazy (StateT, get, put, state)
-import qualified Control.Monad.Trans.State.Strict as Strict (StateT, get, put, state)
-import Control.Monad.Trans.Writer.Lazy as Lazy
-import Control.Monad.Trans.Writer.Strict as Strict
+import Control.Monad.Trans.Cont (ContT)
+import Control.Monad.Trans.Except (ExceptT)
+import Control.Monad.Trans.Identity (IdentityT)
+import Control.Monad.Trans.Maybe (MaybeT) 
+import Control.Monad.Trans.Reader (ReaderT)
+import qualified Control.Monad.Trans.RWS.Lazy as LazyRWS
+import qualified Control.Monad.Trans.RWS.Strict as StrictRWS
+import qualified Control.Monad.Trans.State.Lazy as Lazy
+import qualified Control.Monad.Trans.State.Strict as Strict
+import qualified Control.Monad.Trans.Writer.Lazy as Lazy
+import qualified Control.Monad.Trans.Writer.Strict as Strict
 
 #if MIN_VERSION_transformers(0,5,3)
-import Control.Monad.Trans.Accum as Accum
-import Control.Monad.Trans.Select as Accum
+import Control.Monad.Trans.Accum (AccumT)
+import Control.Monad.Trans.Select (SelectT)
 #endif
 
 #if MIN_VERSION_transformers(0,5,6)
-import qualified Control.Monad.Trans.RWS.CPS as CPSRWS (RWST, get, put, state)
-import Control.Monad.Trans.Writer.CPS as CPS
+import qualified Control.Monad.Trans.RWS.CPS as CPSRWS
+import qualified Control.Monad.Trans.Writer.CPS as CPS
 #endif
 
 import Control.Monad.Trans.Class (lift)
-import Control.Monad
-import Data.Monoid
 
 -- ---------------------------------------------------------------------------
 
@@ -77,9 +79,7 @@ class Monad m => MonadState s m | m -> s where
       let ~(a, s') = f s
       put s'
       return a
-#if __GLASGOW_HASKELL__ >= 707
     {-# MINIMAL state | get, put #-}
-#endif
 
 -- | Monadic state transformer.
 --
