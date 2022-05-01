@@ -1,5 +1,3 @@
-{-# LANGUAGE CPP #-}
-#if MIN_VERSION_transformers(0,5,6)
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Monad.Writer.Strict
@@ -24,9 +22,9 @@
 
 module Control.Monad.Writer.CPS (
     -- * MonadWriter class
-    MonadWriter(..),
-    listens,
-    censor,
+    MonadWriter.MonadWriter(..),
+    MonadWriter.listens,
+    MonadWriter.censor,
     -- * The Writer monad
     Writer,
     runWriter,
@@ -36,27 +34,11 @@ module Control.Monad.Writer.CPS (
     WriterT,
     execWriterT,
     mapWriterT,
-    module Control.Monad,
-    module Control.Monad.Fix,
     module Control.Monad.Trans,
-    module Data.Monoid,
   ) where
 
-import Control.Monad.Writer.Class
-
+import qualified Control.Monad.Writer.Class as MonadWriter
 import Control.Monad.Trans
 import Control.Monad.Trans.Writer.CPS (
         Writer, runWriter, execWriter, mapWriter,
         WriterT, execWriterT, mapWriterT)
-
-import Control.Monad
-import Control.Monad.Fix
-import Data.Monoid
-
-#else
--- | This module ordinarily re-exports @Control.Monad.Trans.Writer.CPS@ from
--- @transformers >= 0.5.6@, which is not currently installed. Therefore, this
--- module currently provides nothing; use "Control.Monad.Writer.Lazy" or
--- "Control.Monad.Writer.Strict" instead.
-module Control.Monad.Writer.CPS () where
-#endif

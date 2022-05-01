@@ -20,10 +20,10 @@
 
 module Control.Monad.State.Strict (
     -- * MonadState class
-    MonadState(..),
-    modify,
-    modify',
-    gets,
+    MonadState.MonadState(..),
+    MonadState.modify,
+    MonadState.modify',
+    MonadState.gets,
     -- * The State monad
     State,
     runState,
@@ -38,22 +38,17 @@ module Control.Monad.State.Strict (
     execStateT,
     mapStateT,
     withStateT,
-    module Control.Monad,
-    module Control.Monad.Fix,
     module Control.Monad.Trans,
     -- * Examples
     -- $examples
   ) where
 
-import Control.Monad.State.Class
-
+import qualified Control.Monad.State.Class as MonadState
 import Control.Monad.Trans
+
 import Control.Monad.Trans.State.Strict
         (State, runState, evalState, execState, mapState, withState,
          StateT(StateT), runStateT, evalStateT, execStateT, mapStateT, withStateT)
-
-import Control.Monad
-import Control.Monad.Fix
 
 -- ---------------------------------------------------------------------------
 -- $examples

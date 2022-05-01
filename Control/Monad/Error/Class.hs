@@ -1,8 +1,11 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE UndecidableInstances #-}
+-- Needed because the CPSed versions of Writer and State are secretly State
+-- wrappers, which don't force such constraints, even though they should legally
+-- be there.
+{-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
 {- |
 Module      :  Control.Monad.Error.Class
@@ -47,38 +50,29 @@ module Control.Monad.Error.Class (
     mapError,
   ) where
 
-import qualified Control.Exception
-import Control.Monad.Trans.Except (Except, ExceptT)
+import Control.Monad.Trans.Except (ExceptT)
 import qualified Control.Monad.Trans.Except as ExceptT (throwE, catchE)
-import Control.Monad.Trans.Identity as Identity
-import Control.Monad.Trans.Maybe as Maybe
-import Control.Monad.Trans.Reader as Reader
-import Control.Monad.Trans.RWS.Lazy as LazyRWS
-import Control.Monad.Trans.RWS.Strict as StrictRWS
-import Control.Monad.Trans.State.Lazy as LazyState
-import Control.Monad.Trans.State.Strict as StrictState
-import Control.Monad.Trans.Writer.Lazy as LazyWriter
-import Control.Monad.Trans.Writer.Strict as StrictWriter
-
-#if MIN_VERSION_transformers(0,5,3)
-import Control.Monad.Trans.Accum as Accum
-#endif
-
-#if MIN_VERSION_transformers(0,5,6)
-import Control.Monad.Trans.RWS.CPS as CPSRWS
-import Control.Monad.Trans.Writer.CPS as CPSWriter
-#endif
-
+import Control.Monad.Trans.Identity (IdentityT)
+import qualified Control.Monad.Trans.Identity as Identity
+import Control.Monad.Trans.Maybe (MaybeT)
+import qualified Control.Monad.Trans.Maybe as Maybe
+import Control.Monad.Trans.Reader (ReaderT)
+import qualified Control.Monad.Trans.Reader as Reader
+import qualified Control.Monad.Trans.RWS.Lazy as LazyRWS
+import qualified Control.Monad.Trans.RWS.Strict as StrictRWS
+import qualified Control.Monad.Trans.State.Lazy as LazyState
+import qualified Control.Monad.Trans.State.Strict as StrictState
+import qualified Control.Monad.Trans.Writer.Lazy as LazyWriter
+import qualified Control.Monad.Trans.Writer.Strict as StrictWriter
+import Control.Monad.Trans.Accum (AccumT)
+import qualified Control.Monad.Trans.Accum as Accum
+import qualified Control.Monad.Trans.RWS.CPS as CPSRWS
+import qualified Control.Monad.Trans.Writer.CPS as CPSWriter
 import Control.Monad.Trans.Class (lift)
 import Control.Exception (IOException, catch, ioError)
-import Control.Monad
-
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ < 707
-import Control.Monad.Instances ()
-#endif
-
-import Data.Monoid
-import Prelude (Either(..), Maybe(..), either, flip, (.), IO)
+import Control.Monad (Monad)
+import Data.Monoid (Monoid)
+import Prelude (Either (Left, Right), Maybe (Nothing), either, flip, (.), IO, pure, (<$>), (>>=))
 
 {- |
 The strategy of combining computations that can throw exceptions
@@ -112,9 +106,7 @@ class (Monad m) => MonadError e m | m -> e where
     Note that @handler@ and the do-block must have the same return type.
     -}
     catchError :: m a -> (e -> m a) -> m a
-#if __GLASGOW_HASKELL__ >= 707
     {-# MINIMAL throwError, catchError #-}
-#endif
 
 {- |
 Lifts an @'Either' e@ into any @'MonadError' e@.
@@ -126,7 +118,7 @@ where @action1@ returns an 'Either' to represent errors.
 @since 2.2.2
 -}
 liftEither :: MonadError e m => Either e a -> m a
-liftEither = either throwError return
+liftEither = either throwError pure
 
 instance MonadError IOException IO where
     throwError = ioError
@@ -193,7 +185,6 @@ instance (Monoid w, MonadError e m) => MonadError e (StrictWriter.WriterT w m) w
     throwError = lift . throwError
     catchError = StrictWriter.liftCatch catchError
 
-#if MIN_VERSION_transformers(0,5,6)
 -- | @since 2.3
 instance (Monoid w, MonadError e m) => MonadError e (CPSRWS.RWST r w s m) where
     throwError = lift . throwError
@@ -203,31 +194,25 @@ instance (Monoid w, MonadError e m) => MonadError e (CPSRWS.RWST r w s m) where
 instance (Monoid w, MonadError e m) => MonadError e (CPSWriter.WriterT w m) where
     throwError = lift . throwError
     catchError = CPSWriter.liftCatch catchError
-#endif
 
-#if MIN_VERSION_transformers(0,5,3)
 -- | @since 2.3
 instance
   ( Monoid w
   , MonadError e m
-#if !MIN_VERSION_base(4,8,0)
-  , Functor m
-#endif
   ) => MonadError e (AccumT w m) where
     throwError = lift . throwError
     catchError = Accum.liftCatch catchError
-#endif
 
 -- | 'MonadError' analogue to the 'Control.Exception.try' function.
 tryError :: MonadError e m => m a -> m (Either e a)
-tryError action = (liftM Right action) `catchError` (return . Left)
+tryError action = (Right <$> action) `catchError` (pure . Left)
 
 -- | 'MonadError' analogue to the 'withExceptT' function.
 -- Modify the value (but not the type) of an error.  The type is
 -- fixed because of the functional dependency @m -> e@.  If you need
 -- to change the type of @e@ use 'mapError'.
 withError :: MonadError e m => (e -> e) -> m a -> m a
-withError f action = tryError action >>= either (throwError . f) return
+withError f action = tryError action >>= either (throwError . f) pure
 
 -- | As 'handle' is flipped 'Control.Exception.catch', 'handleError'
 -- is flipped 'catchError'.

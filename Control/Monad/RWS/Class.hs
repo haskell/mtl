@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -35,25 +34,18 @@ import Control.Monad.Reader.Class
 import Control.Monad.State.Class
 import Control.Monad.Writer.Class
 
-import Control.Monad.Trans.Class
-import Control.Monad.Trans.Except(ExceptT)
-import Control.Monad.Trans.Maybe(MaybeT)
-import Control.Monad.Trans.Identity(IdentityT)
-#if MIN_VERSION_transformers(0,5,6)
+import Control.Monad.Trans.Except (ExceptT)
+import Control.Monad.Trans.Maybe (MaybeT)
+import Control.Monad.Trans.Identity (IdentityT)
 import qualified Control.Monad.Trans.RWS.CPS as CPS (RWST)
-#endif
 import qualified Control.Monad.Trans.RWS.Lazy as Lazy (RWST)
 import qualified Control.Monad.Trans.RWS.Strict as Strict (RWST)
-
-import Data.Monoid
 
 class (Monoid w, MonadReader r m, MonadWriter w m, MonadState s m)
    => MonadRWS r w s m | m -> r, m -> w, m -> s
 
-#if MIN_VERSION_transformers(0,5,6)
 -- | @since 2.3
 instance (Monoid w, Monad m) => MonadRWS r w s (CPS.RWST r w s m)
-#endif
 
 instance (Monoid w, Monad m) => MonadRWS r w s (Lazy.RWST r w s m)
 
