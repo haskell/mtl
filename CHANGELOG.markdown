@@ -1,13 +1,17 @@
-2.3
+2.3 (to release, add date when it will be)
 ---
-* Add instances for `Control.Monad.Trans.Writer.CPS` and `Control.Monad.Trans.RWS.CPS` from `transformers` 0.5.6 and add `Control.Monad.Writer.CPS` and `Control.Monad.RWS.CPS`.
-* `Control.Monad.Cont` now re-exports `evalCont` and `evalContT`
+* Add instances for `Control.Monad.Trans.Writer.CPS` and 
+  `Control.Monad.Trans.RWS.CPS` from `transformers` 0.5.6 and add 
+  `Control.Monad.Writer.CPS` and `Control.Monad.RWS.CPS`.
+* `Control.Monad.Cont` now re-exports `evalCont` and `evalContT`.
 * Add `tryError`, `withError`, `handleError`, and `mapError` to
   `Control.Monad.Error.Class`, and re-export from `Control.Monad.Except`.
-* Remove `Control.Monad.List` and `Control.Monad.Error`
-* Remove instances of deprecated `ListT` and `ErrorT`
-* Remove re-exports of `Error`
-* Add instances for `Control.Monad.Trans.Accum` and `Control.Monad.Trans.Select`
+* Remove `Control.Monad.List` and `Control.Monad.Error`.
+* Remove instances of deprecated `ListT` and `ErrorT`.
+* Remove re-exports of `Error`.
+* Add instances for `Control.Monad.Trans.Accum` and 
+  `Control.Monad.Trans.Select`.
+* Require GHC 8.6 or higher, and `cabal-install` 3.0 or higher.
 
 2.2.2
 -----
