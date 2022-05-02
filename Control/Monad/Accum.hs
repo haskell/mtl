@@ -54,6 +54,7 @@ import qualified Control.Monad.Trans.State.Strict as StrictState
 import qualified Control.Monad.Trans.Writer.CPS as CPSWriter
 import qualified Control.Monad.Trans.Writer.Lazy as LazyWriter
 import qualified Control.Monad.Trans.Writer.Strict as StrictWriter
+import Data.Functor (($>))
 import Data.Functor.Identity (Identity)
 import Data.Kind (Type)
 
@@ -72,18 +73,20 @@ import Data.Kind (Type)
 -- @'accum' '$' \acc -> let (_, v) = f acc
 --                          (res, w) = g (acc '<>' v) in (res, v '<>' w)@
 --
--- If you choose to define 'look' or 'add', their definitions must obey the
--- following laws. These are also their default definitions:
---
--- 1. @'look'@ @=@ @'accum' '$' \acc -> (acc, mempty)@
--- 2. @'add' x@ @=@ @'accum' '$' \acc -> ('()', x)@
---
--- All of the following are consequences of these definitions:
+-- If you choose to define 'look' and 'add' instead, their definitions must obey
+-- the following:
 --
 -- 1. @'look' '*>' 'look'@ @=@ @'look'@
 -- 2. @'add' 'mempty'@ @=@ @'pure' '()'@
 -- 3. @'add' x '*>' 'add' y@ @=@ @'add' (x '<>' y)@
 -- 4. @'add' x '*>' 'look'@ @=@ @'look' '>>=' \w -> 'add' x '$>' w '<>' x@
+--
+-- If you want to define both, the relationship between them is as follows.
+-- These are also the default definitions.
+--
+-- 1. @'look'@ @=@ @'accum' '$' \acc -> (acc, mempty)@
+-- 2. @'add' x@ @=@ @'accum' '$' \acc -> ('()', x)@
+-- 3. @'accum' f@ @=@ @'look' >>= \acc -> let (res, v) = f acc in 'add' v '$>' res@
 --
 -- @since 2.3
 class (Monoid w, Monad m) => MonadAccum w m | m -> w where
@@ -97,8 +100,9 @@ class (Monoid w, Monad m) => MonadAccum w m | m -> w where
 
   -- | Embed a simple accumulation action into the monad.
   accum :: (w -> (a, w)) -> m a
+  accum f = look >>= \acc -> let (res, v) = f acc in add v $> res
 
-  {-# MINIMAL accum #-}
+  {-# MINIMAL accum | look, add #-}
 
 -- | @since 2.3
 instance (Monoid w) => MonadAccum w (AccumT w Identity) where
