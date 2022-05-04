@@ -2,11 +2,14 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE Safe #-}
+{-# LANGUAGE Trustworthy #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE UndecidableInstances #-}
+-- Later GHCs infer DerivingVia as not Safe
+-- We just downgrade to Trustworthy and go fish
+{-# OPTIONS_GHC -Wno-trustworthy-safe #-}
 
 -- | Module: Control.Monad.Accum
 -- Copyright: (C) Koz Ross 2022, Manuel Bärenz 2021
