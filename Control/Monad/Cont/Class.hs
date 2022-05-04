@@ -1,3 +1,4 @@
+{-# LANGUAGE Safe #-}
 -- Needed because the CPSed versions of Writer and State are secretly State
 -- wrappers, which don't force such constraints, even though they should legally
 -- be there.

@@ -1,3 +1,4 @@
+{-# LANGUAGE Safe #-}
 {- |
 Module      :  Control.Monad.Identity
 Copyright   :  (c) Andy Gill 2001,
