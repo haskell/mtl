@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE Safe #-}
 {- |
 Module      :  Control.Monad.Except
 Copyright   :  (c) Michael Weber <michael.weber@post.rwth-aachen.de> 2001,

@@ -1,3 +1,5 @@
+{-# LANGUAGE Safe #-}
+
 {- |
 Module      :  Control.Monad.Cont
 Copyright   :  (c) The University of Glasgow 2001,
