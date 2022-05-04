@@ -25,7 +25,57 @@
 --
 -- [Zero and plus:] None.
 --
--- [Example type:] @'Accum' w a@
+-- [Example type:] @'Control.Monad.Trans.Accum.Accum' w a@
+--
+-- = A note on commutativity
+--
+-- Some effects are /commutative/: it doesn't matter which you resolve first, as
+-- all possible orderings of commutative effects are isomorphic. Consider, for
+-- example, the reader and state effects, as exemplified by 'ReaderT' and
+-- 'StrictState.StateT' respectively. If we have
+-- @'ReaderT' r ('StrictState.State' s) a@, this is
+-- effectively @r -> 'StrictState.State' s a ~ r -> s -> (a, s)@; if we instead have
+-- @'StrictState.StateT' s ('Control.Monad.Trans.Reader.Reader' r) a@, this is effectively
+-- @s -> 'Control.Monad.Trans.Reader' r (a, s) ~ s -> r -> (a, s)@. Since we
+-- can always reorder function arguments (for example, using 'flip', as in
+-- this case) without changing the result, these are
+-- isomorphic, showing that reader and state are /commutative/, or, more
+-- precisely, /commute with each other/.
+--
+-- However, this isn't generally the case. Consider instead the error and state
+-- effects, as exemplified by 'MaybeT' and 'StrictState.StateT' respectively.
+-- If we have @'MaybeT' ('Control.Monad.Trans.State.Strict.State' s) a@, this
+-- is effectively @'State' s ('Maybe' a) ~ s -> ('Maybe' a, s)@: put simply,
+-- the error can occur only in the /result/, but
+-- not the state, which always \'survives\'. On the other hand, if we have
+-- @'StrictState.StateT' s 'Maybe' a@, this is instead @s -> 'Maybe' (a, s)@: here,
+-- if we error, we lose /both/ the state and the result! Thus, error and state effects
+-- do /not/ commute with each other.
+--
+-- As the MTL is capability-based, we support any ordering of non-commutative
+-- effects on an equal footing. Indeed, if you wish to use
+-- 'Control.Monad.State.Class.MonadState', for
+-- example, whether your final monadic stack ends up being @'MaybeT'
+-- ('Control.Monad.Trans.State.Strict.State' s)
+-- a@, @'StrictState.StateT' s 'Maybe' a@, or anything else, you will be able to write your
+-- desired code without having to consider such differences. However, the way we
+-- /implement/ these capabilities for any given transformer (or rather, any
+-- given transformed stack) /is/ affected by this ordering unless the effects in
+-- question are commutative.
+--
+-- We note in this module which effects the accumulation effect does and doesn't
+-- commute with; we also note on implementations with non-commutative
+-- transformers what the outcome will be. Note that, depending on how the
+-- \'inner monad\' is structured, this may be more complex than we note: we
+-- describe only what impact the \'outer effect\' has, not what else might be in
+-- the stack.
+--
+-- = Commutativity of accumulation
+--
+-- The accumulation effect commutes with the identity effect ('IdentityT'),
+-- reader, writer or state effects ('ReaderT', 'StrictWriter.WriterT', 'StrictState.StateT' and any
+-- combination, including 'StrictRWS.RWST' for example) and with itself. It does /not/
+-- commute with anything else.
 module Control.Monad.Accum
   ( -- * Type class
     MonadAccum (..),
@@ -61,9 +111,10 @@ import Data.Kind (Type)
 
 -- | The capability to accumulate. This can be seen in one of two ways:
 --
--- * A 'MonadState' which can only append (using '<>'); or
--- * A 'MonadWriter' (limited to 'tell') with the ability to view the result of
--- all previous 'tell's.
+-- * A 'Control.Monad.State.Class.MonadState' which can only append (using '<>'); or
+-- * A 'Control.Monad.Writer.Class.MonadWriter' (limited to
+-- 'Control.Monad.Writer.Class.tell') with the ability to view the result of all previous
+-- 'Control.Monad.Writer.Class.tell's.
 --
 -- = Laws
 --
@@ -78,7 +129,7 @@ import Data.Kind (Type)
 -- the following:
 --
 -- 1. @'look' '*>' 'look'@ @=@ @'look'@
--- 2. @'add' 'mempty'@ @=@ @'pure' '()'@
+-- 2. @'add' 'mempty'@ @=@ @'pure' ()@
 -- 3. @'add' x '*>' 'add' y@ @=@ @'add' (x '<>' y)@
 -- 4. @'add' x '*>' 'look'@ @=@ @'look' '>>=' \w -> 'add' x '$>' w '<>' x@
 --
@@ -111,21 +162,29 @@ instance (Monoid w) => MonadAccum w (AccumT w Identity) where
   add = Accum.add
   accum = Accum.accum
 
--- | @since 2.3
+-- | The accumulated value \'survives\' an error: even if the
+-- computation fails to deliver a result, we still have an accumulated value.
+--
+-- @since 2.3
 deriving via
   (LiftingAccum MaybeT m)
   instance
     (MonadAccum w m) =>
     MonadAccum w (MaybeT m)
 
--- | @since 2.3
+-- | The continuation can see, and interact with, the accumulated value.
+--
+-- @since 2.3
 deriving via
   (LiftingAccum (ContT r) m)
   instance
     (MonadAccum w m) =>
     MonadAccum w (ContT r m)
 
--- | @since 2.3
+-- | The accumulated value \'survives\' an exception: even if the computation
+-- fails to deliver a result, we still have an accumulated value.
+--
+-- @since 2.3
 deriving via
   (LiftingAccum (ExceptT e) m)
   instance
