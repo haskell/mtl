@@ -9,7 +9,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 
 -- | Module: Control.Monad.Accum
--- Copyright: (C) Koz Ross 2022
+-- Copyright: (C) Koz Ross 2022, Manuel Bärenz 2021
 -- License: BSD-3-Clause (see the LICENSE file)
 -- Maintainer: koz.ross@retro-freedom.nz
 -- Stability: Experimental
