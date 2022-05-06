@@ -53,6 +53,7 @@ Library
     Control.Monad.Writer.Lazy
     Control.Monad.Writer.Strict
     Control.Monad.Accum
+    Control.Monad.Select
   
   build-depends: 
     , base >=4.12 && < 5
