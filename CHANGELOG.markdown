@@ -1,4 +1,4 @@
-2.3 (to release, add date when it will be)
+2.3 -- 2022-05-07
 ---
 * Add instances for `Control.Monad.Trans.Writer.CPS` and 
   `Control.Monad.Trans.RWS.CPS` from `transformers` 0.5.6 and add 
