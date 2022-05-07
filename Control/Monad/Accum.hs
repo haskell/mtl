@@ -2,9 +2,9 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE Trustworthy #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE Trustworthy #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE UndecidableInstances #-}
 -- Later GHCs infer DerivingVia as not Safe
@@ -229,7 +229,10 @@ deriving via
     (MonadAccum w m) =>
     MonadAccum w (ReaderT r m)
 
--- | @since 2.3
+-- | The \'ranking\' function gains the ability to accumulate @w@s each time it
+-- is called. The final result will include the entire log of all such calls.
+--
+-- @since 2.3
 deriving via
   (LiftingAccum (SelectT r) m)
   instance

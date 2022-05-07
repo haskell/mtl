@@ -13,6 +13,10 @@
   `Control.Monad.Trans.Select`.
 * Require GHC 8.6 or higher, and `cabal-install` 3.0 or higher.
 * Require `transformers-0.5.6` or higher.
+* Add `Control.Monad.Accum` for the `MonadAccum` type class, as well as the
+  `LiftingAccum` deriving helper.
+* Add `Control.Monad.Select` for the `MonadSelect` type class, as well as the
+  `LiftingSelect` deriving helper.
 
 2.2.2
 -----
