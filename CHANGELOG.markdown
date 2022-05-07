@@ -17,6 +17,7 @@
   `LiftingAccum` deriving helper.
 * Add `Control.Monad.Select` for the `MonadSelect` type class, as well as the
   `LiftingSelect` deriving helper.
+* Remove re-exports of `Control.Monad`, `Control.Monad.Fix` and `Data.Monoid` modules
 
 2.2.2
 -----
