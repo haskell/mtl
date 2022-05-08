@@ -89,14 +89,6 @@ documentation on Hackage](https://hackage.haskell.org/package/mtl).
     - Transformer: `Control.Monad.Trans.Identity.IdentityT` (in the `transformers` package)
     - Identity functor and monad: `Data.Functor.Identity.Identity` (in the `base` package)
 
-* `Control.Monad.List`
-
-    This transformer combines the list monad with another monad. _Note
-    that this does not yield a monad unless the inner monad is
-    [commutative](https://en.wikipedia.org/wiki/Commutative_property)._
-
-    - Transformer: `Control.Monad.List.ListT`
-
 * `Control.Monad.RWS`
 
     A convenient transformer that combines the Reader, Writer, and
