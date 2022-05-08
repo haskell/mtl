@@ -65,7 +65,7 @@
 -- given transformed stack) /is/ affected by this ordering unless the effects in
 -- question are commutative.
 --
--- We note in this module which effects the accumulation effect does and doesn't
+-- We note in this module which effects the selection effect does and doesn't
 -- commute with; we also note on implementations with non-commutative
 -- transformers what the outcome will be. Note that, depending on how the
 -- \'inner monad\' is structured, this may be more complex than we note: we

@@ -1,3 +1,7 @@
+2.3.1 -- TO ADD RELEASE DATE
+---
+* Add `ListT` transformer.
+
 2.3 -- 2022-05-07
 ---
 * Add instances for `Control.Monad.Trans.Writer.CPS` and 
