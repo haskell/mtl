@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE Safe #-}
 {- |
 Module      :  Control.Monad.Except
 Copyright   :  (c) Michael Weber <michael.weber@post.rwth-aachen.de> 2001,
@@ -36,27 +36,12 @@ module Control.Monad.Except
     -- * Warning
     -- $warning
     -- * Monads with error handling
-    MonadError(..),
-    liftEither,
-    tryError,
-    withError,
-    handleError,
-    mapError,
-
-    -- * The ExceptT monad transformer
-    ExceptT(ExceptT),
-    Except,
-
-    runExceptT,
-    mapExceptT,
-    withExceptT,
-    runExcept,
-    mapExcept,
-    withExcept,
-
-    module Control.Monad,
-    module Control.Monad.Fix,
-    module Control.Monad.Trans,
+    Error.MonadError(..),
+    Error.liftEither,
+    Error.tryError,
+    Error.withError,
+    Error.handleError,
+    Error.mapError,
     -- * Example 1: Custom Error Data Type
     -- $customErrorExample
 
@@ -64,21 +49,7 @@ module Control.Monad.Except
     -- $ExceptTExample
   ) where
 
-import Control.Monad.Error.Class
-import Control.Monad.Trans
-import Control.Monad.Trans.Except
-  ( ExceptT(ExceptT), Except, except
-  , runExcept, runExceptT
-  , mapExcept, mapExceptT
-  , withExcept, withExceptT
-  )
-
-import Control.Monad
-import Control.Monad.Fix
-
-#if defined(__GLASGOW_HASKELL__) && __GLASGOW_HASKELL__ < 707
-import Control.Monad.Instances ()
-#endif
+import qualified Control.Monad.Error.Class as Error
 
 {- $warning
 Please do not confuse 'ExceptT' and 'throwError' with 'Control.Exception.Exception' /

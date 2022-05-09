@@ -1,3 +1,4 @@
+{-# LANGUAGE Safe #-}
 {- |
 Module      :  Control.Monad.Identity
 Copyright   :  (c) Andy Gill 2001,
@@ -35,13 +36,7 @@ version of that monad.
 module Control.Monad.Identity (
     module Data.Functor.Identity,
     module Control.Monad.Trans.Identity,
-
-    module Control.Monad,
-    module Control.Monad.Fix,
    ) where
 
 import Data.Functor.Identity
 import Control.Monad.Trans.Identity
-
-import Control.Monad
-import Control.Monad.Fix

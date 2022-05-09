@@ -1,33 +1,28 @@
-name:         mtl
-version:      2.2.2
-cabal-version: >= 1.10
-license:      BSD3
-license-file: LICENSE
-author:       Andy Gill
-maintainer:   Edward Kmett <ekmett@gmail.com>
-category:     Control
-synopsis:     Monad classes for transformers, using functional dependencies
-homepage:     http://github.com/haskell/mtl
-bug-reports:  http://github.com/haskell/mtl/issues
+cabal-version: 3.0
+name:          mtl
+version:       2.3
+license:       BSD-3-Clause
+license-file:  LICENSE
+author:        Andy Gill
+maintainer:    chessai <chessai1996@gmail.com>, 
+               Emily Pillmore <emilypi@cohomolo.gy>, 
+               Koz Ross <koz.ross@retro-freedom.nz>
+category:      Control
+synopsis:      Monad classes for transformers, using functional dependencies
+homepage:      http://github.com/haskell/mtl
+bug-reports:   http://github.com/haskell/mtl/issues
 description:
   MTL is a collection of monad classes, extending the 'transformers'
   package, using functional dependencies for generic lifting of
   monadic actions.
+
 build-type: Simple
-extra-source-files: CHANGELOG.markdown, README.markdown
-tested-with:
-  GHC==7.0.4,
-  GHC==7.2.2,
-  GHC==7.4.2,
-  GHC==7.6.3,
-  GHC==7.8.4,
-  GHC==7.10.3,
-  GHC==8.0.2,
-  GHC==8.2.2,
-  GHC==8.4.4,
-  GHC==8.6.5,
-  GHC==8.8.3,
-  GHC==8.10.1
+
+extra-source-files: 
+  CHANGELOG.markdown
+  README.markdown
+
+tested-with: GHC ==8.6.5 || ==8.8.4 || ==8.10.7 || ==9.0.2 || ==9.2.2
 
 source-repository head
   type: git
@@ -57,24 +52,17 @@ Library
     Control.Monad.Writer.CPS
     Control.Monad.Writer.Lazy
     Control.Monad.Writer.Strict
-  build-depends: base < 5, transformers >= 0.4 && <0.6
+    Control.Monad.Accum
+    Control.Monad.Select
+  
+  build-depends: 
+    , base >=4.12 && < 5
+    , transformers >= 0.5.6 && <0.7
+
+  ghc-options: 
+    -Wall -Wcompat -Wincomplete-record-updates
+    -Wincomplete-uni-patterns -Wredundant-constraints
+    -Wmissing-export-lists
 
   default-language: Haskell2010
-  other-extensions:
-    CPP
-    MultiParamTypeClasses
-    FunctionalDependencies
-    FlexibleInstances
-    UndecidableInstances
 
-  -- This is a SafeHaskell safeguard (pun intended) to explicitly declare the API contract of `mtl`
-  -- GHC versions before 7.4 were hopelessly broken or incapable of SafeHaskell
-  if impl(ghc >= 7.4)
-    default-extensions: Safe
-
-  ghc-options: -Wall -fno-warn-unused-imports -fno-warn-warnings-deprecations
-
-  if impl(ghc >= 8.0)
-    ghc-options: -Wcompat -Wnoncanonical-monad-instances
-    if impl(ghc < 8.8)
-      ghc-options: -Wnoncanonical-monadfail-instances
