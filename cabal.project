@@ -1,4 +1,6 @@
 packages: ./mtl.cabal
 
+test-show-details: direct
+
 package mtl
   ghc-options: -Werror
