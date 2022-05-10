@@ -198,9 +198,9 @@ instance MonadWriter w m => MonadWriter w (Strict.StateT s m) where
 --
 -- @since 2.3
 instance
-  ( Monoid w
+  ( Monoid w'
   , MonadWriter w m
-  ) => MonadWriter w (AccumT w m) where
+  ) => MonadWriter w (AccumT w' m) where
     writer = lift . writer
     tell   = lift . tell
     listen = Accum.liftListen listen
