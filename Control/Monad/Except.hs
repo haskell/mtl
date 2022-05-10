@@ -42,6 +42,15 @@ module Control.Monad.Except
     Error.withError,
     Error.handleError,
     Error.mapError,
+    -- * The ExceptT monad transformer
+    Except.ExceptT(ExceptT),
+    Except.Except,
+    Except.runExceptT,
+    Except.mapExceptT,
+    Except.withExceptT,
+    Except.runExcept,
+    Except.mapExcept,
+    Except.withExcept,
     -- * Example 1: Custom Error Data Type
     -- $customErrorExample
 
@@ -50,6 +59,7 @@ module Control.Monad.Except
   ) where
 
 import qualified Control.Monad.Error.Class as Error
+import qualified Control.Monad.Trans.Except as Except
 
 {- $warning
 Please do not confuse 'ExceptT' and 'throwError' with 'Control.Exception.Exception' /
