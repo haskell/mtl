@@ -29,7 +29,9 @@ source-repository head
   location: https://github.com/haskell/mtl.git
 
 common common-lang
-  build-depends: base >= 4.12 && < 5
+  build-depends: 
+    , base >= 4.12 && < 5
+    , transformers >= 0.5.6 && < 0.7
   ghc-options:
     -Wall -Wcompat -Wincomplete-record-updates
     -Wincomplete-uni-patterns -Wredundant-constraints
@@ -64,16 +66,16 @@ Library
     Control.Monad.Accum
     Control.Monad.Select
   
-  build-depends: transformers >= 0.5.6 && <0.7
-
 test-suite properties
   import: common-lang
   type: exitcode-stdio-1.0
   main-is: Main.hs
-  other-modules: Accum
   build-depends: 
     , mtl
     , QuickCheck ^>= 2.14.0
+    , tasty ^>= 1.4.0.0
+    , tasty-quickcheck ^>= 0.10.0
+    , pretty-show ^>= 1.10
 
   hs-source-dirs: test/properties
   ghc-options: -O2 -threaded -rtsopts -with-rtsopts=-N
