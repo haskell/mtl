@@ -3,6 +3,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE NumericUnderscores #-}
+{-# LANGUAGE QuantifiedConstraints #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
@@ -11,8 +12,9 @@ module Main (main) where
 
 import Control.Monad.Accum (MonadAccum (add, look))
 import Control.Monad.Trans.Accum (AccumT, runAccum)
+import Control.Monad.Trans.Maybe (MaybeT, runMaybeT)
 import Data.Functor (($>))
-import Data.Functor.Identity (Identity)
+import Data.Functor.Identity (Identity (Identity))
 import Data.Kind (Type)
 import GHC.IO.Encoding (setLocaleEncoding, utf8)
 import Test.QuickCheck
@@ -35,7 +37,8 @@ main = do
   defaultMain . adjustOption go . testGroup "Laws" $
     [ testGroup
         "Accum"
-        [ accumLaws lowerBaseline
+        [ accumLaws lowerBaseline,
+          accumLaws lowerMaybe
         ]
     ]
   where
@@ -45,9 +48,13 @@ main = do
 -- Law generators
 
 accumLaws ::
-  forall (m :: Type -> Type).
-  (MonadAccum M m, Typeable m) =>
-  (forall (a :: Type). m a -> M -> (a, M)) ->
+  forall (m :: Type -> Type) (f :: Type -> Type -> Type).
+  ( MonadAccum M m,
+    Typeable m,
+    forall b. Eq b => Eq (f M b),
+    forall b. Show b => Show (f M b)
+  ) =>
+  (forall (a :: Type). m a -> M -> f M a) ->
   TestTree
 accumLaws lower =
   testProperties
@@ -81,7 +88,30 @@ accumLaws lower =
           rhs = look >>= \w' -> add x $> w' <> x
        in lower lhs w === lower rhs w
 
+-- Lowerings
+
+lowerBaseline ::
+  forall (w :: Type) (a :: Type).
+  AccumT w Identity a ->
+  w ->
+  Result Identity w a
+lowerBaseline comp acc = case runAccum comp acc of
+  (x, acc') -> Result (Identity x, acc')
+
+lowerMaybe ::
+  forall (w :: Type) (a :: Type).
+  MaybeT (AccumT w Identity) a ->
+  w ->
+  Result Maybe w a
+lowerMaybe comp acc = case runAccum (runMaybeT comp) acc of
+  (x, acc') -> Result (x, acc')
+
 -- Helpers
+
+newtype Result (f :: Type -> Type) (w :: Type) (a :: Type)
+  = Result (f a, w)
+  deriving (Eq) via (f a, w)
+  deriving stock (Show)
 
 -- A type that's a 'non-specific monoid', similar to how 'A' and 'B' work in
 -- QuickCheck.
@@ -95,13 +125,6 @@ instance Arbitrary M where
   arbitrary = do
     x <- sized $ \size -> chooseInt (0, abs size)
     pure . M . pure $ x
-
-lowerBaseline ::
-  forall (a :: Type) (w :: Type).
-  AccumT w Identity a ->
-  w ->
-  (a, w)
-lowerBaseline = runAccum
 
 typeName :: forall (a :: Type). (Typeable a) => String
 typeName = tyConName . typeRepTyCon $ typeRep @a
