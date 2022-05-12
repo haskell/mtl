@@ -1,3 +1,8 @@
+2.3.1 -- Unreleased
+-----
+* Add `modifyError` to `Control.Monad.Error.Class`, and re-export from
+  `Control.Monad.Except`.
+
 2.3 -- 2022-05-07
 ---
 * Add instances for `Control.Monad.Trans.Writer.CPS` and 
