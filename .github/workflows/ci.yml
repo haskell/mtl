@@ -45,4 +45,4 @@ jobs:
       - name: Build
         run: cabal build
       - name: Docspec
-        run: cabal-docspec
+        run: cabal-docspec --extra-package containers

@@ -2,3 +2,7 @@ packages: ./mtl.cabal
 
 package mtl
   ghc-options: -Werror
+
+-- This adds containers to the build plan, because it's required by the
+-- doc tests.
+extra-packages: containers

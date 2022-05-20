@@ -39,7 +39,7 @@ module Control.Monad.State.Class (
 import Control.Monad.Trans.Cont (ContT)
 import Control.Monad.Trans.Except (ExceptT)
 import Control.Monad.Trans.Identity (IdentityT)
-import Control.Monad.Trans.Maybe (MaybeT) 
+import Control.Monad.Trans.Maybe (MaybeT)
 import Control.Monad.Trans.Reader (ReaderT)
 import qualified Control.Monad.Trans.RWS.Lazy as LazyRWS
 import qualified Control.Monad.Trans.RWS.Strict as StrictRWS
@@ -76,15 +76,15 @@ class Monad m => MonadState s m | m -> s where
 
 -- | Monadic state transformer.
 --
---      Maps an old state to a new state inside a state monad.
---      The old state is thrown away.
+-- Maps an old state to a new state inside a state monad.
+-- The old state is thrown away.
 --
--- >      Main> :t modify ((+1) :: Int -> Int)
--- >      modify (...) :: (MonadState Int a) => a ()
+-- >>> :t modify ((+1) :: Int -> Int)
+-- modify ((+1) :: Int -> Int) :: MonadState Int m => m ()
 --
---    This says that @modify (+1)@ acts over any
---    Monad that is a member of the @MonadState@ class,
---    with an @Int@ state.
+-- This says that @modify (+1)@ acts over any
+-- Monad that is a member of the @MonadState@ class,
+-- with an @Int@ state.
 modify :: MonadState s m => (s -> s) -> m ()
 modify f = state (\s -> ((), f s))
 

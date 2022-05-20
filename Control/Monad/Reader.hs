@@ -68,84 +68,92 @@ import Control.Monad.Trans.Reader (
     Reader, runReader, mapReader, withReader,
     ReaderT(ReaderT), runReaderT, mapReaderT, withReaderT)
 
-{- $simpleReaderExample
+-- $simpleReaderExample
+--
+-- In this example the @Reader@ monad provides access to variable bindings.
+-- Bindings are a @Map@ of integer variables.
+-- The variable @count@ contains number of variables in the bindings.
+-- You can see how to run a Reader monad and retrieve data from it
+-- with 'runReader', how to access the Reader data with 'ask' and 'asks'.
+--
+-- >>> import           Control.Monad.Reader
+-- >>> import           Data.Map (Map)
+-- >>> import qualified Data.Map as Map
+-- >>>
+-- >>> type Bindings = Map String Int
+--
+-- The selector function to use with 'asks'.
+-- Returns value of the variable with specified name.
+--
+-- >>> :{
+-- lookupVar :: String -> Bindings -> Int
+-- lookupVar name bindings = maybe 0 id (Map.lookup name bindings)
+-- :}
+--
+-- Checks if the "count" variable contains correct bindings size.
+--
+-- >>> :{
+-- calcIscountcorrect :: Reader Bindings Bool
+-- calcIscountcorrect = do
+--     count <- asks (lookupVar "count")
+--     bindings <- ask
+--     return (count == (Map.size bindings))
+-- :}
+--
+-- Returns True if the "count" variable contains correct bindings size.
+--
+-- >>> :{
+-- sampleBindings :: Bindings
+-- sampleBindings = Map.fromList [("count", 3), ("1", 1), ("b", 2)]
+-- :}
+--
+-- >>> runReader calcIscountcorrect sampleBindings
+-- True
 
-In this example the @Reader@ monad provides access to variable bindings.
-Bindings are a @Map@ of integer variables.
-The variable @count@ contains number of variables in the bindings.
-You can see how to run a Reader monad and retrieve data from it
-with 'runReader', how to access the Reader data with 'ask' and 'asks'.
+-- $localExample
+--
+-- Shows how to modify Reader content with 'local'.
+--
+-- >>> import Control.Monad.Reader
+--
+-- >>> :{
+-- calculateContentLen :: Reader String Int
+-- calculateContentLen = do
+--     content <- ask
+--     return (length content)
+-- :}
+--
+-- Calls calculateContentLen after adding a prefix to the Reader content.
+--
+-- >>> :{
+-- calculateModifiedContentLen :: Reader String Int
+-- calculateModifiedContentLen = local ("Prefix " ++) calculateContentLen
+-- :}
+--
+-- >>> runReader calculateContentLen "12345"
+-- 5
+--
+-- >>> runReader calculateModifiedContentLen "12345"
+-- 12
+--
 
->import           Control.Monad.Reader
->import           Data.Map (Map)
->import qualified Data.Map as Map
->
->type Bindings = Map String Int
->
->-- Returns True if the "count" variable contains correct bindings size.
->isCountCorrect :: Bindings -> Bool
->isCountCorrect bindings = runReader calc_isCountCorrect bindings
->
->-- The Reader monad, which implements this complicated check.
->calc_isCountCorrect :: Reader Bindings Bool
->calc_isCountCorrect = do
->    count <- asks (lookupVar "count")
->    bindings <- ask
->    return (count == (Map.size bindings))
->
->-- The selector function to use with 'asks'.
->-- Returns value of the variable with specified name.
->lookupVar :: String -> Bindings -> Int
->lookupVar name bindings = maybe 0 id (Map.lookup name bindings)
->
->sampleBindings :: Bindings
->sampleBindings = Map.fromList [("count", 3), ("1", 1), ("b", 2)]
->
->main :: IO ()
->main = do
->    putStr $ "Count is correct for bindings " ++ (show sampleBindings) ++ ": "
->    putStrLn $ show (isCountCorrect sampleBindings)
--}
-
-{- $localExample
-
-Shows how to modify Reader content with 'local'.
-
->import Control.Monad.Reader
->
->calculateContentLen :: Reader String Int
->calculateContentLen = do
->    content <- ask
->    return (length content);
->
->-- Calls calculateContentLen after adding a prefix to the Reader content.
->calculateModifiedContentLen :: Reader String Int
->calculateModifiedContentLen = local ("Prefix " ++) calculateContentLen
->
->main :: IO ()
->main = do
->    let s = "12345";
->    let modifiedLen = runReader calculateModifiedContentLen s
->    let len = runReader calculateContentLen s
->    putStrLn $ "Modified 's' length: " ++ (show modifiedLen)
->    putStrLn $ "Original 's' length: " ++ (show len)
--}
-
-{- $ReaderTExample
-
-Now you are thinking: 'Wow, what a great monad! I wish I could use
-Reader functionality in MyFavoriteComplexMonad!'. Don't worry.
-This can be easily done with the 'ReaderT' monad transformer.
-This example shows how to combine @ReaderT@ with the IO monad.
-
->import Control.Monad.Reader
->
->-- The Reader/IO combined monad, where Reader stores a string.
->printReaderContent :: ReaderT String IO ()
->printReaderContent = do
->    content <- ask
->    liftIO $ putStrLn ("The Reader Content: " ++ content)
->
->main :: IO ()
->main = runReaderT printReaderContent "Some Content"
--}
+-- $ReaderTExample
+--
+-- Now you are thinking: 'Wow, what a great monad! I wish I could use
+-- Reader functionality in MyFavoriteComplexMonad!'. Don't worry.
+-- This can be easily done with the 'ReaderT' monad transformer.
+-- This example shows how to combine @ReaderT@ with the IO monad.
+--
+-- >>> import Control.Monad.Reader
+--
+-- The Reader/IO combined monad, where Reader stores a string.
+--
+-- >>> :{
+-- printReaderContent :: ReaderT String IO ()
+-- printReaderContent = do
+--     content <- ask
+--     liftIO $ putStrLn ("The Reader Content: " ++ content)
+-- :}
+--
+-- >>> runReaderT printReaderContent "Some Content"
+-- The Reader Content: Some Content

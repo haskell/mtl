@@ -71,7 +71,7 @@ module Control.Monad.Cont (
 
     -- * Example 2: Using @callCC@
     -- $callCCExample
-    
+
     -- * Example 3: Using @ContT@ Monad Transformer
     -- $ContTExample
   ) where
@@ -79,89 +79,104 @@ module Control.Monad.Cont (
 import qualified Control.Monad.Cont.Class as MonadCont
 import qualified Control.Monad.Trans.Cont as Cont
 
-{- $simpleContExample
-Calculating length of a list continuation-style:
+-- $simpleContExample
+--
+-- Calculating length of a list continuation-style:
+--
+-- >>> :{
+-- calculateLength :: [a] -> Cont r Int
+-- calculateLength l = return (length l)
+-- :}
+--
+-- Here we use @calculateLength@ by making it to pass its result to @print@:
+--
+-- >>> runCont (calculateLength "123") print
+-- 3
+--
+-- It is possible to chain 'Cont' blocks with @>>=@.
+--
+-- >>> :{
+-- double :: Int -> Cont r Int
+-- double n = return (n * 2)
+-- :}
+--
+-- >>> runCont (calculateLength "123" >>= double) print
+-- 6
 
->calculateLength :: [a] -> Cont r Int
->calculateLength l = return (length l)
+-- $callCCExample
+--
+-- This example gives a taste of how escape continuations work, shows a typical
+-- pattern for their usage.
+--
+-- Returns a string depending on the length of the name parameter.
+-- If the provided string is empty, returns an error.
+-- Otherwise, returns a welcome message.
+--
+-- >>> import Control.Monad (when)
+--
+-- >>> :{
+-- validateName name exit = do
+--   when (null name) (exit "You forgot to tell me your name!")
+-- :}
+--
+-- >>> :{
+-- whatsYourName :: String -> String
+-- whatsYourName name =
+--   (`runCont` id) $ do                      -- 1
+--     response <- callCC $ \exit -> do       -- 2
+--       validateName name exit               -- 3
+--       return $ "Welcome, " ++ name ++ "!"  -- 4
+--     return response                        -- 5
+-- :}
+--
+-- Here is what this example does:
+--
+-- (1) Runs an anonymous 'Cont' block and extracts value from it with
+-- @(\`runCont\` id)@. Here @id@ is the continuation, passed to the @Cont@ block.
+--
+-- (1) Binds @response@ to the result of the following 'Control.Monad.Cont.Class.callCC' block,
+-- binds @exit@ to the continuation.
+--
+-- (1) Validates @name@.
+-- This approach illustrates advantage of using 'Control.Monad.Cont.Class.callCC' over @return@.
+-- We pass the continuation to @validateName@,
+-- and interrupt execution of the @Cont@ block from /inside/ of @validateName@.
+--
+-- (1) Returns the welcome message from the 'Control.Monad.Cont.Class.callCC' block.
+-- This line is not executed if @validateName@ fails.
+--
+-- (1) Returns from the @Cont@ block.
 
-Here we use @calculateLength@ by making it to pass its result to @print@:
-
->main = do
->  runCont (calculateLength "123") print
->  -- result: 3
-
-It is possible to chain 'Cont' blocks with @>>=@.
-
->double :: Int -> Cont r Int
->double n = return (n * 2)
->
->main = do
->  runCont (calculateLength "123" >>= double) print
->  -- result: 6
--}
-
-{- $callCCExample
-This example gives a taste of how escape continuations work, shows a typical
-pattern for their usage.
-
->-- Returns a string depending on the length of the name parameter.
->-- If the provided string is empty, returns an error.
->-- Otherwise, returns a welcome message.
->whatsYourName :: String -> String
->whatsYourName name =
->  (`runCont` id) $ do                      -- 1
->    response <- callCC $ \exit -> do       -- 2
->      validateName name exit               -- 3
->      return $ "Welcome, " ++ name ++ "!"  -- 4
->    return response                        -- 5
->
->validateName name exit = do
->  when (null name) (exit "You forgot to tell me your name!")
-
-Here is what this example does:
-
-(1) Runs an anonymous 'Cont' block and extracts value from it with
-@(\`runCont\` id)@. Here @id@ is the continuation, passed to the @Cont@ block.
-
-(1) Binds @response@ to the result of the following 'Control.Monad.Cont.Class.callCC' block,
-binds @exit@ to the continuation.
-
-(1) Validates @name@.
-This approach illustrates advantage of using 'Control.Monad.Cont.Class.callCC' over @return@.
-We pass the continuation to @validateName@,
-and interrupt execution of the @Cont@ block from /inside/ of @validateName@.
-
-(1) Returns the welcome message from the 'Control.Monad.Cont.Class.callCC' block.
-This line is not executed if @validateName@ fails.
-
-(1) Returns from the @Cont@ block.
--}
-
-{-$ContTExample
-'ContT' can be used to add continuation handling to other monads.
-Here is an example how to combine it with @IO@ monad:
-
->import Control.Monad.Cont
->import System.IO
->
->main = do
->  hSetBuffering stdout NoBuffering
->  runContT (callCC askString) reportResult
->
->askString :: (String -> ContT () IO String) -> ContT () IO String
->askString next = do
->  liftIO $ putStrLn "Please enter a string"
->  s <- liftIO $ getLine
->  next s
->
->reportResult :: String -> IO ()
->reportResult s = do
->  putStrLn ("You entered: " ++ s)
-
-Action @askString@ requests user to enter a string,
-and passes it to the continuation.
-@askString@ takes as a parameter a continuation taking a string parameter,
-and returning @IO ()@.
-Compare its signature to 'runContT' definition.
--}
+-- $ContTExample
+--
+-- 'ContT' can be used to add continuation handling to other monads.
+-- Here is an example how to combine it with @IO@ monad:
+--
+-- >>> import Control.Monad.IO.Class (liftIO)
+-- >>> import System.IO
+--
+-- >>> :{
+-- askString :: (String -> ContT () IO String) -> ContT () IO String
+-- askString next = do
+--   liftIO $ putStrLn "Please enter a string"
+--   s <- liftIO $ getLine
+--   next s
+-- :}
+--
+-- >>> :{
+-- reportResult :: String -> IO ()
+-- reportResult s = do
+--   putStrLn ("You entered: " ++ s)
+-- :}
+--
+-- >>> :{
+-- main = do
+--   hSetBuffering stdout NoBuffering
+--   runContT (callCC askString) reportResult
+-- :}
+--
+-- Action @askString@ requests user to enter a string,
+-- and passes it to the continuation.
+-- @askString@ takes as a parameter a continuation taking a string parameter,
+-- and returning @IO ()@.
+-- Compare its signature to 'runContT' definition.

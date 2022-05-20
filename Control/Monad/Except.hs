@@ -139,12 +139,12 @@ import qualified Control.Monad.Trans.Except as Except
 -- the monad type of the combined monad, especially if we combine more
 -- monad transformers.
 --
--- >>> import Control.Monad.Except
--- >>> import Control.Monad.IO.Class (liftIO)
 -- >>> type LengthMonad = ExceptT String IO
 --
 -- Asks user for a non-empty string and returns its length.
 -- Throws an error if user enters an empty string.
+--
+-- >>> import Control.Monad.IO.Class (liftIO)
 --
 -- >>> :{
 -- calculateLength :: LengthMonad Int
