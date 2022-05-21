@@ -14,6 +14,7 @@ module Accum
     AccumArb (..),
     accumLaws,
     accumLawsCont,
+    accumLawsSelect,
   )
 where
 
@@ -70,6 +71,81 @@ newtype AccumArb (w :: Type) (a :: Type)
 
 runAccumArb :: AccumArb w a -> w -> (a, w)
 runAccumArb (AccumArb f) = f
+
+accumLawsSelect ::
+  forall (m :: Type -> Type) (t :: Type).
+  (MonadAccum M m, Typeable m, Arbitrary t, Show t) =>
+  (forall (a :: Type). t -> m a -> (a -> AccumArb M B) -> AccumArb M a) ->
+  TestTree
+accumLawsSelect lowerSelect =
+  testProperties
+    testName
+    [ ("look *> look = look", lookLookProp),
+      ("add mempty = pure ()", addMemptyProp),
+      ("add x *> add y = add (x <> y)", addAddProp),
+      ("add x *> look = look >>= \\w -> add x $> w <> x", addLookProp),
+      ("accum (const (x, mempty)) = pure x", accumPureProp),
+      ("accum f *> accum g law (too long)", accumFGProp),
+      ("look = accum $ \\acc -> (acc, mempty)", lookAccumProp),
+      ("add x = accum $ \\acc -> ((), x)", addAccumProp),
+      ("accum f = look >>= \\acc -> let (res, v) = f acc in add v $> res", accumAddProp)
+    ]
+  where
+    testName :: String
+    testName = "MonadAccum laws for " <> typeName @(m A)
+    addAccumProp :: Property
+    addAccumProp = theNeedful $ \(w, arg, x, Blind f) ->
+      let lhs = lowerSelect arg (add x) f
+          rhs = lowerSelect arg (accum $ const ((), x)) f
+       in runAccumArb lhs w === runAccumArb rhs w
+    accumAddProp :: Property
+    accumAddProp = theNeedful $ \(w, arg, Blind (f :: M -> (A, M)), Blind g) ->
+      let lhs = lowerSelect arg (accum f) g
+          rhs = lowerSelect arg (look >>= \acc -> let (res, v) = f acc in add v $> res) g
+       in runAccumArb lhs w === runAccumArb rhs w
+    lookAccumProp :: Property
+    lookAccumProp = theNeedful $ \(w, arg, Blind f) ->
+      let lhs = lowerSelect arg look f
+          rhs = lowerSelect arg (accum (,mempty)) f
+       in runAccumArb lhs w === runAccumArb rhs w
+    lookLookProp :: Property
+    lookLookProp = theNeedful $ \(w, arg, Blind f) ->
+      let lhs = lowerSelect arg look f
+          rhs = lowerSelect arg (look *> look) f
+       in runAccumArb lhs w === runAccumArb rhs w
+    addMemptyProp :: Property
+    addMemptyProp = theNeedful $ \(w, arg, Blind f) ->
+      let lhs = lowerSelect arg (add mempty) f
+          rhs = lowerSelect arg (pure ()) f
+       in runAccumArb lhs w === runAccumArb rhs w
+    addAddProp :: Property
+    addAddProp = theNeedful $ \(w, arg, x, y, Blind f) ->
+      let lhs = lowerSelect arg (add x *> add y) f
+          rhs = lowerSelect arg (add (x <> y)) f
+       in runAccumArb lhs w === runAccumArb rhs w
+    addLookProp :: Property
+    addLookProp = theNeedful $ \(w, arg, x, Blind f) ->
+      let lhs = lowerSelect arg (add x *> look) f
+          rhs = lowerSelect arg (look >>= \w' -> add x $> w' <> x) f
+       in runAccumArb lhs w === runAccumArb rhs w
+    accumPureProp :: Property
+    accumPureProp = theNeedful $ \(w, arg, x :: A, Blind f) ->
+      let lhs = lowerSelect arg (accum (const (x, mempty))) f
+          rhs = lowerSelect arg (pure x) f
+       in runAccumArb lhs w === runAccumArb rhs w
+    accumFGProp :: Property
+    accumFGProp = theNeedful $ \(w', arg, Blind (f :: M -> (A, M)), Blind (g :: M -> (M, M)), Blind h) ->
+      let lhs = lowerSelect arg (accum f *> accum g) h
+          rhs =
+            lowerSelect
+              arg
+              ( accum $ \acc ->
+                  let (_, v) = f acc
+                      (res, w) = g (acc <> v)
+                   in (res, v <> w)
+              )
+              h
+       in runAccumArb lhs w' === runAccumArb rhs w'
 
 accumLawsCont ::
   forall (m :: Type -> Type) (t :: Type).

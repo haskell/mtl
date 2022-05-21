@@ -4,7 +4,14 @@
 
 module Main (main) where
 
-import Accum (AccumArb (AccumArb), M, N, accumLaws, accumLawsCont)
+import Accum
+  ( AccumArb (AccumArb),
+    M,
+    N,
+    accumLaws,
+    accumLawsCont,
+    accumLawsSelect,
+  )
 import Control.Monad.Trans.Accum (Accum, AccumT (AccumT), accum, runAccum)
 import Control.Monad.Trans.Cont (ContT, runContT)
 import Control.Monad.Trans.Except (ExceptT, runExceptT)
@@ -14,6 +21,7 @@ import qualified Control.Monad.Trans.RWS.CPS as RWSCPS
 import qualified Control.Monad.Trans.RWS.Lazy as RWSLazy
 import qualified Control.Monad.Trans.RWS.Strict as RWSStrict
 import Control.Monad.Trans.Reader (ReaderT, runReaderT)
+import Control.Monad.Trans.Select (SelectT, runSelectT)
 import qualified Control.Monad.Trans.State.Lazy as StateLazy
 import qualified Control.Monad.Trans.State.Strict as StateStrict
 import qualified Control.Monad.Trans.Writer.CPS as WriterCPS
@@ -45,7 +53,8 @@ main = do
           accumLaws lowerWriterLazy,
           accumLaws lowerWriterStrict,
           accumLaws lowerWriterCPS,
-          accumLawsCont lowerCont
+          accumLawsCont lowerCont,
+          accumLawsSelect lowerSelect
         ]
     ]
   where
@@ -53,6 +62,15 @@ main = do
     go = max 1_000_000
 
 -- Lowerings
+
+lowerSelect ::
+  forall (a :: Type).
+  () ->
+  SelectT B (Accum M) a ->
+  (a -> AccumArb M B) ->
+  AccumArb M a
+lowerSelect _ comp handler =
+  demote . runSelectT comp $ (promote . handler)
 
 lowerCont ::
   forall (a :: Type).
