@@ -23,6 +23,7 @@ jobs:
         with:
           ghc-version: ${{ matrix.ghc }}
           cabal-version: 'latest'
+      - run: echo "$HOME/.cabal/bin" >> $GITHUB_PATH
       - name: install cabal-docspec
         run: |
           mkdir -p $HOME/.cabal/bin
