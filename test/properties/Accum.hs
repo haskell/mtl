@@ -296,7 +296,7 @@ accumLaws runAndCompare =
 
 typeName :: forall (a :: Type). (Typeable a) => String
 typeName =
-  let ourTyCon = typeRepTyCon $ typeRep @ a
+  let ourTyCon = typeRepTyCon $ typeRep @a
    in tyConModule ourTyCon <> "." <> tyConName ourTyCon
 
 theNeedful ::
