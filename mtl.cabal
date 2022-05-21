@@ -70,6 +70,7 @@ test-suite properties
   import: common-lang
   type: exitcode-stdio-1.0
   main-is: Main.hs
+  other-modules: Accum
   build-depends: 
     , mtl
     , QuickCheck ^>= 2.14.0

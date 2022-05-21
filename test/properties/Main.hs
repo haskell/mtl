@@ -1,18 +1,12 @@
-{-# LANGUAGE AllowAmbiguousTypes #-}
-{-# LANGUAGE DerivingVia #-}
-{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE NumericUnderscores #-}
-{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TupleSections #-}
-{-# LANGUAGE TypeApplications #-}
 
 module Main (main) where
 
-import Control.Monad (guard)
-import Control.Monad.Accum (MonadAccum (accum, add, look))
-import Control.Monad.Trans.Accum (Accum, AccumT, runAccum)
+import Accum (AccumArb (AccumArb), M, N, accumLaws, accumLawsCont)
+import Control.Monad.Trans.Accum (Accum, AccumT (AccumT), accum, runAccum)
+import Control.Monad.Trans.Cont (ContT, runContT)
 import Control.Monad.Trans.Except (ExceptT, runExceptT)
 import Control.Monad.Trans.Identity (IdentityT, runIdentityT)
 import Control.Monad.Trans.Maybe (MaybeT, runMaybeT)
@@ -25,30 +19,12 @@ import qualified Control.Monad.Trans.State.Strict as StateStrict
 import qualified Control.Monad.Trans.Writer.CPS as WriterCPS
 import qualified Control.Monad.Trans.Writer.Lazy as WriterLazy
 import qualified Control.Monad.Trans.Writer.Strict as WriterStrict
-import Data.Functor (($>))
-import Data.Functor.Identity (Identity)
+import Data.Functor.Identity (Identity, runIdentity)
 import Data.Kind (Type)
 import GHC.IO.Encoding (setLocaleEncoding, utf8)
-import Test.QuickCheck
-  ( Arbitrary (arbitrary, shrink),
-    Blind (Blind),
-    CoArbitrary (coarbitrary),
-    Fun,
-    Function (function),
-    Property,
-    applyFun,
-    chooseInt,
-    forAllShrinkShow,
-    functionMap,
-    property,
-    shrinkList,
-    sized,
-  )
 import Test.QuickCheck.Poly (A, B)
-import Test.Tasty (TestTree, adjustOption, defaultMain, testGroup)
-import Test.Tasty.QuickCheck (QuickCheckTests, testProperties)
-import Text.Show.Pretty (ppShow)
-import Type.Reflection (Typeable, tyConName, typeRep, typeRepTyCon)
+import Test.Tasty (adjustOption, defaultMain, testGroup)
+import Test.Tasty.QuickCheck (QuickCheckTests)
 
 main :: IO ()
 main = do
@@ -68,86 +44,36 @@ main = do
           accumLaws lowerStateStrict,
           accumLaws lowerWriterLazy,
           accumLaws lowerWriterStrict,
-          accumLaws lowerWriterCPS
+          accumLaws lowerWriterCPS,
+          accumLawsCont lowerCont
         ]
     ]
   where
     go :: QuickCheckTests -> QuickCheckTests
     go = max 1_000_000
 
--- Law generators
-
-accumLaws ::
-  forall (m :: Type -> Type) (t :: Type).
-  (MonadAccum M m, Typeable m, Arbitrary t, Show t) =>
-  (forall (a :: Type). (Eq a) => t -> m a -> m a -> Bool) ->
-  TestTree
-accumLaws runAndCompare =
-  testProperties
-    testName
-    [ ("look *> look = look", lookLookProp),
-      ("add mempty = pure ()", addMemptyProp),
-      ("add x *> add y = add (x <> y)", addAddProp),
-      ("add x *> look = look >>= \\w -> add x $> w <> x", addLookProp),
-      ("accum (const (x, mempty)) = pure x", accumPureProp),
-      ("accum f *> accum g law (too long)", accumFGProp),
-      ("look = accum $ \\acc -> (acc, mempty)", lookAccumProp),
-      ("add x = accum $ \\acc -> ((), x)", addAccumProp),
-      ("accum f = look >>= \\acc -> let (res, v) = f acc in add v $> res", accumAddProp)
-    ]
-  where
-    testName :: String
-    testName = "MonadAccum laws for " <> typeName @(m A)
-    addAccumProp :: Property
-    addAccumProp = theNeedful $ \(w, x) ->
-      let lhs = add x
-          rhs = accum $ const ((), x)
-       in property . runAndCompare w lhs $ rhs
-    accumAddProp :: Property
-    accumAddProp = theNeedful $ \(w, Blind (f :: M -> (A, M))) ->
-      let lhs = accum f
-          rhs = look >>= \acc -> let (res, v) = f acc in add v $> res
-       in property . runAndCompare w lhs $ rhs
-    lookLookProp :: Property
-    lookLookProp = theNeedful $ \w ->
-      let lhs = look *> look
-          rhs = look
-       in property . runAndCompare w lhs $ rhs
-    addMemptyProp :: Property
-    addMemptyProp = theNeedful $ \w ->
-      let lhs = add mempty
-          rhs = pure ()
-       in property . runAndCompare w lhs $ rhs
-    addAddProp :: Property
-    addAddProp = theNeedful $ \(w, x, y) ->
-      let lhs = add x *> add y
-          rhs = add (x <> y)
-       in property . runAndCompare w lhs $ rhs
-    addLookProp :: Property
-    addLookProp = theNeedful $ \(w, x) ->
-      let lhs = add x *> look
-          rhs = look >>= \w' -> add x $> w' <> x
-       in property . runAndCompare w lhs $ rhs
-    accumPureProp :: Property
-    accumPureProp = theNeedful $ \(w, x :: A) ->
-      let lhs = accum (const (x, mempty))
-          rhs = pure x
-       in property . runAndCompare w lhs $ rhs
-    accumFGProp :: Property
-    accumFGProp = theNeedful $ \(w', Blind (f :: M -> (A, M)), Blind (g :: M -> (M, M))) ->
-      let lhs = accum f *> accum g
-          rhs = accum $ \acc ->
-            let (_, v) = f acc
-                (res, w) = g (acc <> v)
-             in (res, v <> w)
-       in property . runAndCompare w' lhs $ rhs
-    lookAccumProp :: Property
-    lookAccumProp = theNeedful $ \w ->
-      let lhs = look
-          rhs = accum (,mempty)
-       in property . runAndCompare w lhs $ rhs
-
 -- Lowerings
+
+lowerCont ::
+  forall (a :: Type).
+  () ->
+  ContT B (Accum M) a ->
+  (a -> AccumArb M B) ->
+  AccumArb M B
+lowerCont _ comp handler =
+  demote . runContT comp $ (promote . handler)
+
+promote ::
+  forall (w :: Type) (a :: Type).
+  AccumArb w a ->
+  Accum w a
+promote (AccumArb f) = accum f
+
+demote ::
+  forall (w :: Type) (a :: Type).
+  Accum w a ->
+  AccumArb w a
+demote (AccumT f) = AccumArb $ \w -> runIdentity . f $ w
 
 lowerBase ::
   forall (a :: Type).
@@ -301,56 +227,3 @@ lowerWriterCPS w lhs rhs =
   let leftRun = runAccum (WriterCPS.runWriterT lhs) w
       rightRun = runAccum (WriterCPS.runWriterT rhs) w
    in leftRun == rightRun
-
--- Helpers
-
--- A type that's a 'non-specific monoid', similar to how 'A' and 'B' work in
--- QuickCheck.
---
--- We've deliberately made it _not_ commutative.
-newtype M = M [Int]
-  deriving (Eq, Semigroup, Monoid) via [Int]
-  deriving stock (Show)
-
-instance Arbitrary M where
-  arbitrary = M . pure <$> sized (\size -> chooseInt (0, abs size))
-  shrink (M xs) =
-    M <$> do
-      xs' <- shrinkList (const []) xs
-      guard (not . null $ xs')
-      pure xs'
-
-instance CoArbitrary M where
-  coarbitrary (M xs) = coarbitrary xs
-
-instance Function M where
-  function = functionMap (\(M xs) -> xs) M
-
-newtype N = N M
-  deriving (Eq, Semigroup, Monoid, Arbitrary) via M
-  deriving stock (Show)
-
--- Avoids orphans
-newtype AccumArbitrary (w :: Type) (a :: Type)
-  = AccumArbitrary (Fun w (a, w), AccumT w Identity a)
-
-instance
-  (Function w, Monoid w, CoArbitrary w, Arbitrary a, Arbitrary w) =>
-  Arbitrary (AccumArbitrary w a)
-  where
-  arbitrary = do
-    f <- arbitrary
-    pure . AccumArbitrary $ (f, accum . applyFun $ f)
-  shrink (AccumArbitrary (f, _)) = do
-    f' <- shrink f
-    pure . AccumArbitrary $ (f', accum . applyFun $ f')
-
-typeName :: forall (a :: Type). (Typeable a) => String
-typeName = tyConName . typeRepTyCon $ typeRep @a
-
-theNeedful ::
-  forall (a :: Type).
-  (Arbitrary a, Show a) =>
-  (a -> Property) ->
-  Property
-theNeedful = forAllShrinkShow arbitrary shrink ppShow
