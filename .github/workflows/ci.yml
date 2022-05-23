@@ -42,6 +42,10 @@ jobs:
       - name: Build
         run: cabal build
 
+      - name: Build containers (for docspec)
+        if: matrix.os == 'ubuntu-latest'
+        run: cabal build containers
+
       - name: Install and run cabal-docspec
         if: matrix.os == 'ubuntu-latest'
         working-directory: ${{ env.HOME }}
