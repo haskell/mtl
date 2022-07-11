@@ -56,8 +56,11 @@ to understand and maintain.
 
 module Control.Monad.Cont.Class (
     MonadCont(..),
+    label,
+    label_,
   ) where
 
+import Control.Monad.Fix (fix)
 import Control.Monad.Trans.Cont (ContT)
 import qualified Control.Monad.Trans.Cont as ContT
 import Control.Monad.Trans.Except (ExceptT)
@@ -152,3 +155,19 @@ instance
   , MonadCont m
   ) => MonadCont (AccumT w m) where
     callCC = Accum.liftCallCC callCC
+
+-- | Introduces a recursive binding to the continuation.
+-- Due to the use of @callCC@, calling the continuation will interrupt execution
+-- of the current block creating an effect similar to goto/setjmp in C.
+--
+-- @since 2.3.1
+--
+label :: MonadCont m  => a -> m (a -> m b, a)
+label a = callCC $ \k -> let go b = k (go, b) in return (go, a)
+
+-- | Simplified version of `label` without arguments
+--
+-- @since 2.3.1
+--
+label_ :: MonadCont m => m (m a)
+label_ = callCC $ return . fix
