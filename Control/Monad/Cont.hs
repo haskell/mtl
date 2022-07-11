@@ -111,12 +111,12 @@ import qualified Control.Monad.Trans.Cont as Cont
 
 -- $callCCExample
 --
--- This example gives a taste of how escape continuations work, shows a typical
--- pattern for their usage.
+-- This example gives a taste of how escape continuations work, shows a
+-- typical pattern for their usage.
 --
--- Returns a string depending on the length of the name parameter.
--- If the provided string is empty, returns an error.
--- Otherwise, returns a welcome message.
+-- Returns a string depending on the length of the name parameter. If the
+-- provided string is empty, returns an error. Otherwise, returns a welcome
+-- message.
 --
 -- >>> import Control.Monad (when)
 --
@@ -140,13 +140,14 @@ import qualified Control.Monad.Trans.Cont as Cont
 -- (1) Runs an anonymous 'Cont' block and extracts value from it with
 -- @(\`runCont\` id)@. Here @id@ is the continuation, passed to the @Cont@ block.
 --
--- (1) Binds @response@ to the result of the following 'Control.Monad.Cont.Class.callCC' block,
--- binds @exit@ to the continuation.
+-- (1) Binds @response@ to the result of the following
+-- 'Control.Monad.Cont.Class.callCC' block, binds @exit@ to the
+-- continuation.
 --
--- (1) Validates @name@.
--- This approach illustrates advantage of using 'Control.Monad.Cont.Class.callCC' over @return@.
--- We pass the continuation to @validateName@,
--- and interrupt execution of the @Cont@ block from /inside/ of @validateName@.
+-- (1) Validates @name@. This approach illustrates advantage of using
+-- 'Control.Monad.Cont.Class.callCC' over @return@. We pass the
+-- continuation to @validateName@, and interrupt execution of the @Cont@
+-- block from /inside/ of @validateName@.
 --
 -- (1) Returns the welcome message from the 'Control.Monad.Cont.Class.callCC' block.
 -- This line is not executed if @validateName@ fails.
@@ -181,15 +182,18 @@ import qualified Control.Monad.Trans.Cont as Cont
 --   runContT (callCC askString) reportResult
 -- :}
 --
--- Action @askString@ requests user to enter a string,
--- and passes it to the continuation.
--- @askString@ takes as a parameter a continuation taking a string parameter,
--- and returning @IO ()@.
--- Compare its signature to 'runContT' definition.
+-- Action @askString@ requests user to enter a string, and passes it to the
+-- continuation. @askString@ takes as a parameter a continuation taking a
+-- string parameter, and returning @IO ()@. Compare its signature to
+-- 'runContT' definition.
 
 -- $labelExample
 --
--- The early exit behavior of 'Control.Monad.Cont.Class.callCC' can be leveraged to produce other idioms:
+-- The early exit behavior of 'Control.Monad.Cont.Class.callCC' can be
+-- leveraged to produce other idioms:
+--
+-- >>> import Control.Monad (when)
+-- >>> import Control.Monad.IO.Class (liftIO)
 --
 -- >>> :{
 -- whatsYourNameLabel :: IO ()
@@ -202,4 +206,6 @@ import qualified Control.Monad.Trans.Cont as Cont
 --   liftIO $ putStrLn $ "Welcome, " ++ name ++ "!"
 -- :}
 --
--- Calling @beggining@ will interrupt execution of the block, skipping the welcome message, which will be printed only once at the very end of the loop.
+-- Calling @beggining@ will interrupt execution of the block, skipping the
+-- welcome message, which will be printed only once at the very end of the
+-- loop.
