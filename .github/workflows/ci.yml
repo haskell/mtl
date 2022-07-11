@@ -46,14 +46,15 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: cabal build containers
 
-      - name: Install and run cabal-docspec
-        if: matrix.os == 'ubuntu-latest'
-        working-directory: ${{ env.HOME }}
-        run: |
-          curl -sL https://github.com/phadej/cabal-extras/releases/download/cabal-docspec-0.0.0.20211114/cabal-docspec-0.0.0.20211114.xz > cabal-docspec.xz
-          echo 'e224700d9e8c9ec7ec6bc3f542ba433cd9925a5d356676c62a9bd1f2c8be8f8a cabal-docspec.xz' | sha256sum -c -
-          xz -d < cabal-docspec.xz > cabal-docspec
-          rm -f cabal-docspec.xz
-          chmod a+x cabal-docspec
-          ./cabal-docspec --version
-          ./cabal-docspec --builddir "${{ github.workspace }}/dist-newstyle" --extra-package containers
+      - uses: actions/checkout@v2.3.5
+        name: Get cabal-extras
+        with:
+          repository: kozross/cabal-extras
+          path: ./cabal-extras
+
+      - name: Install cabal-docspec
+        working-directory: cabal-extras/cabal-docspec
+        run: cabal install --install-method=copy --installdir=${{ runner.temp }} --overwrite-policy=always
+
+      - name: Run doctests
+        run: ${{ runner.temp }}/cabal-docspec --builddir ${{ github.workspace }}/dist-newstyle --extra-package containers
