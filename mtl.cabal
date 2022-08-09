@@ -1,6 +1,6 @@
 cabal-version: 3.0
 name:          mtl
-version:       2.3
+version:       2.3.1
 license:       BSD-3-Clause
 license-file:  LICENSE
 author:        Andy Gill
