@@ -22,7 +22,7 @@ extra-source-files:
   CHANGELOG.markdown
   README.markdown
 
-tested-with: GHC ==8.6.5 || ==8.8.4 || ==8.10.7 || ==9.0.2 || ==9.2.2
+tested-with: GHC ==8.6.5 || ==8.8.4 || ==8.10.7 || ==9.0.2 || ==9.2.4 || ==9.4.1
 
 source-repository head
   type: git
