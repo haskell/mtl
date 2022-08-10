@@ -1,4 +1,4 @@
-2.3.1 -- 2022-07-05
+2.3.1 -- 2022-09-10
 -----
 * Add `modifyError` to `Control.Monad.Error.Class`, and re-export from
   `Control.Monad.Except`.
