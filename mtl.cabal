@@ -1,11 +1,11 @@
 cabal-version: 3.0
 name:          mtl
-version:       2.3
+version:       2.3.1
 license:       BSD-3-Clause
 license-file:  LICENSE
 author:        Andy Gill
-maintainer:    chessai <chessai1996@gmail.com>, 
-               Emily Pillmore <emilypi@cohomolo.gy>, 
+maintainer:    chessai <chessai1996@gmail.com>,
+               Emily Pillmore <emilypi@cohomolo.gy>,
                Koz Ross <koz.ross@retro-freedom.nz>
 category:      Control
 synopsis:      Monad classes for transformers, using functional dependencies
@@ -18,11 +18,11 @@ description:
 
 build-type: Simple
 
-extra-source-files: 
+extra-source-files:
   CHANGELOG.markdown
   README.markdown
 
-tested-with: GHC ==8.6.5 || ==8.8.4 || ==8.10.7 || ==9.0.2 || ==9.2.2
+tested-with: GHC ==8.6.5 || ==8.8.4 || ==8.10.7 || ==9.0.2 || ==9.2.4 || ==9.4.1
 
 source-repository head
   type: git
