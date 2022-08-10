@@ -1,5 +1,10 @@
 2.3.1 -- 2022-07-05
 -----
+* Add `modifyError` to `Control.Monad.Error.Class`, and re-export from
+  `Control.Monad.Except`.
+* Make the `MonadCont` instance for `ContT` more polykinded; now, `r` is allowed
+  to be of an arbitrary kind `k`, rather than only `Type`.
+* Add a generic `liftCallCC` for use with any `MonadTrans`.
 * Add `modifyError` to `Control.Monad.Error.Class`
 * Return re-export of `ExceptT` and related functions to `Control.Monad.Except`.
 * Add `label` function to `MonadCont`
