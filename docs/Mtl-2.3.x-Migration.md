@@ -25,7 +25,7 @@ packages: .
 source-repository-package
   type: git
   location: https://github.com/haskell/mtl
-  tag: 2.3.1
+  tag: v2.3.1
 
 allow-newer:
   *:mtl
