@@ -129,6 +129,29 @@ documentation on Hackage](https://hackage.haskell.org/package/mtl).
     - Lazy transformers: `Control.Monad.Writer.Lazy.WriterT`
     - Strict transformers: `Control.Monad.Writer.Strict.WriterT`
 
+* `Control.Monad.Accum`
+
+    The `Accum` monad transformer represents a computation which
+    manages append-only state, or a writer that can read all
+    previous inputs. It binds a function to a monadic value by
+    lazily accumulating subcomputations via `(<>)`. For more general
+    access, use [State](https://hackage.haskell.org/package/transformers-0.6.0.4/docs/Control-Monad-Trans-State.html) instead.
+
+    - Class: `Control.Monad.Accum`
+    - Transformer: `Control.Monad.Trans.Accum.AccumT`
+
+* `Control.Monad.Select`
+
+    The `Select` monad transformer represents a computation which
+    can do backtracking search using a 'ranked' evaluation strategy.
+    Binding a function to a monad value chains together evaluation
+    strategies in the sense that the results of previous strategies
+    may influence subsequent rank and evaluation strategies in
+    subcomputations.
+
+    - Class: `Control.Monad.Select`
+    - Transformer: `Control.Monad.Trans.Select.SelectT`
+
 ## Resources
 
 * [`mtl` on Hackage](http://hackage.haskell.org/package/mtl)
