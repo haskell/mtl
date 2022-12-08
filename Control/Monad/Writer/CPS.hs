@@ -33,6 +33,7 @@ module Control.Monad.Writer.CPS (
     mapWriter,
     -- * The WriterT monad transformer
     WriterT,
+    runWriterT,
     execWriterT,
     mapWriterT,
     module Control.Monad.Trans,
@@ -42,4 +43,4 @@ import qualified Control.Monad.Writer.Class as MonadWriter
 import Control.Monad.Trans
 import Control.Monad.Trans.Writer.CPS (
         Writer, runWriter, execWriter, mapWriter,
-        WriterT, execWriterT, mapWriterT)
+        WriterT, runWriterT, execWriterT, mapWriterT)
