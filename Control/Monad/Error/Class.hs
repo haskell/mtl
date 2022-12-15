@@ -124,11 +124,11 @@ liftEither :: MonadError e m => Either e a -> m a
 liftEither = either throwError pure
 
 {- |
-Lifts a @'Maybe' a@ into any @'MonadError' e@, using @e@ as the error if the 'Maybe' is 'Nothing'.
+Lifts a @'Maybe'@ into any @'MonadError' e@, using a supplied @e@ as the error if the 'Maybe' is 'Nothing'.
 
 > do { val <- liftMaybe e =<< action1; action2 }
 
-where @action1@ returns an 'Maybe'.
+where @action1@ returns a 'Maybe'.
 -}
 liftMaybe :: MonadError e m => e -> Maybe a -> m a
 liftMaybe e = maybe (throwError e) pure
