@@ -45,6 +45,7 @@ The Error monad (also called the Exception monad).
 module Control.Monad.Error.Class (
     MonadError(..),
     liftEither,
+    liftMaybe,
     tryError,
     withError,
     handleError,
@@ -74,7 +75,7 @@ import Control.Monad.Trans.Class (lift)
 import Control.Exception (IOException, catch, ioError)
 import Control.Monad (Monad)
 import Data.Monoid (Monoid)
-import Prelude (Either (Left, Right), Maybe (Nothing), either, flip, (.), IO, pure, (<$>), (>>=))
+import Prelude (Either (Left, Right), Maybe (Nothing), either, maybe, flip, (.), IO, pure, (<$>), (>>=))
 
 {- |
 The strategy of combining computations that can throw exceptions
@@ -121,6 +122,16 @@ where @action1@ returns an 'Either' to represent errors.
 -}
 liftEither :: MonadError e m => Either e a -> m a
 liftEither = either throwError pure
+
+{- |
+Lifts a @'Maybe' a@ into any @'MonadError' e@, using @e@ as the error if the 'Maybe' is 'Nothing'.
+
+> do { val <- liftMaybe e =<< action1; action2 }
+
+where @action1@ returns an 'Maybe'.
+-}
+liftMaybe :: MonadError e m => e -> Maybe a -> m a
+liftMaybe e = maybe (throwError e) pure
 
 instance MonadError IOException IO where
     throwError = ioError
