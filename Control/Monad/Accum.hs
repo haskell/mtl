@@ -109,7 +109,6 @@ import qualified Control.Monad.Trans.Writer.CPS as CPSWriter
 import qualified Control.Monad.Trans.Writer.Lazy as LazyWriter
 import qualified Control.Monad.Trans.Writer.Strict as StrictWriter
 import Data.Functor (($>))
-import Data.Functor.Identity (Identity)
 import Data.Kind (Type)
 
 -- | The capability to accumulate. This can be seen in one of two ways:
@@ -160,7 +159,7 @@ class (Monoid w, Monad m) => MonadAccum w m | m -> w where
   {-# MINIMAL accum | look, add #-}
 
 -- | @since 2.3
-instance (Monoid w) => MonadAccum w (AccumT w Identity) where
+instance (Monoid w, Monad m) => MonadAccum w (AccumT w m) where
   look = Accum.look
   add = Accum.add
   accum = Accum.accum
