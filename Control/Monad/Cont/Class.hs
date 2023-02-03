@@ -185,11 +185,13 @@ label_ = callCC $ return . fix
 --
 -- = Note
 --
--- For any function @f@, @'liftCallCC f'@ satisfies the [uniformity
+-- For any function @f@, @'liftCallCC' f@ satisfies the [uniformity
 -- condition](https://hackage.haskell.org/package/transformers-0.5.6.2/docs/Control-Monad-Signatures.html#t:CallCC)
 -- provided that @f@ is quasi-algebraic. More specifically, for any @g@, we must have:
 --
--- > 'join' '$' f (\exit -> 'pure' '$' g (exit '.' 'pure') = f g
+-- @
+-- 'join' '$' f (\exit -> 'pure' '$' g (exit '.' 'pure') = f g
+-- @
 --
 -- 'ContT.callCC' is quasi-algebraic; furthermore, for any quasi-algebraic @f@,
 -- @'liftCallCC' f@ is also quasi-algebraic. 
