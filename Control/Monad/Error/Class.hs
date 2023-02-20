@@ -206,6 +206,8 @@ instance
     catchError = Accum.liftCatch catchError
 
 -- | 'MonadError' analogue to the 'Control.Exception.try' function.
+--
+-- @since 2.3
 tryError :: MonadError e m => m a -> m (Either e a)
 tryError action = (Right <$> action) `catchError` (pure . Left)
 
@@ -213,17 +215,23 @@ tryError action = (Right <$> action) `catchError` (pure . Left)
 -- Modify the value (but not the type) of an error.  The type is
 -- fixed because of the functional dependency @m -> e@.  If you need
 -- to change the type of @e@ use 'mapError' or 'modifyError'.
+--
+-- @since 2.3
 withError :: MonadError e m => (e -> e) -> m a -> m a
 withError f action = tryError action >>= either (throwError . f) pure
 
 -- | As 'handle' is flipped 'Control.Exception.catch', 'handleError'
 -- is flipped 'catchError'.
+--
+-- @since 2.3
 handleError :: MonadError e m => (e -> m a) -> m a -> m a
 handleError = flip catchError
 
 -- | 'MonadError' analogue of the 'mapExceptT' function.  The
 -- computation is unwrapped, a function is applied to the @Either@, and
 -- the result is lifted into the second 'MonadError' instance.
+--
+-- @since 2.3
 mapError :: (MonadError e m, MonadError e' n) => (m (Either e a) -> n (Either e' b)) -> m a -> n b
 mapError f action = f (tryError action) >>= liftEither
 
