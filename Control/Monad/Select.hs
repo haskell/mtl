@@ -125,6 +125,9 @@ class (Monad m) => MonadSelect r m | m -> r where
 instance MonadSelect r (SelectT r Identity) where
   select = Select.select
 
+instance MonadSelect r (SelectT r ((->) r')) where
+  select f = Select.SelectT $ \k r' -> f $ \a -> k a r'
+
 -- | \'Extends\' the possibilities considered by @m@ to include 'Nothing'; this
 -- means that 'Nothing' gains a \'rank\' (namely, a value of @r@), and the
 -- potential result could also be 'Nothing'.
