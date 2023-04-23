@@ -140,7 +140,7 @@ import Data.Kind (Type)
 -- These are also the default definitions.
 --
 -- 1. @'look'@ @=@ @'accum' '$' \acc -> (acc, mempty)@
--- 2. @'add' x@ @=@ @'accum' '$' \acc -> ('()', x)@
+-- 2. @'add' x@ @=@ @'accum' '$' \_ -> ('()', x)@
 -- 3. @'accum' f@ @=@ @'look' >>= \acc -> let (res, v) = f acc in 'add' v '$>' res@
 --
 -- @since 2.3
