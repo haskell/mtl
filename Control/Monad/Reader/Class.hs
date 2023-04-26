@@ -47,7 +47,7 @@ than using the 'Control.Monad.State.State' monad.
 
 module Control.Monad.Reader.Class (
     MonadReader(..),
-    asks,
+    asks, withEnv
     ) where
 
 import qualified Control.Monad.Trans.Cont as Cont
@@ -100,6 +100,10 @@ asks :: MonadReader r m
     => (r -> a) -- ^ The selector function to apply to the environment.
     -> m a
 asks = reader
+
+-- | Executes a computation in a predefined environment.
+withEnv :: MonadReader r m => r -> m a -> m a
+withEnv env = local (const env)
 
 -- ----------------------------------------------------------------------------
 -- The partially applied function type is a simple reader monad
