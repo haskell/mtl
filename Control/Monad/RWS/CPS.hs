@@ -32,6 +32,7 @@ module Control.Monad.RWS.CPS (
     withRWS,
     -- * The RWST monad transformer
     RWST,
+    rwsT,
     runRWST,
     evalRWST,
     execRWST,
@@ -47,4 +48,4 @@ import Control.Monad.RWS.Class
 import Control.Monad.Trans
 import Control.Monad.Trans.RWS.CPS (
     RWS, rws, runRWS, evalRWS, execRWS, mapRWS, withRWS,
-    RWST, runRWST, evalRWST, execRWST, mapRWST, withRWST)
+    RWST, rwsT, runRWST, evalRWST, execRWST, mapRWST, withRWST)
