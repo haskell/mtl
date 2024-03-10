@@ -1,4 +1,6 @@
 {-# LANGUAGE Safe #-}
+{-# LANGUAGE PatternSynonyms #-}
+{-# LANGUAGE ViewPatterns #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Control.Monad.RWS.Strict
@@ -31,7 +33,8 @@ module Control.Monad.RWS.CPS (
     mapRWS,
     withRWS,
     -- * The RWST monad transformer
-    RWST,
+    RWST(RWST),
+    rwsT,
     runRWST,
     evalRWST,
     execRWST,
@@ -47,4 +50,9 @@ import Control.Monad.RWS.Class
 import Control.Monad.Trans
 import Control.Monad.Trans.RWS.CPS (
     RWS, rws, runRWS, evalRWS, execRWS, mapRWS, withRWS,
-    RWST, runRWST, evalRWST, execRWST, mapRWST, withRWST)
+    RWST, rwsT, runRWST, evalRWST, execRWST, mapRWST, withRWST)
+
+pattern RWST :: (Functor m, Monoid w) => (r -> s -> m (a, s, w)) -> RWST r w s m a
+pattern RWST x <- (runRWST -> x) where
+  RWST x = rwsT x
+{-# COMPLETE RWST #-}
