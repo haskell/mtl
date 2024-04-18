@@ -32,7 +32,6 @@ Library
   exposed-modules:
     Control.Monad.Cont
     Control.Monad.Cont.Class
-    Control.Monad.Bypass
     Control.Monad.Error.Class
     Control.Monad.Except
     Control.Monad.Identity

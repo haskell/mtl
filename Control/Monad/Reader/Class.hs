@@ -1,9 +1,11 @@
-{-# LANGUAGE Safe #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 -- Search for UndecidableInstances to see why this is needed
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE StandaloneKindSignatures #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE Trustworthy #-}
 -- Needed because the CPSed versions of Writer and State are secretly State
 -- wrappers, which don't force such constraints, even though they should legally
 -- be there.
@@ -48,6 +50,7 @@ than using the 'Control.Monad.State.State' monad.
 module Control.Monad.Reader.Class (
     MonadReader(..),
     asks,
+    LiftingReader(..),
     ) where
 
 import qualified Control.Monad.Trans.Cont as Cont
@@ -68,7 +71,8 @@ import qualified Control.Monad.Trans.Accum as Accum
 import Control.Monad.Trans.Select (SelectT (SelectT), runSelectT)
 import qualified Control.Monad.Trans.RWS.CPS as CPSRWS
 import qualified Control.Monad.Trans.Writer.CPS as CPS
-import Control.Monad.Trans.Class (lift)
+import Control.Monad.Trans.Class (MonadTrans(lift))
+import Data.Kind (Type)
 
 -- ----------------------------------------------------------------------------
 -- class MonadReader
@@ -202,3 +206,17 @@ instance
       r <- ask
       local f (runSelectT m (local (const r) . c))
     reader = lift . reader
+
+type LiftingReader :: ((Type -> Type) -> Type -> Type) -> (Type -> Type) -> Type -> Type
+newtype LiftingReader t m a = LiftingReader (t m a)
+  deriving (Functor, Applicative, Monad, MonadTrans)
+
+instance MonadReader r m => MonadReader r (LiftingReader (ReaderT r') m) where
+  ask = lift ask
+  local f (LiftingReader (ReaderT.ReaderT x)) = LiftingReader . ReaderT.ReaderT $ local f . x
+  reader = lift . reader
+
+instance (MonadReader r m, Monoid w) => MonadReader r (LiftingReader (LazyRWS.RWST r' w s) m) where
+  ask = lift ask
+  local f (LiftingReader (LazyRWS.RWST x)) = LiftingReader . LazyRWS.RWST $ \r s -> local f $ x r s
+  reader = lift . reader
