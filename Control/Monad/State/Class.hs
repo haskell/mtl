@@ -1,4 +1,6 @@
-{-# LANGUAGE Safe #-}
+{-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE StandaloneKindSignatures #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -33,7 +35,8 @@ module Control.Monad.State.Class (
     MonadState(..),
     modify,
     modify',
-    gets
+    gets,
+    LiftingState
   ) where
 
 import Control.Monad.Trans.Cont (ContT)
@@ -51,7 +54,8 @@ import Control.Monad.Trans.Accum (AccumT)
 import Control.Monad.Trans.Select (SelectT)
 import qualified Control.Monad.Trans.RWS.CPS as CPSRWS
 import qualified Control.Monad.Trans.Writer.CPS as CPS
-import Control.Monad.Trans.Class (lift)
+import Control.Monad.Trans.Class (MonadTrans(lift))
+import Data.Kind (Type)
 
 -- ---------------------------------------------------------------------------
 
@@ -192,3 +196,37 @@ instance MonadState s m => MonadState s (SelectT r m) where
     get = lift get
     put = lift . put
     state = lift . state
+
+-- | A helper type to decrease boilerplate when defining new transformer
+-- instances of 'MonadState'.
+--
+-- @since ????
+type LiftingState :: ((Type -> Type) -> Type -> Type) -> (Type -> Type) -> Type -> Type
+newtype LiftingState t m a = LiftingState (t m a)
+  deriving (Functor, Applicative, Monad, MonadTrans)
+
+instance (MonadState s m, Monoid w) => MonadState s (LiftingState (LazyRWS.RWST r w s') m) where
+  get = lift get
+  put = lift . put
+  state = lift . state
+
+instance (MonadState s m, Monoid w) => MonadState s (LiftingState (StrictRWS.RWST r w s') m) where
+  get = lift get
+  put = lift . put
+  state = lift . state
+
+instance (MonadState s m, Monoid w) => MonadState s (LiftingState (CPSRWS.RWST r w s') m) where
+  get = lift get
+  put = lift . put
+  state = lift . state
+
+instance MonadState s m => MonadState s (LiftingState (Lazy.StateT s') m) where
+  get = lift get
+  put = lift . put
+  state = lift . state
+
+instance MonadState s m => MonadState s (LiftingState (Strict.StateT s') m) where
+  get = lift get
+  put = lift . put
+  state = lift . state
+

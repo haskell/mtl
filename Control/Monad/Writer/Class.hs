@@ -1,8 +1,13 @@
-{-# LANGUAGE Safe #-}
+{-# LANGUAGE Trustworthy #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE StandaloneKindSignatures #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE TupleSections #-}
+{-# LANGUAGE ViewPatterns #-}
+{-# OPTIONS_GHC -Wno-name-shadowing #-}
 -- Search for UndecidableInstances to see why this is needed
 
 -----------------------------------------------------------------------------
@@ -28,6 +33,7 @@ module Control.Monad.Writer.Class (
     MonadWriter(..),
     listens,
     censor,
+    LiftingWriter(..),
   ) where
 
 import Control.Monad.Trans.Except (ExceptT)
@@ -47,7 +53,8 @@ import Control.Monad.Trans.Accum (AccumT)
 import qualified Control.Monad.Trans.Accum as Accum
 import qualified Control.Monad.Trans.RWS.CPS as CPSRWS
 import qualified Control.Monad.Trans.Writer.CPS as CPS
-import Control.Monad.Trans.Class (lift)
+import Control.Monad.Trans.Class (MonadTrans(lift))
+import Data.Kind (Type)
 
 -- ---------------------------------------------------------------------------
 -- MonadWriter class
@@ -205,3 +212,80 @@ instance
     tell   = lift . tell
     listen = Accum.liftListen listen
     pass   = Accum.liftPass pass
+
+
+-- | A helper type to decrease boilerplate when defining new transformer
+-- instances of 'MonadWriter'.
+--
+-- @since ????
+type LiftingWriter :: ((Type -> Type) -> Type -> Type) -> (Type -> Type) -> Type -> Type
+newtype LiftingWriter t m a = LiftingWriter {runLiftingWriter :: t m a}
+  deriving (Functor, Applicative, Monad, MonadTrans)
+
+
+instance (Monoid w', MonadWriter w m) => MonadWriter w (LiftingWriter (LazyRWS.RWST r w' s) m) where
+  writer = lift . writer
+  tell = lift . tell
+  listen (LiftingWriter (LazyRWS.RWST x)) = LiftingWriter $ LazyRWS.RWST $ \r s -> do
+    ((a, s, w'), w) <- listen $ x r s
+    pure ((a, w), s, w')
+  pass (LiftingWriter (LazyRWS.RWST x)) = LiftingWriter $ LazyRWS.RWST $ \r s -> do
+    (y, s, w') <- x r s
+    a <- pass $ pure y
+    pure (a, s, w')
+
+instance (Monoid w', MonadWriter w m) => MonadWriter w (LiftingWriter (StrictRWS.RWST r w' s) m) where
+  writer = lift . writer
+  tell = lift . tell
+  listen (LiftingWriter (StrictRWS.RWST x)) = LiftingWriter $ StrictRWS.RWST $ \r s -> do
+    ((a, s, w'), w) <- listen $ x r s
+    pure ((a, w), s, w')
+  pass (LiftingWriter (StrictRWS.RWST x)) = LiftingWriter $ StrictRWS.RWST $ \r s -> do
+    (y, s, w') <- x r s
+    a <- pass $ pure y
+    pure (a, s, w')
+
+instance (Monoid w', MonadWriter w m) => MonadWriter w (LiftingWriter (CPSRWS.RWST r w' s) m) where
+  writer = lift . writer
+  tell = lift . tell
+  listen (LiftingWriter (CPSRWS.runRWST -> x)) = LiftingWriter $ CPSRWS.rwsT $ \r s -> do
+    ((a, s, w'), w) <- listen $ x r s
+    pure ((a, w), s, w')
+  pass (LiftingWriter (CPSRWS.runRWST -> x)) = LiftingWriter $ CPSRWS.rwsT $ \r s -> do
+    (y, s, w') <- x r s
+    a <- pass $ pure y
+    pure (a, s, w')
+
+instance (Monoid w', MonadWriter w m) => MonadWriter w (LiftingWriter (Lazy.WriterT w') m) where
+  writer = lift . writer
+  tell = lift . tell
+  listen (LiftingWriter (Lazy.WriterT x)) = LiftingWriter $ Lazy.WriterT $ do
+    ((a, w'), w) <- listen x
+    pure ((a, w), w')
+  pass (LiftingWriter (Lazy.WriterT x)) = LiftingWriter $ Lazy.WriterT $ do
+    (y, w') <- x
+    a <- pass $ pure y
+    pure (a, w')
+
+instance (Monoid w', MonadWriter w m) => MonadWriter w (LiftingWriter (Strict.WriterT w') m) where
+  writer = lift . writer
+  tell = lift . tell
+  listen (LiftingWriter (Strict.WriterT x)) = LiftingWriter $ Strict.WriterT $ do
+    ((a, w'), w) <- listen x
+    pure ((a, w), w')
+  pass (LiftingWriter (Strict.WriterT x)) = LiftingWriter $ Strict.WriterT $ do
+    (y, w') <- x
+    a <- pass $ pure y
+    pure (a, w')
+
+instance (Monoid w', MonadWriter w m) => MonadWriter w (LiftingWriter (CPS.WriterT w') m) where
+  writer = lift . writer
+  tell = lift . tell
+  listen (LiftingWriter (CPS.runWriterT -> x)) = LiftingWriter $ CPS.writerT $ do
+    ((a, w'), w) <- listen x
+    pure ((a, w), w')
+  pass (LiftingWriter (CPS.runWriterT -> x)) = LiftingWriter $ CPS.writerT $ do
+    (y, w') <- x
+    a <- pass $ pure y
+    pure (a, w')
+

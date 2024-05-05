@@ -26,6 +26,8 @@ module Control.Monad.Writer.CPS (
     MonadWriter.MonadWriter(..),
     MonadWriter.listens,
     MonadWriter.censor,
+    -- * Lifting helper type
+    MonadWriter.LiftingWriter,
     -- * The Writer monad
     Writer,
     runWriter,
