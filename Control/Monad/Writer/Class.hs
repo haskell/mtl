@@ -1,12 +1,14 @@
 {-# LANGUAGE Trustworthy #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE StandaloneKindSignatures #-}
+{-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE TupleSections #-}
-{-# LANGUAGE ViewPatterns #-}
+{-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE DerivingVia #-}
 {-# OPTIONS_GHC -Wno-name-shadowing #-}
 -- Search for UndecidableInstances to see why this is needed
 
@@ -222,70 +224,75 @@ type LiftingWriter :: ((Type -> Type) -> Type -> Type) -> (Type -> Type) -> Type
 newtype LiftingWriter t m a = LiftingWriter {runLiftingWriter :: t m a}
   deriving (Functor, Applicative, Monad, MonadTrans)
 
+type LiftingWriterInternal :: ((Type -> Type) -> Type -> Type) -> (Type -> Type) -> Type -> Type
+newtype LiftingWriterInternal t m a = LiftingWriterInternal {runLiftingWriterInternal :: t m a}
+  deriving (Functor, Applicative, Monad, MonadTrans)
 
-instance (Monoid w', MonadWriter w m) => MonadWriter w (LiftingWriter (LazyRWS.RWST r w' s) m) where
+instance (MonadWriter w m, MonadTrans (t w'), Monad (t w' m), Monoid w', MapLiftingWriter s t) => MonadWriter w (LiftingWriterInternal (t w') m) where
   writer = lift . writer
   tell = lift . tell
-  listen (LiftingWriter (LazyRWS.RWST x)) = LiftingWriter $ LazyRWS.RWST $ \r s -> do
-    ((a, s, w'), w) <- listen $ x r s
-    pure ((a, w), s, w')
-  pass (LiftingWriter (LazyRWS.RWST x)) = LiftingWriter $ LazyRWS.RWST $ \r s -> do
-    (y, s, w') <- x r s
-    a <- pass $ pure y
-    pure (a, s, w')
+  listen = LiftingWriterInternal . mapLiftingWriter (fmap hammer . listen) . runLiftingWriterInternal
+    where hammer ((a, s, w'), w) = ((a, w), s, w')
+  pass = LiftingWriterInternal . mapLiftingWriter (pass . fmap hammer) . runLiftingWriterInternal
+    where hammer ((a, f), s, w') = ((a, s, w'), f)
 
-instance (Monoid w', MonadWriter w m) => MonadWriter w (LiftingWriter (StrictRWS.RWST r w' s) m) where
-  writer = lift . writer
-  tell = lift . tell
-  listen (LiftingWriter (StrictRWS.RWST x)) = LiftingWriter $ StrictRWS.RWST $ \r s -> do
-    ((a, s, w'), w) <- listen $ x r s
-    pure ((a, w), s, w')
-  pass (LiftingWriter (StrictRWS.RWST x)) = LiftingWriter $ StrictRWS.RWST $ \r s -> do
-    (y, s, w') <- x r s
-    a <- pass $ pure y
-    pure (a, s, w')
+deriving via LiftingWriterInternal (SwapWS rwst r s w') m
+  instance
+  (MonadWriter w (LiftingWriter (rwst r w' s) m), MonadWriter w m, MonadTrans (SwapWS rwst r s w'), Monad (SwapWS rwst r s w' m), Monad (rwst r w' s m), Monoid w', MapLiftingWriter s (SwapWS rwst r s)) =>
+  MonadWriter w (LiftingWriter (rwst r w' s) m)
+--deriving via LiftingWriterInternal (SwapWS LazyRWS.RWST r s w') m
+--  instance
+--  (MonadWriter w m, Monad (SwapWS LazyRWS.RWST r s w' m), MonadTrans (SwapWS LazyRWS.RWST r s w'), Monoid w') =>
+--  MonadWriter w (LiftingWriter (LazyRWS.RWST r w' s) m)
+--
+--deriving via LiftingWriterInternal (SwapWS StrictRWS.RWST r s w') m
+--  instance
+--  (MonadWriter w m, Monad (SwapWS StrictRWS.RWST r s w' m), MonadTrans (SwapWS StrictRWS.RWST r s w'), Monoid w') =>
+--  MonadWriter w (LiftingWriter (StrictRWS.RWST r w' s) m)
+--
+--deriving via LiftingWriterInternal (SwapWS CPSRWS.RWST r s w') m
+--  instance
+--  (MonadWriter w m, Monad (SwapWS CPSRWS.RWST r s w' m), MonadTrans (SwapWS CPSRWS.RWST r s w'), Monoid w') =>
+--  MonadWriter w (LiftingWriter (CPSRWS.RWST r w' s) m)
 
-instance (Monoid w', MonadWriter w m) => MonadWriter w (LiftingWriter (CPSRWS.RWST r w' s) m) where
-  writer = lift . writer
-  tell = lift . tell
-  listen (LiftingWriter (CPSRWS.runRWST -> x)) = LiftingWriter $ CPSRWS.rwsT $ \r s -> do
-    ((a, s, w'), w) <- listen $ x r s
-    pure ((a, w), s, w')
-  pass (LiftingWriter (CPSRWS.runRWST -> x)) = LiftingWriter $ CPSRWS.rwsT $ \r s -> do
-    (y, s, w') <- x r s
-    a <- pass $ pure y
-    pure (a, s, w')
+class MapLiftingWriter s t | t -> s where
+  mapLiftingWriter :: (Functor m, Monad n, Monoid w, Monoid w') => (m (a,s,w) -> n (b,s,w')) -> t w m a -> t w' n b
 
-instance (Monoid w', MonadWriter w m) => MonadWriter w (LiftingWriter (Lazy.WriterT w') m) where
-  writer = lift . writer
-  tell = lift . tell
-  listen (LiftingWriter (Lazy.WriterT x)) = LiftingWriter $ Lazy.WriterT $ do
-    ((a, w'), w) <- listen x
-    pure ((a, w), w')
-  pass (LiftingWriter (Lazy.WriterT x)) = LiftingWriter $ Lazy.WriterT $ do
-    (y, w') <- x
-    a <- pass $ pure y
-    pure (a, w')
+newtype SwapWS rwst r s w (m :: Type -> Type) a = SwapWS {runSwapWS :: rwst r w s m a}
 
-instance (Monoid w', MonadWriter w m) => MonadWriter w (LiftingWriter (Strict.WriterT w') m) where
-  writer = lift . writer
-  tell = lift . tell
-  listen (LiftingWriter (Strict.WriterT x)) = LiftingWriter $ Strict.WriterT $ do
-    ((a, w'), w) <- listen x
-    pure ((a, w), w')
-  pass (LiftingWriter (Strict.WriterT x)) = LiftingWriter $ Strict.WriterT $ do
-    (y, w') <- x
-    a <- pass $ pure y
-    pure (a, w')
+wrapMapWriterRWST
+  :: ((m (a, s, w) -> n (b, s, w')) -> rwst r w s m a -> rwst r w' s n b)
+  -> (m (a, s, w) -> n (b, s, w'))
+  -> SwapWS rwst r s w m a
+  -> SwapWS rwst r s w' n b
+wrapMapWriterRWST map f = SwapWS . map f . runSwapWS
 
-instance (Monoid w', MonadWriter w m) => MonadWriter w (LiftingWriter (CPS.WriterT w') m) where
-  writer = lift . writer
-  tell = lift . tell
-  listen (LiftingWriter (CPS.runWriterT -> x)) = LiftingWriter $ CPS.writerT $ do
-    ((a, w'), w) <- listen x
-    pure ((a, w), w')
-  pass (LiftingWriter (CPS.runWriterT -> x)) = LiftingWriter $ CPS.writerT $ do
-    (y, w') <- x
-    a <- pass $ pure y
-    pure (a, w')
+instance MapLiftingWriter s (SwapWS LazyRWS.RWST r s) where
+  mapLiftingWriter = wrapMapWriterRWST LazyRWS.mapRWST 
+
+instance MapLiftingWriter s (SwapWS StrictRWS.RWST r s) where
+  mapLiftingWriter = wrapMapWriterRWST StrictRWS.mapRWST
+
+instance MapLiftingWriter s (SwapWS CPSRWS.RWST r s) where
+  mapLiftingWriter = wrapMapWriterRWST CPSRWS.mapRWST
+
+wrapMapWriterT
+  :: (Functor m, Functor n)
+  => ((m (a, w) -> n (b, w')) -> writerT w m a -> writerT w' n b)
+  -> (m (a, (), w) -> n (b, (), w'))
+  -> writerT w m a
+  -> writerT w' n b
+wrapMapWriterT map f = map $ fmap removeTuple . f . fmap insertTuple
+  where
+  insertTuple (a,w) = (a,(),w)
+  removeTuple (b,(),w) = (b,w)
+
+instance MapLiftingWriter () Lazy.WriterT where
+  mapLiftingWriter = wrapMapWriterT Lazy.mapWriterT
+
+instance MapLiftingWriter () Strict.WriterT where
+  mapLiftingWriter = wrapMapWriterT Strict.mapWriterT
+
+instance MapLiftingWriter () CPS.WriterT where
+  mapLiftingWriter = wrapMapWriterT CPS.mapWriterT
 
