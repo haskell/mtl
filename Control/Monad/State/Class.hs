@@ -205,27 +205,7 @@ type LiftingState :: ((Type -> Type) -> Type -> Type) -> (Type -> Type) -> Type 
 newtype LiftingState t m a = LiftingState (t m a)
   deriving (Functor, Applicative, Monad, MonadTrans)
 
-instance (MonadState s m, Monoid w) => MonadState s (LiftingState (LazyRWS.RWST r w s') m) where
-  get = lift get
-  put = lift . put
-  state = lift . state
-
-instance (MonadState s m, Monoid w) => MonadState s (LiftingState (StrictRWS.RWST r w s') m) where
-  get = lift get
-  put = lift . put
-  state = lift . state
-
-instance (MonadState s m, Monoid w) => MonadState s (LiftingState (CPSRWS.RWST r w s') m) where
-  get = lift get
-  put = lift . put
-  state = lift . state
-
-instance MonadState s m => MonadState s (LiftingState (Lazy.StateT s') m) where
-  get = lift get
-  put = lift . put
-  state = lift . state
-
-instance MonadState s m => MonadState s (LiftingState (Strict.StateT s') m) where
+instance (MonadState s m, MonadTrans t, Monad (t m)) => MonadState s (LiftingState t m) where
   get = lift get
   put = lift . put
   state = lift . state
