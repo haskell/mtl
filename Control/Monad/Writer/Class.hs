@@ -1,15 +1,10 @@
-{-# LANGUAGE Trustworthy #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FunctionalDependencies #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE StandaloneKindSignatures #-}
-{-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE DerivingVia #-}
-{-# OPTIONS_GHC -Wno-name-shadowing #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE StandaloneKindSignatures #-}
+{-# LANGUAGE Trustworthy #-}
+{-# LANGUAGE UndecidableInstances #-}
 -- Search for UndecidableInstances to see why this is needed
 
 -----------------------------------------------------------------------------
@@ -57,6 +52,7 @@ import qualified Control.Monad.Trans.RWS.CPS as CPSRWS
 import qualified Control.Monad.Trans.Writer.CPS as CPS
 import Control.Monad.Trans.Class (MonadTrans(lift))
 import Data.Kind (Type)
+import Data.Coerce (coerce)
 
 -- ---------------------------------------------------------------------------
 -- MonadWriter class
@@ -215,84 +211,55 @@ instance
     listen = Accum.liftListen listen
     pass   = Accum.liftPass pass
 
-
--- | A helper type to decrease boilerplate when defining new transformer
--- instances of 'MonadWriter'.
---
--- @since ????
 type LiftingWriter :: ((Type -> Type) -> Type -> Type) -> (Type -> Type) -> Type -> Type
 newtype LiftingWriter t m a = LiftingWriter {runLiftingWriter :: t m a}
   deriving (Functor, Applicative, Monad, MonadTrans)
 
-type LiftingWriterInternal :: ((Type -> Type) -> Type -> Type) -> (Type -> Type) -> Type -> Type
-newtype LiftingWriterInternal t m a = LiftingWriterInternal {runLiftingWriterInternal :: t m a}
-  deriving (Functor, Applicative, Monad, MonadTrans)
+mapLiftingWriter :: (t m a -> t m b) -> LiftingWriter t m a -> LiftingWriter t m b
+mapLiftingWriter = coerce
 
-instance (MonadWriter w m, MonadTrans (t w'), Monad (t w' m), Monoid w', MapLiftingWriter s t) => MonadWriter w (LiftingWriterInternal (t w') m) where
-  writer = lift . writer
-  tell = lift . tell
-  listen = LiftingWriterInternal . mapLiftingWriter (fmap hammer . listen) . runLiftingWriterInternal
-    where hammer ((a, s, w'), w) = ((a, w), s, w')
-  pass = LiftingWriterInternal . mapLiftingWriter (pass . fmap hammer) . runLiftingWriterInternal
-    where hammer ((a, f), s, w') = ((a, s, w'), f)
+formatWriter :: ((a,b),c) -> ((a,c),b)
+formatWriter ((a,b),c) = ((a,c),b)
 
-deriving via LiftingWriterInternal (SwapWS rwst r s w') m
-  instance
-  (MonadWriter w (LiftingWriter (rwst r w' s) m), MonadWriter w m, MonadTrans (SwapWS rwst r s w'), Monad (SwapWS rwst r s w' m), Monad (rwst r w' s m), Monoid w', MapLiftingWriter s (SwapWS rwst r s)) =>
-  MonadWriter w (LiftingWriter (rwst r w' s) m)
---deriving via LiftingWriterInternal (SwapWS LazyRWS.RWST r s w') m
---  instance
---  (MonadWriter w m, Monad (SwapWS LazyRWS.RWST r s w' m), MonadTrans (SwapWS LazyRWS.RWST r s w'), Monoid w') =>
---  MonadWriter w (LiftingWriter (LazyRWS.RWST r w' s) m)
---
---deriving via LiftingWriterInternal (SwapWS StrictRWS.RWST r s w') m
---  instance
---  (MonadWriter w m, Monad (SwapWS StrictRWS.RWST r s w' m), MonadTrans (SwapWS StrictRWS.RWST r s w'), Monoid w') =>
---  MonadWriter w (LiftingWriter (StrictRWS.RWST r w' s) m)
---
---deriving via LiftingWriterInternal (SwapWS CPSRWS.RWST r s w') m
---  instance
---  (MonadWriter w m, Monad (SwapWS CPSRWS.RWST r s w' m), MonadTrans (SwapWS CPSRWS.RWST r s w'), Monoid w') =>
---  MonadWriter w (LiftingWriter (CPSRWS.RWST r w' s) m)
+instance (MonadWriter w m, Monoid w') => MonadWriter w (LiftingWriter (Lazy.WriterT w') m) where
+    writer = lift . writer
+    tell   = lift . tell
+    listen = mapLiftingWriter $ Lazy.mapWriterT $ fmap formatWriter . listen
+    pass = mapLiftingWriter $ Lazy.mapWriterT $ pass . fmap formatWriter
 
-class MapLiftingWriter s t | t -> s where
-  mapLiftingWriter :: (Functor m, Monad n, Monoid w, Monoid w') => (m (a,s,w) -> n (b,s,w')) -> t w m a -> t w' n b
+instance (MonadWriter w m, Monoid w') => MonadWriter w (LiftingWriter (Strict.WriterT w') m) where
+    writer = lift . writer
+    tell   = lift . tell
+    listen = mapLiftingWriter $ Strict.mapWriterT $ fmap formatWriter . listen
+    pass = mapLiftingWriter $ Strict.mapWriterT $ pass . fmap formatWriter
 
-newtype SwapWS rwst r s w (m :: Type -> Type) a = SwapWS {runSwapWS :: rwst r w s m a}
+instance (MonadWriter w m, Monoid w') => MonadWriter w (LiftingWriter (CPS.WriterT w') m) where
+    writer = lift . writer
+    tell   = lift . tell
+    listen = mapLiftingWriter $ CPS.mapWriterT $ fmap formatWriter . listen
+    pass = mapLiftingWriter $ CPS.mapWriterT $ pass . fmap formatWriter
 
-wrapMapWriterRWST
-  :: ((m (a, s, w) -> n (b, s, w')) -> rwst r w s m a -> rwst r w' s n b)
-  -> (m (a, s, w) -> n (b, s, w'))
-  -> SwapWS rwst r s w m a
-  -> SwapWS rwst r s w' n b
-wrapMapWriterRWST map f = SwapWS . map f . runSwapWS
+formatListenRWS :: ((a,b,c),d) -> ((a,d),b,c)
+formatListenRWS ((a,b,c),d) = ((a,d),b,c)
 
-instance MapLiftingWriter s (SwapWS LazyRWS.RWST r s) where
-  mapLiftingWriter = wrapMapWriterRWST LazyRWS.mapRWST 
+formatPassRWS :: ((a,b),c,d) -> ((a,c,d),b)
+formatPassRWS ((a,b),c,d) = ((a,c,d),b)
 
-instance MapLiftingWriter s (SwapWS StrictRWS.RWST r s) where
-  mapLiftingWriter = wrapMapWriterRWST StrictRWS.mapRWST
+instance (MonadWriter w m, Monoid w') => MonadWriter w (LiftingWriter (LazyRWS.RWST r w' s) m) where
+    writer = lift . writer
+    tell   = lift . tell
+    listen = mapLiftingWriter $ LazyRWS.mapRWST $ fmap formatListenRWS . listen
+    pass = mapLiftingWriter $ LazyRWS.mapRWST $ pass . fmap formatPassRWS
 
-instance MapLiftingWriter s (SwapWS CPSRWS.RWST r s) where
-  mapLiftingWriter = wrapMapWriterRWST CPSRWS.mapRWST
+instance (MonadWriter w m, Monoid w') => MonadWriter w (LiftingWriter (StrictRWS.RWST r w' s) m) where
+    writer = lift . writer
+    tell   = lift . tell
+    listen = mapLiftingWriter $ StrictRWS.mapRWST $ fmap formatListenRWS . listen
+    pass = mapLiftingWriter $ StrictRWS.mapRWST $ pass . fmap formatPassRWS
 
-wrapMapWriterT
-  :: (Functor m, Functor n)
-  => ((m (a, w) -> n (b, w')) -> writerT w m a -> writerT w' n b)
-  -> (m (a, (), w) -> n (b, (), w'))
-  -> writerT w m a
-  -> writerT w' n b
-wrapMapWriterT map f = map $ fmap removeTuple . f . fmap insertTuple
-  where
-  insertTuple (a,w) = (a,(),w)
-  removeTuple (b,(),w) = (b,w)
-
-instance MapLiftingWriter () Lazy.WriterT where
-  mapLiftingWriter = wrapMapWriterT Lazy.mapWriterT
-
-instance MapLiftingWriter () Strict.WriterT where
-  mapLiftingWriter = wrapMapWriterT Strict.mapWriterT
-
-instance MapLiftingWriter () CPS.WriterT where
-  mapLiftingWriter = wrapMapWriterT CPS.mapWriterT
+instance (MonadWriter w m, Monoid w') => MonadWriter w (LiftingWriter (CPSRWS.RWST r w' s) m) where
+    writer = lift . writer
+    tell   = lift . tell
+    listen = mapLiftingWriter $ CPSRWS.mapRWST $ fmap formatListenRWS . listen
+    pass = mapLiftingWriter $ CPSRWS.mapRWST $ pass . fmap formatPassRWS
 
