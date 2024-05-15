@@ -74,6 +74,7 @@ import qualified Control.Monad.Trans.RWS.CPS as CPSRWS
 import qualified Control.Monad.Trans.Writer.CPS as CPS
 import Control.Monad.Trans.Class (MonadTrans(lift))
 import Data.Kind (Type)
+import Data.Coerce (coerce)
 
 -- ----------------------------------------------------------------------------
 -- class MonadReader
@@ -216,22 +217,26 @@ type LiftingReader :: ((Type -> Type) -> Type -> Type) -> (Type -> Type) -> Type
 newtype LiftingReader t m a = LiftingReader (t m a)
   deriving (Functor, Applicative, Monad, MonadTrans)
 
+mapLiftingReader :: (t m a -> t m b) -> LiftingReader t m a -> LiftingReader t m b
+mapLiftingReader = coerce
+
 instance (MonadReader r m, Monoid w) => MonadReader r (LiftingReader (LazyRWS.RWST r' w s) m) where
   ask = lift ask
-  local f (LiftingReader (LazyRWS.RWST x)) = LiftingReader . LazyRWS.RWST $ \r s -> local f $ x r s
+  local = mapLiftingReader . LazyRWS.mapRWST . local
   reader = lift . reader
 
 instance (MonadReader r m, Monoid w) => MonadReader r (LiftingReader (StrictRWS.RWST r' w s) m) where
   ask = lift ask
-  local f (LiftingReader (StrictRWS.RWST x)) = LiftingReader . StrictRWS.RWST $ \r s -> local f $ x r s
+  local = mapLiftingReader . StrictRWS.mapRWST . local
   reader = lift . reader
 
 instance (MonadReader r m, Monoid w) => MonadReader r (LiftingReader (CPSRWS.RWST r' w s) m) where
   ask = lift ask
-  local f (LiftingReader (CPSRWS.runRWST -> x)) = LiftingReader . CPSRWS.rwsT $ \r s -> local f $ x r s
+  local = mapLiftingReader . CPSRWS.mapRWST . local
   reader = lift . reader
 
 instance MonadReader r m => MonadReader r (LiftingReader (ReaderT r') m) where
   ask = lift ask
-  local f (LiftingReader (ReaderT.ReaderT x)) = LiftingReader . ReaderT.ReaderT $ local f . x
+  local = mapLiftingReader . ReaderT.mapReaderT . local
   reader = lift . reader
+
