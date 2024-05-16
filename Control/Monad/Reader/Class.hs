@@ -4,12 +4,12 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 -- Search for UndecidableInstances to see why this is needed
 {-# LANGUAGE UndecidableInstances #-}
--- Needed because the CPSed versions of Writer and State are secretly State
--- wrappers, which don't force such constraints, even though they should legally
--- be there.
 {-# LANGUAGE StandaloneKindSignatures #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE ViewPatterns #-}
+-- Needed because the CPSed versions of Writer and State are secretly State
+-- wrappers, which don't force such constraints, even though they should legally
+-- be there.
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
 {- |
 Module      :  Control.Monad.Reader.Class
