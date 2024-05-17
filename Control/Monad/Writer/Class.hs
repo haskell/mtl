@@ -221,18 +221,24 @@ mapLiftingWriter = coerce
 formatWriter :: ((a,b),c) -> ((a,c),b)
 formatWriter ((a,b),c) = ((a,c),b)
 
+-- | A helper type to decrease boilerplate when defining new transformer
+-- instances of 'MonadState'.
+--
+-- @since ????
 instance (MonadWriter w m, Monoid w') => MonadWriter w (LiftingWriter (Lazy.WriterT w') m) where
     writer = lift . writer
     tell   = lift . tell
     listen = mapLiftingWriter $ Lazy.mapWriterT $ fmap formatWriter . listen
     pass = mapLiftingWriter $ Lazy.mapWriterT $ pass . fmap formatWriter
 
+-- | @since ????
 instance (MonadWriter w m, Monoid w') => MonadWriter w (LiftingWriter (Strict.WriterT w') m) where
     writer = lift . writer
     tell   = lift . tell
     listen = mapLiftingWriter $ Strict.mapWriterT $ fmap formatWriter . listen
     pass = mapLiftingWriter $ Strict.mapWriterT $ pass . fmap formatWriter
 
+-- | @since ????
 instance (MonadWriter w m, Monoid w') => MonadWriter w (LiftingWriter (CPS.WriterT w') m) where
     writer = lift . writer
     tell   = lift . tell
@@ -245,18 +251,21 @@ formatListenRWS ((a,b,c),d) = ((a,d),b,c)
 formatPassRWS :: ((a,b),c,d) -> ((a,c,d),b)
 formatPassRWS ((a,b),c,d) = ((a,c,d),b)
 
+-- | @since ????
 instance (MonadWriter w m, Monoid w') => MonadWriter w (LiftingWriter (LazyRWS.RWST r w' s) m) where
     writer = lift . writer
     tell   = lift . tell
     listen = mapLiftingWriter $ LazyRWS.mapRWST $ fmap formatListenRWS . listen
     pass = mapLiftingWriter $ LazyRWS.mapRWST $ pass . fmap formatPassRWS
 
+-- | @since ????
 instance (MonadWriter w m, Monoid w') => MonadWriter w (LiftingWriter (StrictRWS.RWST r w' s) m) where
     writer = lift . writer
     tell   = lift . tell
     listen = mapLiftingWriter $ StrictRWS.mapRWST $ fmap formatListenRWS . listen
     pass = mapLiftingWriter $ StrictRWS.mapRWST $ pass . fmap formatPassRWS
 
+-- | @since ????
 instance (MonadWriter w m, Monoid w') => MonadWriter w (LiftingWriter (CPSRWS.RWST r w' s) m) where
     writer = lift . writer
     tell   = lift . tell

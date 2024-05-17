@@ -23,8 +23,6 @@ module Control.Monad.Writer.Strict (
     MonadWriter.MonadWriter(..),
     MonadWriter.listens,
     MonadWriter.censor,
-    -- * Lifting helper type
-    MonadWriter.LiftingWriter,
     -- * The Writer monad
     Writer,
     runWriter,
@@ -34,6 +32,8 @@ module Control.Monad.Writer.Strict (
     WriterT(..),
     execWriterT,
     mapWriterT,
+    -- * Lifting helper type
+    MonadWriter.LiftingWriter(..),
     module Control.Monad.Trans,
   ) where
 

@@ -41,7 +41,7 @@ module Control.Monad.Reader (
     MonadReader.MonadReader(..),
     MonadReader.asks,
     -- * Lifting helper type
-    MonadReader.LiftingReader,
+    MonadReader.LiftingReader(..),
     -- * The Reader monad
     Reader,
     runReader,

@@ -36,7 +36,7 @@ module Control.Monad.State.Class (
     modify,
     modify',
     gets,
-    LiftingState
+    LiftingState(..),
   ) where
 
 import Control.Monad.Trans.Cont (ContT)
@@ -205,6 +205,7 @@ type LiftingState :: ((Type -> Type) -> Type -> Type) -> (Type -> Type) -> Type 
 newtype LiftingState t m a = LiftingState (t m a)
   deriving (Functor, Applicative, Monad, MonadTrans)
 
+-- | @since ????
 instance (MonadState s m, MonadTrans t, Monad (t m)) => MonadState s (LiftingState t m) where
   get = lift get
   put = lift . put

@@ -220,21 +220,25 @@ newtype LiftingReader t m a = LiftingReader (t m a)
 mapLiftingReader :: (t m a -> t m b) -> LiftingReader t m a -> LiftingReader t m b
 mapLiftingReader = coerce
 
+-- | @since ????
 instance (MonadReader r m, Monoid w) => MonadReader r (LiftingReader (LazyRWS.RWST r' w s) m) where
   ask = lift ask
   local = mapLiftingReader . LazyRWS.mapRWST . local
   reader = lift . reader
 
+-- | @since ????
 instance (MonadReader r m, Monoid w) => MonadReader r (LiftingReader (StrictRWS.RWST r' w s) m) where
   ask = lift ask
   local = mapLiftingReader . StrictRWS.mapRWST . local
   reader = lift . reader
 
+-- | @since ????
 instance (MonadReader r m, Monoid w) => MonadReader r (LiftingReader (CPSRWS.RWST r' w s) m) where
   ask = lift ask
   local = mapLiftingReader . CPSRWS.mapRWST . local
   reader = lift . reader
 
+-- | @since ????
 instance MonadReader r m => MonadReader r (LiftingReader (ReaderT r') m) where
   ask = lift ask
   local = mapLiftingReader . ReaderT.mapReaderT . local

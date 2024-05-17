@@ -23,8 +23,6 @@ module Control.Monad.Writer.Lazy (
     MonadWriter.MonadWriter(..),
     MonadWriter.listens,
     MonadWriter.censor,
-    -- * Lifting helper type
-    MonadWriter.LiftingWriter,
     -- * The Writer monad
     Writer,
     runWriter,
@@ -35,6 +33,8 @@ module Control.Monad.Writer.Lazy (
     runWriterT,
     execWriterT,
     mapWriterT,
+    -- * Lifting helper type
+    MonadWriter.LiftingWriter(..),
     module Control.Monad.Trans,
   ) where
 

@@ -39,6 +39,8 @@ module Control.Monad.State.Strict (
     execStateT,
     mapStateT,
     withStateT,
+    -- * Lifting helper type
+    MonadState.LiftingState(..),
     module Control.Monad.Trans,
     -- * Examples
     -- $examples
