@@ -200,6 +200,12 @@ instance MonadState s m => MonadState s (SelectT r m) where
 -- | A helper type to decrease boilerplate when defining new transformer
 -- instances of 'MonadState'.
 --
+-- @
+-- newtype SneakyStateT m a = SneakyStateT { runSneakyStateT :: Lazy.StateT String m a }
+--   deriving (Functor, Applicative, Monad)
+--   deriving (MonadState w) via LiftingState (Lazy.StateT String) m
+-- @
+--
 -- @since ????
 type LiftingState :: ((Type -> Type) -> Type -> Type) -> (Type -> Type) -> Type -> Type
 newtype LiftingState t m a = LiftingState (t m a)

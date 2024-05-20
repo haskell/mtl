@@ -212,6 +212,12 @@ instance
 -- | A helper type to decrease boilerplate when defining new transformer
 -- instances of 'MonadReader'.
 --
+-- @
+-- newtype SneakyReaderT m a = SneakyReaderT { runSneakyReaderT :: ReaderT String m a }
+--   deriving (Functor, Applicative, Monad)
+--   deriving (MonadReader w) via LiftingReader (ReaderT String) m
+-- @
+--
 -- @since ????
 type LiftingReader :: ((Type -> Type) -> Type -> Type) -> (Type -> Type) -> Type -> Type
 newtype LiftingReader t m a = LiftingReader (t m a)
