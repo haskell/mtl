@@ -203,7 +203,7 @@ instance MonadState s m => MonadState s (SelectT r m) where
 -- @
 -- newtype SneakyStateT m a = SneakyStateT { runSneakyStateT :: Lazy.StateT String m a }
 --   deriving (Functor, Applicative, Monad)
---   deriving (MonadState w) via LiftingState (Lazy.StateT String) m
+--   deriving (MonadState s) via LiftingState (Lazy.StateT String) m
 -- @
 --
 -- @since ????

@@ -215,7 +215,7 @@ instance
 -- @
 -- newtype SneakyReaderT m a = SneakyReaderT { runSneakyReaderT :: ReaderT String m a }
 --   deriving (Functor, Applicative, Monad)
---   deriving (MonadReader w) via LiftingReader (ReaderT String) m
+--   deriving (MonadReader r) via LiftingReader (ReaderT String) m
 -- @
 --
 -- @since ????
