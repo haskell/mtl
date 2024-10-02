@@ -218,7 +218,7 @@ tryError action = (Right <$> action) `catchError` (pure . Left)
 --
 -- @since 2.3
 withError :: MonadError e m => (e -> e) -> m a -> m a
-withError f action = tryError action >>= either (throwError . f) pure
+withError f = handleError (throwError . f)
 
 -- | As 'handle' is flipped 'Control.Exception.catch', 'handleError'
 -- is flipped 'catchError'.
