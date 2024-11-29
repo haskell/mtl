@@ -25,7 +25,7 @@ jobs:
     - name: checkout transformers repo
       uses: actions/checkout@v4
       with:
-        repository: haskell/transformers
+        repository: augustss/transformers
         path: transformers
     - name: compile and install transformers package
       run: |
