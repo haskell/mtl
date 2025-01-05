@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -59,10 +58,7 @@ instance (Monoid w, Monad m) => MonadRWS r w s (Strict.RWST r w s m)
 -- All of these instances need UndecidableInstances,
 -- because they do not satisfy the coverage condition.
 
-#if !defined(__MHS__)
--- MHS bug
 -- | @since 2.2
 instance MonadRWS r w s m => MonadRWS r w s (ExceptT e m)
 instance MonadRWS r w s m => MonadRWS r w s (IdentityT m)
 instance MonadRWS r w s m => MonadRWS r w s (MaybeT m)
-#endif
