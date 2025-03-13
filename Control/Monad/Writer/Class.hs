@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE Safe #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
@@ -49,9 +48,6 @@ import qualified Control.Monad.Trans.Accum as Accum
 import qualified Control.Monad.Trans.RWS.CPS as CPSRWS
 import qualified Control.Monad.Trans.Writer.CPS as CPS
 import Control.Monad.Trans.Class (lift)
-#ifdef __MHS__
-import Data.Tuple.Instances
-#endif
 
 -- ---------------------------------------------------------------------------
 -- MonadWriter class

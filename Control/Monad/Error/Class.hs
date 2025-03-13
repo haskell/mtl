@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -72,15 +71,10 @@ import qualified Control.Monad.Trans.Accum as Accum
 import qualified Control.Monad.Trans.RWS.CPS as CPSRWS
 import qualified Control.Monad.Trans.Writer.CPS as CPSWriter
 import Control.Monad.Trans.Class (lift)
-import Control.Exception (catch)
+import Control.Exception (IOException, catch, ioError)
 import Control.Monad (Monad)
 import Data.Monoid (Monoid)
 import Prelude (Either (Left, Right), Maybe (Nothing), either, flip, (.), IO, pure, (<$>), (>>=))
-#ifdef __MHS__
-import System.IO.Error(IOException, ioError)
-#else
-import Control.Exception(IOException, ioError)
-#endif
 
 {- |
 The strategy of combining computations that can throw exceptions
