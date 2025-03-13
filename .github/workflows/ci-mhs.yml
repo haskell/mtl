@@ -15,7 +15,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: augustss/MicroHs
-        ref: stable-3
+        ref: stable-7
         path: mhs
     - name: make and install mhs
       run: |
