@@ -77,7 +77,6 @@ import Control.Monad (Monad)
 import Data.Monoid (Monoid)
 import Prelude (Either (Left, Right), Maybe (Nothing), either, flip, (.), IO, pure, (<$>), (>>=))
 #ifdef __MHS__
-import Prelude(Char)
 import System.IO.Error(IOException, ioError)
 #else
 import Control.Exception(IOException, ioError)

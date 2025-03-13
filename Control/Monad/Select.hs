@@ -81,10 +81,8 @@ module Control.Monad.Select
   ( -- * Type class
     MonadSelect (..),
 
-#if !defined(__MHS__)
     -- * Lifting helper type
     LiftingSelect (..),
-#endif
   )
 where
 
@@ -128,7 +126,6 @@ class (Monad m) => MonadSelect r m | m -> r where
 instance MonadSelect r (SelectT r Identity) where
   select = Select.select
 
-#if !defined(__MHS__)
 -- | \'Extends\' the possibilities considered by @m@ to include 'Nothing'; this
 -- means that 'Nothing' gains a \'rank\' (namely, a value of @r@), and the
 -- potential result could also be 'Nothing'.
@@ -318,4 +315,3 @@ newtype LiftingSelect (t :: (Type -> Type) -> Type -> Type) (m :: Type -> Type) 
 -- | @since 2.3
 instance (MonadTrans t, MonadSelect r m, Monad (t m)) => MonadSelect r (LiftingSelect t m) where
   select f = LiftingSelect . lift $ select f
-#endif
