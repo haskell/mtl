@@ -50,6 +50,9 @@ module Control.Monad.Reader (
     runReaderT,
     mapReaderT,
     withReaderT,
+    -- * Lifting helper type
+    MonadReader.LiftingReader(..),
+    -- * Lifting into the transformer
     module Control.Monad.Trans,
     -- * Example 1: Simple Reader Usage
     -- $simpleReaderExample
