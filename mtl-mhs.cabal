@@ -1,17 +1,16 @@
 cabal-version: 3.0
-name:          mtl
+name:          mtl-mhs
 version:       2.3.1
 license:       BSD-3-Clause
 license-file:  LICENSE
 author:        Andy Gill
-maintainer:    chessai <chessai1996@gmail.com>,
-               Emily Pillmore <emilypi@cohomolo.gy>,
-               Koz Ross <koz.ross@retro-freedom.nz>
+maintainer:    lennart@augustsson.net
 category:      Control
 synopsis:      Monad classes for transformers, using functional dependencies
-homepage:      http://github.com/haskell/mtl
-bug-reports:   http://github.com/haskell/mtl/issues
+homepage:      http://github.com/augustss/mtl-mhs
+bug-reports:   http://github.com/augustss/mtl-mhs/issues
 description:
+  == This package is a fork of 'mtl' with changes to make it compile with MicroHs.  
   MTL is a collection of monad classes, extending the 'transformers'
   package, using functional dependencies for generic lifting of
   monadic actions.
@@ -26,7 +25,7 @@ tested-with: GHC ==8.6.5 || ==8.8.4 || ==8.10.7 || ==9.0.2 || ==9.2.4 || ==9.4.1
 
 source-repository head
   type: git
-  location: https://github.com/haskell/mtl.git
+  location: https://github.com/augustss/mtl-mhs.git
 
 Library
   exposed-modules:

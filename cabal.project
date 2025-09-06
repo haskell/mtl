@@ -1,4 +1,4 @@
-packages: ./mtl.cabal
+packages: ./mtl-mhs.cabal
 
-package mtl
+package mtl-mhs
   ghc-options: -Werror
