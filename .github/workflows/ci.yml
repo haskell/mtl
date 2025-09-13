@@ -24,7 +24,7 @@ jobs:
           ghc-version: ${{ matrix.ghc }}
           cabal-version: 'latest'
       - name: Configure
-        run: cabal new-configure
+        run: cabal new-configure --enable-tests
       - name: Freeze
         run: cabal freeze
       - name: Cache
@@ -35,3 +35,5 @@ jobs:
           restore-keys: ${{ runner.os }}-${{ matrix.ghc }}-
       - name: Build
         run: cabal build
+      - name: Run tests
+        run: cabal test
