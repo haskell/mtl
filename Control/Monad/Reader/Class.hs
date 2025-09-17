@@ -1,9 +1,12 @@
-{-# LANGUAGE Safe #-}
+{-# LANGUAGE Trustworthy #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 -- Search for UndecidableInstances to see why this is needed
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE StandaloneKindSignatures #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE ViewPatterns #-}
 -- Needed because the CPSed versions of Writer and State are secretly State
 -- wrappers, which don't force such constraints, even though they should legally
 -- be there.
@@ -48,6 +51,7 @@ than using the 'Control.Monad.State.State' monad.
 module Control.Monad.Reader.Class (
     MonadReader(..),
     asks,
+    LiftingReader(..),
     ) where
 
 import qualified Control.Monad.Trans.Cont as Cont
@@ -68,7 +72,9 @@ import qualified Control.Monad.Trans.Accum as Accum
 import Control.Monad.Trans.Select (SelectT (SelectT), runSelectT)
 import qualified Control.Monad.Trans.RWS.CPS as CPSRWS
 import qualified Control.Monad.Trans.Writer.CPS as CPS
-import Control.Monad.Trans.Class (lift)
+import Control.Monad.Trans.Class (MonadTrans(lift))
+import Data.Kind (Type)
+import Data.Coerce (coerce)
 
 -- ----------------------------------------------------------------------------
 -- class MonadReader
@@ -202,3 +208,45 @@ instance
       r <- ask
       local f (runSelectT m (local (const r) . c))
     reader = lift . reader
+
+-- | A helper type to decrease boilerplate when defining new transformer
+-- instances of 'MonadReader'.
+--
+-- @
+-- newtype SneakyReaderT m a = SneakyReaderT { runSneakyReaderT :: ReaderT String m a }
+--   deriving (Functor, Applicative, Monad)
+--   deriving (MonadReader r) via LiftingReader (ReaderT String) m
+-- @
+--
+-- @since ????
+type LiftingReader :: ((Type -> Type) -> Type -> Type) -> (Type -> Type) -> Type -> Type
+newtype LiftingReader t m a = LiftingReader (t m a)
+  deriving (Functor, Applicative, Monad, MonadTrans)
+
+mapLiftingReader :: (t m a -> t m b) -> LiftingReader t m a -> LiftingReader t m b
+mapLiftingReader = coerce
+
+-- | @since ????
+instance (MonadReader r m, Monoid w) => MonadReader r (LiftingReader (LazyRWS.RWST r' w s) m) where
+  ask = lift ask
+  local = mapLiftingReader . LazyRWS.mapRWST . local
+  reader = lift . reader
+
+-- | @since ????
+instance (MonadReader r m, Monoid w) => MonadReader r (LiftingReader (StrictRWS.RWST r' w s) m) where
+  ask = lift ask
+  local = mapLiftingReader . StrictRWS.mapRWST . local
+  reader = lift . reader
+
+-- | @since ????
+instance (MonadReader r m, Monoid w) => MonadReader r (LiftingReader (CPSRWS.RWST r' w s) m) where
+  ask = lift ask
+  local = mapLiftingReader . CPSRWS.mapRWST . local
+  reader = lift . reader
+
+-- | @since ????
+instance MonadReader r m => MonadReader r (LiftingReader (ReaderT r') m) where
+  ask = lift ask
+  local = mapLiftingReader . ReaderT.mapReaderT . local
+  reader = lift . reader
+

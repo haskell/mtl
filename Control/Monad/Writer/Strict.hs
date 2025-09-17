@@ -32,6 +32,11 @@ module Control.Monad.Writer.Strict (
     WriterT(..),
     execWriterT,
     mapWriterT,
+    -- * Lifting helper type
+    MonadWriter.LiftingWriter,
+    MonadWriter.LiftWriter(..),
+    MonadWriter.LiftWriterRWS(..),
+    -- * Lifting into the transformer
     module Control.Monad.Trans,
   ) where
 

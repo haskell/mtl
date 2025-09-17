@@ -1,8 +1,16 @@
-{-# LANGUAGE Safe #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE StandaloneKindSignatures #-}
+{-# LANGUAGE Trustworthy #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE PolyKinds #-}
+{-# LANGUAGE TypeFamilies #-}
+
+{-# LANGUAGE DerivingStrategies #-}
+{-# LANGUAGE DerivingVia #-}
 -- Search for UndecidableInstances to see why this is needed
 
 -----------------------------------------------------------------------------
@@ -28,6 +36,9 @@ module Control.Monad.Writer.Class (
     MonadWriter(..),
     listens,
     censor,
+    LiftingWriter,
+    LiftWriter(..),
+    LiftWriterRWS(..),
   ) where
 
 import Control.Monad.Trans.Except (ExceptT)
@@ -47,7 +58,9 @@ import Control.Monad.Trans.Accum (AccumT)
 import qualified Control.Monad.Trans.Accum as Accum
 import qualified Control.Monad.Trans.RWS.CPS as CPSRWS
 import qualified Control.Monad.Trans.Writer.CPS as CPS
-import Control.Monad.Trans.Class (lift)
+import Control.Monad.Trans.Class (MonadTrans(lift))
+import Data.Kind (Type, Constraint)
+import Data.Coerce (coerce)
 
 -- ---------------------------------------------------------------------------
 -- MonadWriter class
@@ -205,3 +218,90 @@ instance
     tell   = lift . tell
     listen = Accum.liftListen listen
     pass   = Accum.liftPass pass
+
+-- | A helper type function to decrease boilerplate when defining new
+-- transformer instances of 'MonadWriter'.
+--
+-- Example of deriving 'MonadWriter' from @m@ and not the 'Lazy.WriterT' transformer.
+--
+-- @
+-- newtype SneakyWriterT m a = SneakyWriterT { runSneakyWriterT :: Lazy.WriterT String m a }
+--   deriving (Functor, Applicative, Monad)
+--   deriving (MonadWriter w) via LiftingWriter Lazy.WriterT String m
+-- @
+--
+-- Example of deriving 'MonadWriter' from @m@ and not the 'LazyRWS.RWST' transformer.
+--
+-- @
+-- newtype SneakyRWST m a = SneakyRWST { runSneakyRWST :: LazyRWS.RWST () String () m a }
+--   deriving (Functor, Applicative, Monad)
+--   deriving (MonadWriter w) via LiftingWriter LazyRWS.RWST () String () m
+-- @
+--
+-- | @since ????
+type LiftingWriter :: forall t. t
+type family LiftingWriter where
+  LiftingWriter = LiftWriter
+  LiftingWriter = LiftWriterRWS
+
+-- | Do not use directly; use @LiftingWriter@ instead.
+--
+-- | @since ????
+newtype LiftWriter t w (m :: Type -> Type) a = LiftWriter (t w m a)
+  deriving (Functor, Applicative, Monad, MonadTrans)
+
+-- | Do not use directly; use @LiftingWriter@ instead.
+--
+-- | @since ????
+newtype LiftWriterRWS t r w s (m :: Type -> Type) a = LiftWriterRWS (t r w s m a)
+  deriving (Functor, Applicative, Monad, MonadTrans)
+
+-- | Class that allows new writer transformers to use the existing instance of 'MonadWriter' so that they can be used with 'LiftingWriter' to using the monad's "MonadWriter' instance.
+-- By using this class you only have to define 'mapWriterT' instead of 'writer', 'tell', 'listen', and 'pass'.
+--
+-- | @since ????
+type MapWriter :: (Type -> (Type -> Type) -> Type -> Type) -> Constraint
+class MapWriter t where mapWriterT :: (Monad m, Monoid w) => (m (a, w) -> m (b, w)) -> t w m a -> t w m b
+-- | @since ????
+instance MapWriter Lazy.WriterT where mapWriterT = Lazy.mapWriterT
+-- | @since ????
+instance MapWriter Strict.WriterT where mapWriterT = Strict.mapWriterT
+-- | @since ????
+instance MapWriter CPS.WriterT where mapWriterT = CPS.mapWriterT
+
+-- | Class that allows new reader writer state transformers to use the existing instance of 'MonadWriter' so that they can be used with 'LiftingWriter' to using the monad's "MonadWriter' instance.
+-- By using this class you only have to define 'mapRWST' instead of 'writer', 'tell', 'listen', and 'pass'.
+--
+-- | @since ????
+type MapRWS :: (Type -> Type -> Type -> (Type -> Type) -> Type -> Type) -> Constraint
+class MapRWS t where mapRWST :: (Monad m, Monoid w) => (m (a, s, w) -> m (b, s, w)) -> t r w s m a -> t r w s m b
+-- | @since ????
+instance MapRWS LazyRWS.RWST where mapRWST = LazyRWS.mapRWST
+-- | @since ????
+instance MapRWS StrictRWS.RWST where mapRWST = StrictRWS.mapRWST
+-- | @since ????
+instance MapRWS CPSRWS.RWST where mapRWST = CPSRWS.mapRWST
+
+mapLiftWriter :: (t w m a -> t w m b) -> LiftWriter t w m a -> LiftWriter t w m b
+mapLiftWriter = coerce
+
+formatWriter :: ((a,b),c) -> ((a,c),b)
+formatWriter ((a,b),c) = ((a,c),b)
+
+mapLiftWriterRWS :: (t r w s m a -> t r w s m b) -> LiftWriterRWS t r w s m a -> LiftWriterRWS t r w s m b
+mapLiftWriterRWS = coerce
+
+-- | @since ????
+instance (MapWriter t, MonadWriter w m, MonadTrans (t w'), Monad (t w' m), Monoid w') => MonadWriter w (LiftWriter t w' m) where
+  writer = lift . writer
+  tell = lift . tell
+  listen = mapLiftWriter $ mapWriterT $ fmap formatWriter . listen
+  pass = mapLiftWriter $ mapWriterT $ pass . fmap formatWriter
+
+-- | @since ????
+instance (MapRWS t, MonadWriter w m, MonadTrans (t r w' s), Monad (t r w' s m), Monoid w') => MonadWriter w (LiftWriterRWS t r w' s m) where
+  writer = lift . writer
+  tell = lift . tell
+  listen = mapLiftWriterRWS $ mapRWST $ fmap (\((a,b,c),d) -> ((a,d),b,c)) . listen
+  pass = mapLiftWriterRWS $ mapRWST $ pass . fmap (\((a,b),c,d) -> ((a,c,d),b))
+
