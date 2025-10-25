@@ -208,6 +208,7 @@ instance
     pass   = Accum.liftPass pass
 
 instance (MonadWriter w m, MonadWriter w n) => MonadWriter w (Product m n) where
-    tell w = Pair (tell w) (tell w)
+    writer aw           = Pair (writer aw) (writer aw)
+    tell w              = Pair (tell w) (tell w)
     listen (Pair ma na) = Pair (listen ma) (listen na)
     pass (Pair maf naf) = Pair (pass maf) (pass naf)
