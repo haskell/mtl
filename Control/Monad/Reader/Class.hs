@@ -69,6 +69,7 @@ import Control.Monad.Trans.Select (SelectT (SelectT), runSelectT)
 import qualified Control.Monad.Trans.RWS.CPS as CPSRWS
 import qualified Control.Monad.Trans.Writer.CPS as CPS
 import Control.Monad.Trans.Class (lift)
+import Data.Functor.Product (Product(..))
 
 -- ----------------------------------------------------------------------------
 -- class MonadReader
@@ -202,3 +203,7 @@ instance
       r <- ask
       local f (runSelectT m (local (const r) . c))
     reader = lift . reader
+
+instance (MonadReader r m, MonadReader r n) => MonadReader r (Product m n) where
+    ask = Pair ask ask
+    local f (Pair ma na) = Pair (local f ma) (local f na)

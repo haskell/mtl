@@ -52,6 +52,7 @@ import Control.Monad.Trans.Select (SelectT)
 import qualified Control.Monad.Trans.RWS.CPS as CPSRWS
 import qualified Control.Monad.Trans.Writer.CPS as CPS
 import Control.Monad.Trans.Class (lift)
+import Data.Functor.Product (Product(..))
 
 -- ---------------------------------------------------------------------------
 
@@ -192,3 +193,7 @@ instance MonadState s m => MonadState s (SelectT r m) where
     get = lift get
     put = lift . put
     state = lift . state
+
+instance (MonadState s m, MonadState s n) => MonadState s (Product m n) where
+    get = Pair get get
+    put s = Pair (put s) (put s)

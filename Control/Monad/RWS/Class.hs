@@ -41,6 +41,7 @@ import Control.Monad.Trans.Identity (IdentityT)
 import qualified Control.Monad.Trans.RWS.CPS as CPS (RWST)
 import qualified Control.Monad.Trans.RWS.Lazy as Lazy (RWST)
 import qualified Control.Monad.Trans.RWS.Strict as Strict (RWST)
+import Data.Functor.Product (Product(..))
 
 class (Monoid w, MonadReader r m, MonadWriter w m, MonadState s m)
    => MonadRWS r w s m | m -> r, m -> w, m -> s
@@ -62,3 +63,5 @@ instance (Monoid w, Monad m) => MonadRWS r w s (Strict.RWST r w s m)
 instance MonadRWS r w s m => MonadRWS r w s (ExceptT e m)
 instance MonadRWS r w s m => MonadRWS r w s (IdentityT m)
 instance MonadRWS r w s m => MonadRWS r w s (MaybeT m)
+
+instance (MonadRWS r w s m, MonadRWS r w s n) => MonadRWS r w s (Product m n)

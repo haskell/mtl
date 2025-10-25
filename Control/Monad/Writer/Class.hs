@@ -48,6 +48,7 @@ import qualified Control.Monad.Trans.Accum as Accum
 import qualified Control.Monad.Trans.RWS.CPS as CPSRWS
 import qualified Control.Monad.Trans.Writer.CPS as CPS
 import Control.Monad.Trans.Class (lift)
+import Data.Functor.Product (Product(..))
 
 -- ---------------------------------------------------------------------------
 -- MonadWriter class
@@ -205,3 +206,8 @@ instance
     tell   = lift . tell
     listen = Accum.liftListen listen
     pass   = Accum.liftPass pass
+
+instance (MonadWriter w m, MonadWriter w n) => MonadWriter w (Product m n) where
+    tell w = Pair (tell w) (tell w)
+    listen (Pair ma na) = Pair (listen ma) (listen na)
+    pass (Pair maf naf) = Pair (pass maf) (pass naf)

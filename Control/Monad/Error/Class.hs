@@ -74,6 +74,7 @@ import qualified Control.Monad.Trans.Writer.CPS as CPSWriter
 import Control.Monad.Trans.Class (lift)
 import Control.Exception (IOException, catch, ioError)
 import Control.Monad (Monad ((>>=), (>>)))
+import Data.Functor.Product (Product(..))
 import Data.Monoid (Monoid)
 import Prelude (Either (Left, Right), Maybe (Nothing), either, flip, (.), IO, pure, (<$>))
 
@@ -205,6 +206,13 @@ instance
   ) => MonadError e (AccumT w m) where
     throwError = lift . throwError
     catchError = Accum.liftCatch catchError
+
+instance (MonadError e m, MonadError e n) => MonadError e (Product m n) where
+    throwError e = Pair (throwError e) (throwError e)
+    catchError (Pair ma na) f = Pair (catchError ma (productFst . f)) (catchError na (productSnd . f))
+        where
+            productFst (Pair a _) = a
+            productSnd (Pair _ b) = b
 
 -- | 'MonadError' analogue to the 'Control.Exception.try' function.
 --
