@@ -194,6 +194,7 @@ instance MonadState s m => MonadState s (SelectT r m) where
     put = lift . put
     state = lift . state
 
+-- | @since 2.3.2
 instance (MonadState s m, MonadState s n) => MonadState s (Product m n) where
     get = Pair get get
     put s = Pair (put s) (put s)

@@ -1,3 +1,12 @@
+2.3.2 -- 2025-12-07
+-----
+* Add `Accum` monad.
+* Generalize `MonadAccum` instance for all `Monad m` underlying `AccumT`, not just `Identity`.
+* Allow building monokinded `ContT` if the compiler is MicroHs.
+* Fix an issue where `QuantifiedConstraints` in the definition of `liftCallCC` was was preventing building under certain conditions.
+* Add `Control.Monad.Class.onError`.
+* Add various instances for `Data.Functor.Product.Product`.
+
 2.3.1 -- 2022-09-10
 -----
 * Add `modifyError` to `Control.Monad.Error.Class`, and re-export from

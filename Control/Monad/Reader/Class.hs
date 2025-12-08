@@ -204,6 +204,7 @@ instance
       local f (runSelectT m (local (const r) . c))
     reader = lift . reader
 
+-- | @since 2.3.2
 instance (MonadReader r m, MonadReader r n) => MonadReader r (Product m n) where
     ask = Pair ask ask
     local f (Pair ma na) = Pair (local f ma) (local f na)

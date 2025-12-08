@@ -64,4 +64,5 @@ instance MonadRWS r w s m => MonadRWS r w s (ExceptT e m)
 instance MonadRWS r w s m => MonadRWS r w s (IdentityT m)
 instance MonadRWS r w s m => MonadRWS r w s (MaybeT m)
 
+-- | @since 2.3.2
 instance (MonadRWS r w s m, MonadRWS r w s n) => MonadRWS r w s (Product m n)
