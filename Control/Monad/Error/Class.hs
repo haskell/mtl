@@ -207,6 +207,7 @@ instance
     throwError = lift . throwError
     catchError = Accum.liftCatch catchError
 
+-- | @since 2.3.2
 instance (MonadError e m, MonadError e n) => MonadError e (Product m n) where
     throwError e = Pair (throwError e) (throwError e)
     catchError (Pair ma na) f = Pair (catchError ma (productFst . f)) (catchError na (productSnd . f))

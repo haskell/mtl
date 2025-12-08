@@ -1,4 +1,4 @@
-# `mtl` [![Hackage](https://img.shields.io/hackage/v/mtl.svg)](https://hackage.haskell.org/package/mtl) [![Build Status](https://travis-ci.org/haskell/mtl.svg)](https://travis-ci.org/haskell/mtl)
+# `mtl` [![Hackage](https://img.shields.io/hackage/v/mtl.svg)](https://hackage.haskell.org/package/mtl)
 
 MTL is a collection of monad classes, extending the `transformers`
 package, using functional dependencies for generic lifting of monadic

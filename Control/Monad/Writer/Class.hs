@@ -207,6 +207,7 @@ instance
     listen = Accum.liftListen listen
     pass   = Accum.liftPass pass
 
+-- | @since 2.3.2
 instance (MonadWriter w m, MonadWriter w n) => MonadWriter w (Product m n) where
     writer aw           = Pair (writer aw) (writer aw)
     tell w              = Pair (tell w) (tell w)
