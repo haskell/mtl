@@ -1,3 +1,7 @@
+Unreleased
+-----
+* Remove `Monoid` constraint from `MonadState` instance of `CPS.WriterT`
+
 2.3.2 -- 2025-12-07
 -----
 * Add `Accum` monad.
