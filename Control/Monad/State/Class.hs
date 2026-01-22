@@ -164,7 +164,7 @@ instance MonadState s m => MonadState s (ReaderT r m) where
     state = lift . state
 
 -- | @since 2.3
-instance (Monoid w, MonadState s m) => MonadState s (CPS.WriterT w m) where
+instance (MonadState s m) => MonadState s (CPS.WriterT w m) where
     get = lift get
     put = lift . put
     state = lift . state
