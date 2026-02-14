@@ -155,7 +155,7 @@ documentation on Hackage](https://hackage.haskell.org/package/mtl).
 ## Resources
 
 * [`mtl` on Hackage](http://hackage.haskell.org/package/mtl)
-* The [Monad Transformers](http://dev.stephendiehl.com/hask/#monad-transformers)
+* The [Monad Transformers](https://sdiehl.github.io/wiwinwlh/#monad-transformers)
   chapter in "What I Wish I Knew When Learning Haskell".
 * References:
     - This package is inspired by the paper _Functional Programming
