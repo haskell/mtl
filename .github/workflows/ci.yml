@@ -1,11 +1,20 @@
 name: CI
 
-# Trigger the workflow on push or pull request, but only for the main branch
 on:
-  pull_request:
-    branches: [ "master" ]
   push:
-    branches: [ "master" ]
+    branches:
+      - master
+      - ci/*
+  pull_request:
+    branches:
+      - master
+      - ci/*
+  merge_group:
+    branches:
+      - master
+      - ci/*
+  workflow_dispatch:
+    {}
 
 jobs:
   ghc:
