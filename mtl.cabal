@@ -24,7 +24,7 @@ extra-source-files:
 extra-doc-files:
   CHANGELOG.markdown
 
-tested-with: GHC ==8.10 || ==9.2 || ==9.8 || ==9.10 || ==9.12, MHS ==0.14.15.0
+tested-with: GHC ==8.6.5 || ==8.8.4 || ==8.10.7 || ==9.0.2 || ==9.2.8 || ==9.4.8 || ==9.6.7 || ==9.8.4 || ==9.10.3 || == 9.12.4 || ==9.14.1, MHS ==0.14.15.0
 
 source-repository head
   type: git
