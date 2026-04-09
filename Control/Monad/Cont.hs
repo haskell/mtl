@@ -127,21 +127,21 @@ pattern for their usage.
 
 Here is what this example does:
 
-(1) Runs an anonymous 'Cont' block and extracts value from it with
+1. Runs an anonymous 'Cont' block and extracts value from it with
 @(\`runCont\` id)@. Here @id@ is the continuation, passed to the @Cont@ block.
 
-(1) Binds @response@ to the result of the following 'Control.Monad.Cont.Class.callCC' block,
+2. Binds @response@ to the result of the following 'Control.Monad.Cont.Class.callCC' block,
 binds @exit@ to the continuation.
 
-(1) Validates @name@.
+3. Validates @name@.
 This approach illustrates advantage of using 'Control.Monad.Cont.Class.callCC' over @return@.
 We pass the continuation to @validateName@,
 and interrupt execution of the @Cont@ block from /inside/ of @validateName@.
 
-(1) Returns the welcome message from the 'Control.Monad.Cont.Class.callCC' block.
+4. Returns the welcome message from the 'Control.Monad.Cont.Class.callCC' block.
 This line is not executed if @validateName@ fails.
 
-(1) Returns from the @Cont@ block.
+5. Returns from the @Cont@ block.
 -}
 
 {-$ContTExample
