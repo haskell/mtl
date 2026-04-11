@@ -7,79 +7,192 @@ on:
   push:
     branches: [ "master" ]
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
-  ghc:
+  # this action can extract the Cabal 'tested-with' field
+  tested-with-matrix:
+    name: "Generate matrix from cabal"
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract the tested GHC versions
+        id: set-matrix
+        uses: kleidukos/get-tested@v0.1.9.1
+        with:
+          cabal-file: mtl.cabal
+          ubuntu-version: "latest"
+          macos-version: "latest"
+          windows-version: "latest"
+          version: 0.1.9.1
+
+  # workaround for https://github.com/Kleidukos/get-tested/issues/93
+  # we only want the GHC versions, not the whole matrix
+  tested-with-ghcs:
+    name: "Extract GHC versions from tested-with-matrix"
+    runs-on: ubuntu-latest
+    needs: ["tested-with-matrix"]
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+
+    steps:
+    - name: Generate output
+      id: set-matrix
+      run: |
+        set -euo pipefail
+
+        # input might be something like:
+        #   {"include":[{"ghc":"8.10","newest":false,"oldest":true ,"os":"macos-latest"}
+        #              ,{"ghc":"9.2" ,"newest":false,"oldest":false,"os":"macos-latest"}
+        #              ]}
+        # and we want:
+        #   ["8.10","9.2"]
+        ghc_versions=$(echo '${{ needs.tested-with-matrix.outputs.matrix }}' | jq -c -r '[.include[].ghc] | unique')
+
+        echo "${ghc_versions}"
+        echo matrix="${ghc_versions}" >> "$GITHUB_OUTPUT"
+
+  lts-matrix:
+    name: "Generate matrix of last n Stackage LTSes"
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+
+    steps:
+    - name: Generate output
+      id: set-matrix
+      run: |
+        STACK_TEST_NUM=4
+        set -euo pipefail
+
+        # the input is something like this:
+        #   {"lts":"lts-24.36", "lts-0":"lts-0.7", "lts-1":"lts-1.15", "nightly":"nightly-2026-04-10"}
+        # and we want the last n LTS, sorted and deduplicated without nightlies:
+        #   ["lts-0.7", "lts-1.15", "lts-24.36"]
+        lts_versions=$(curl -s https://www.stackage.org/download/snapshots.json | jq -c -r --arg n "$STACK_TEST_NUM" '
+          [.[] | select(startswith("nightly") | not)]
+          | unique
+          | sort_by(split("-")[1] | split(".") | map(tonumber))
+          | .[-(($n | tonumber)):]
+        ')
+        echo "${lts_versions}"
+        echo matrix="${lts_versions}" >> "$GITHUB_OUTPUT"
+
+  cabal:
     name: "GHC ${{ matrix.ghc }} on ${{ matrix.os }}"
     runs-on: ${{ matrix.os }}
+    needs: ["tested-with-ghcs"]
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        ghc: ['8.10', '9.2', '9.8', '9.10', '9.12']
+        ghc: ${{ fromJSON(needs.tested-with-ghcs.outputs.matrix) }}
         exclude:
           - os: macos-latest
             ghc: '8.10'  # ghc-8.10 does not support ARM
       fail-fast: false
     steps:
       - name: Checkout base repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Haskell
         id: setup-haskell
-        uses: haskell-actions/setup@v2
+        uses: haskell/ghcup-setup@v1
         with:
-          ghc-version: ${{ matrix.ghc }}
-          cabal-version: 'latest'
+          ghc: ${{ matrix.ghc }}
+          cabal: 'latest'
 
-      - name: Configure
-        run: cabal new-configure
+      - name: Cabal update
+        run: |
+          cabal update
 
-      - name: Freeze
-        run: cabal freeze
-
-      - name: Cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.setup-haskell.outputs.cabal-store }}
-          key: ${{ runner.os }}-${{ matrix.ghc }}-${{ hashFiles('cabal.project.freeze') }}
-          restore-keys: ${{ runner.os }}-${{ matrix.ghc }}-
+      - name: Prepare build dir
+        run: |
+          cabal sdist -z -o .
+          cabal get mtl-*.tar.gz
+          rm -f cabal.project
 
       - name: Build
-        run: cabal build
+        run: |
+          cd mtl-*/
+          cabal build --ghc-options='-Werror' all
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.os }}-${{ matrix.ghc }}-plan.json
+          path: mtl-*/dist-newstyle/cache/plan.json
+
+#       - name: Test
+#         run: |
+#           cabal --enable-tests --test-show-details=direct all
+
+      - name: Haddock
+        run: |
+          cd mtl-*/
+          cabal haddock all
+
+      - name: Cabal check
+        run: |
+          cd mtl-*/
+          cabal check
+
+  stack:
+    name: "LTS ${{ matrix.lts }} on ${{ matrix.os }}"
+    runs-on: ${{ matrix.os }}
+    needs: ["lts-matrix"]
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        lts: ${{ fromJSON(needs.lts-matrix.outputs.matrix) }}
+      fail-fast: false
+    steps:
+      - name: Checkout base repo
+        uses: actions/checkout@v6
+
+      - name: Set up Haskell
+        id: setup-haskell
+        uses: haskell/ghcup-setup@v1
+        with:
+          stack: 'latest'
+          stack-hook: false
+
+      - name: Build
+        run: |
+          [ ! -e stack.yaml ]
+          # create stack.yaml
+          stack init --resolver=${{ matrix.lts }}
+          # build
+          stack build
 
   mhs:
+    name: "MicroHS ${{ matrix.mhs }}"
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        mhs: ["0.15.4.0"]
+      fail-fast: false
     steps:
       - name: checkout mhs repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: augustss/MicroHs
-          ref: v0.14.15.0
+          ref: v${{ matrix.mhs }}
           path: mhs
 
       - name: make and install mhs
         run: |
           cd mhs
           make minstall
-
-      - name: checkout transformers repo
-        uses: actions/checkout@v4
-        with:
-          repository: augustss/transformers
-          path: transformers
-
-      - name: compile and install transformers package
-        run: |
-          PATH="$HOME/.mcabal/bin:$PATH"
-          cd transformers
-          mcabal install
+          echo "$HOME/.mcabal/bin" >> "$GITHUB_PATH"
 
       - name: checkout mtl repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: mtl
 
       - name: compile and install mtl package
         run: |
-          PATH="$HOME/.mcabal/bin:$PATH"
           cd mtl
-          mcabal install
+          mcabal -r install
