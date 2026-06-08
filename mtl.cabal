@@ -24,7 +24,9 @@ extra-source-files:
 extra-doc-files:
   CHANGELOG.markdown
 
-tested-with: GHC ==8.10 || ==9.2 || ==9.8 || ==9.10 || ==9.12, MHS ==0.14.15.0
+tested-with:
+  , GHC ==8.10 || ==9.2 || ==9.8 || ==9.10 || ==9.12 || ==9.14
+  , MHS ==0.16.0.0
 
 source-repository head
   type: git
@@ -67,3 +69,10 @@ Library
     -Wmissing-export-lists
 
   default-language: Haskell2010
+
+test-suite MonadCont
+  type: exitcode-stdio-1.0
+  hs-source-dirs: test
+  main-is: MonadCont.hs
+  default-language: Haskell2010
+  build-depends: base, mtl, transformers

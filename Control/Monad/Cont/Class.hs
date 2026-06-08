@@ -114,12 +114,7 @@ class Monad m => MonadCont (m :: Type -> Type) where
     {-# MINIMAL callCC #-}
 
 -- | @since 2.3.1
-#ifdef __MHS__
--- The ContT type is not polykinded with mhs.
 instance MonadCont (ContT r m) where
-#else
-instance forall k (r :: k) (m :: (k -> Type)) . MonadCont (ContT r m) where
-#endif
     callCC = ContT.callCC
 
 -- ---------------------------------------------------------------------------
