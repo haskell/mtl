@@ -1,6 +1,7 @@
 dist
 dist-boot
 dist-install
+dist-mcabal
 dist-newstyle
 ghc.mk
 GNUmakefile
@@ -20,6 +21,7 @@ cabal.sandbox.config
 *.hp
 *.eventlog
 .stack-work/
+stack.yaml*
 cabal.project.local*
 .HTF/
 .ghc.environment.*
